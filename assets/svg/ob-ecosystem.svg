@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 390" role="img" aria-labelledby="ob-title ob-desc" font-family="-apple-system, Segoe UI, Roboto, sans-serif">
+  <title id="ob-title">The UK Open Banking ecosystem</title>
+  <desc id="ob-desc">The OB Directory onboards TPPs (AISP, PISP, CBPII) and the ASPSP. TPPs call the ASPSP's APIs; the PSU authorises access at the ASPSP.</desc>
+  <defs>
+    <marker id="ob-api" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#5BC8C0"/></marker>
+    <marker id="ob-trust" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#F5A524"/></marker>
+    <marker id="ob-psu" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#FF6B1A"/></marker>
+  </defs>
+
+  <!-- Directory (trust anchor) -->
+  <rect x="332" y="14" width="176" height="58" rx="11" fill="#2A1B12" stroke="#F5A524" stroke-width="1.6"/>
+  <text x="420" y="40" text-anchor="middle" fill="#F5A524" font-size="14" font-weight="700">OB Directory</text>
+  <text x="420" y="58" text-anchor="middle" fill="#8A93A0" font-size="10.5">trust anchor · SSAs · eIDAS/OB certs</text>
+
+  <!-- trust links (gold dashed) -->
+  <g fill="none" stroke="#F5A524" stroke-width="1.6" stroke-dasharray="5 5">
+    <path d="M340 58 C 220 80, 150 90, 110 118" marker-end="url(#ob-trust)"/>
+    <path d="M500 58 C 640 80, 700 110, 712 146" marker-end="url(#ob-trust)"/>
+  </g>
+  <text x="196" y="92" fill="#8A93A0" font-size="10.5" transform="rotate(-12 196 92)">onboards TPPs</text>
+  <text x="612" y="96" fill="#8A93A0" font-size="10.5" transform="rotate(16 612 96)">registers ASPSP</text>
+
+  <!-- TPP roles (left) -->
+  <g>
+    <rect x="24" y="120" width="172" height="56" rx="10" fill="#20242D" stroke="#383F4B"/>
+    <text x="110" y="144" text-anchor="middle" fill="#ECEDEE" font-size="13" font-weight="700">AISP</text>
+    <text x="110" y="162" text-anchor="middle" fill="#8A93A0" font-size="10.5">account information</text>
+  </g>
+  <g>
+    <rect x="24" y="190" width="172" height="56" rx="10" fill="#20242D" stroke="#383F4B"/>
+    <text x="110" y="214" text-anchor="middle" fill="#ECEDEE" font-size="13" font-weight="700">PISP</text>
+    <text x="110" y="232" text-anchor="middle" fill="#8A93A0" font-size="10.5">payment initiation</text>
+  </g>
+  <g>
+    <rect x="24" y="260" width="172" height="56" rx="10" fill="#20242D" stroke="#383F4B"/>
+    <text x="110" y="284" text-anchor="middle" fill="#ECEDEE" font-size="13" font-weight="700">CBPII</text>
+    <text x="110" y="302" text-anchor="middle" fill="#8A93A0" font-size="10.5">confirmation of funds</text>
+  </g>
+  <text x="110" y="338" text-anchor="middle" fill="#FF9457" font-size="11" font-weight="600">Third-party providers (TPPs)</text>
+
+  <!-- ASPSP (right) — your build -->
+  <rect x="604" y="148" width="212" height="132" rx="13" fill="#1B2630" stroke="#5BC8C0" stroke-width="1.6"/>
+  <text x="710" y="178" text-anchor="middle" fill="#5BC8C0" font-size="14" font-weight="700">ASPSP</text>
+  <text x="710" y="196" text-anchor="middle" fill="#8A93A0" font-size="10.5">the bank — your build</text>
+  <rect x="624" y="210" width="172" height="54" rx="8" fill="#14161B" stroke="#2C313B"/>
+  <text x="710" y="231" text-anchor="middle" fill="#FFC14D" font-size="11.5" font-weight="700">Apigee X gateway</text>
+  <text x="710" y="248" text-anchor="middle" fill="#8A93A0" font-size="10">AIS · PIS · CoF APIs (FAPI)</text>
+
+  <!-- API calls (teal) -->
+  <g fill="none" stroke="#5BC8C0" stroke-width="2" marker-end="url(#ob-api)">
+    <path d="M196 148 C 360 150, 470 168, 602 188"/>
+    <path d="M196 218 H600"/>
+    <path d="M196 288 C 380 280, 470 268, 602 250"/>
+  </g>
+  <text x="392" y="150" text-anchor="middle" fill="#5BC8C0" font-size="10.5">accounts · balances · transactions</text>
+  <text x="392" y="210" text-anchor="middle" fill="#5BC8C0" font-size="10.5">domestic payments</text>
+  <text x="392" y="300" text-anchor="middle" fill="#5BC8C0" font-size="10.5">funds confirmation</text>
+
+  <!-- PSU -->
+  <rect x="356" y="330" width="160" height="52" rx="10" fill="#20242D" stroke="#383F4B"/>
+  <text x="436" y="352" text-anchor="middle" fill="#ECEDEE" font-size="13" font-weight="700">PSU</text>
+  <text x="436" y="370" text-anchor="middle" fill="#8A93A0" font-size="10.5">customer / account holder</text>
+  <path d="M516 348 C 600 340, 660 310, 690 282" fill="none" stroke="#FF6B1A" stroke-width="1.8" marker-end="url(#ob-psu)"/>
+  <text x="618" y="330" fill="#FF9457" font-size="10.5" transform="rotate(-22 618 330)">authenticates &amp; consents</text>
+</svg>

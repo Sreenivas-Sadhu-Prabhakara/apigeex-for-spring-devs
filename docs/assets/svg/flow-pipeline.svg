@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 340" role="img" aria-labelledby="fp-title fp-desc" font-family="-apple-system, Segoe UI, Roboto, sans-serif">
+  <title id="fp-title">The Apigee request/response flow — four attach points</title>
+  <desc id="fp-desc">A request travels Client to ProxyEndpoint to TargetEndpoint to Backend; the response travels back, giving four symmetric points where policies attach.</desc>
+  <defs>
+    <marker id="fp-req" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#5BC8C0"/></marker>
+    <marker id="fp-res" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#FF6B1A"/></marker>
+    <radialGradient id="fp-sun" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFD27A"/><stop offset="55%" stop-color="#F5A524"/><stop offset="100%" stop-color="#FF6B1A"/>
+    </radialGradient>
+  </defs>
+
+  <!-- proxy container -->
+  <rect x="150" y="54" width="540" height="232" rx="16" fill="rgba(245,165,36,0.04)" stroke="#F5A524" stroke-width="1.5" stroke-dasharray="6 5"/>
+  <text x="420" y="78" text-anchor="middle" fill="#F5A524" font-size="13" font-weight="700" letter-spacing=".04em">API PROXY BUNDLE</text>
+
+  <!-- endpoints -->
+  <rect x="172" y="96" width="222" height="150" rx="11" fill="#20242D" stroke="#2C313B"/>
+  <text x="283" y="120" text-anchor="middle" fill="#FFC14D" font-size="13" font-weight="700">ProxyEndpoint</text>
+  <text x="283" y="138" text-anchor="middle" fill="#8A93A0" font-size="11">faces the client</text>
+
+  <rect x="446" y="96" width="222" height="150" rx="11" fill="#20242D" stroke="#2C313B"/>
+  <text x="557" y="120" text-anchor="middle" fill="#FFC14D" font-size="13" font-weight="700">TargetEndpoint</text>
+  <text x="557" y="138" text-anchor="middle" fill="#8A93A0" font-size="11">faces the backend</text>
+
+  <!-- client + backend -->
+  <rect x="20" y="132" width="104" height="76" rx="11" fill="#1B1F27" stroke="#383F4B"/>
+  <text x="72" y="166" text-anchor="middle" fill="#ECEDEE" font-size="13" font-weight="600">Client</text>
+  <text x="72" y="184" text-anchor="middle" fill="#8A93A0" font-size="11">app / TPP</text>
+
+  <rect x="716" y="132" width="104" height="76" rx="11" fill="#1B1F27" stroke="#383F4B"/>
+  <text x="768" y="166" text-anchor="middle" fill="#ECEDEE" font-size="13" font-weight="600">Backend</text>
+  <text x="768" y="184" text-anchor="middle" fill="#8A93A0" font-size="11">target service</text>
+
+  <!-- request path (teal, top) -->
+  <path d="M124 152 H168" fill="none" stroke="#5BC8C0" stroke-width="2.2" marker-end="url(#fp-req)"/>
+  <path d="M394 152 H442" fill="none" stroke="#5BC8C0" stroke-width="2.2" marker-end="url(#fp-req)"/>
+  <path d="M668 152 H712" fill="none" stroke="#5BC8C0" stroke-width="2.2" marker-end="url(#fp-req)"/>
+
+  <!-- response path (ember, bottom) -->
+  <path d="M712 192 H668" fill="none" stroke="#FF6B1A" stroke-width="2.2" marker-end="url(#fp-res)"/>
+  <path d="M442 192 H394" fill="none" stroke="#FF6B1A" stroke-width="2.2" marker-end="url(#fp-res)"/>
+  <path d="M168 192 H124" fill="none" stroke="#FF6B1A" stroke-width="2.2" marker-end="url(#fp-res)"/>
+
+  <!-- attach-point badges -->
+  <g font-size="13" font-weight="700" text-anchor="middle">
+    <circle cx="200" cy="152" r="13" fill="url(#fp-sun)"/><text x="200" y="157" fill="#14161B">1</text>
+    <circle cx="474" cy="152" r="13" fill="url(#fp-sun)"/><text x="474" y="157" fill="#14161B">2</text>
+    <circle cx="640" cy="192" r="13" fill="url(#fp-sun)"/><text x="640" y="197" fill="#14161B">3</text>
+    <circle cx="200" cy="192" r="13" fill="url(#fp-sun)"/><text x="200" y="197" fill="#14161B">4</text>
+  </g>
+
+  <!-- legend -->
+  <g font-size="11.5">
+    <rect x="150" y="300" width="20" height="3" fill="#5BC8C0"/>
+    <text x="178" y="304" fill="#8A93A0">request flow</text>
+    <rect x="280" y="300" width="20" height="3" fill="#FF6B1A"/>
+    <text x="308" y="304" fill="#8A93A0">response flow</text>
+    <text x="430" y="304" fill="#8A93A0">1 Proxy req · 2 Target req · 3 Target resp · 4 Proxy resp</text>
+  </g>
+</svg>

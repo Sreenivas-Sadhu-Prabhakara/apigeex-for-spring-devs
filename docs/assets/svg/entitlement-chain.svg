@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 210" role="img" aria-labelledby="ec-title ec-desc" font-family="-apple-system, Segoe UI, Roboto, sans-serif">
+  <title id="ec-title">The Apigee entitlement chain</title>
+  <desc id="ec-desc">A Developer owns an App; the App is granted an API Product; the Product exposes specific Proxy operations; the App's credentials mint an access token.</desc>
+  <defs>
+    <marker id="ec-arr" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#F5A524"/></marker>
+  </defs>
+
+  <!-- connectors -->
+  <g fill="none" stroke="#F5A524" stroke-width="2.2" marker-end="url(#ec-arr)">
+    <path d="M150 110 H176"/>
+    <path d="M320 110 H346"/>
+    <path d="M490 110 H516"/>
+    <path d="M660 110 H686"/>
+  </g>
+  <g font-size="10.5" fill="#8A93A0" text-anchor="middle">
+    <text x="163" y="100">owns</text>
+    <text x="333" y="100">granted</text>
+    <text x="503" y="100">exposes</text>
+    <text x="673" y="100">mints</text>
+  </g>
+
+  <!-- nodes -->
+  <g>
+    <rect x="10" y="66" width="140" height="88" rx="11" fill="#20242D" stroke="#383F4B"/>
+    <text x="80" y="58" text-anchor="middle" fill="#5BC8C0" font-size="10.5" font-weight="700" letter-spacing=".06em">WHO</text>
+    <text x="80" y="106" text-anchor="middle" fill="#ECEDEE" font-size="14" font-weight="700">Developer</text>
+    <text x="80" y="126" text-anchor="middle" fill="#8A93A0" font-size="10.5">person / TPP org</text>
+  </g>
+  <g>
+    <rect x="180" y="66" width="140" height="88" rx="11" fill="#20242D" stroke="#383F4B"/>
+    <text x="250" y="58" text-anchor="middle" fill="#5BC8C0" font-size="10.5" font-weight="700" letter-spacing=".06em">CLIENT</text>
+    <text x="250" y="102" text-anchor="middle" fill="#ECEDEE" font-size="14" font-weight="700">App</text>
+    <text x="250" y="121" text-anchor="middle" fill="#8A93A0" font-size="10.5">consumerKey</text>
+    <text x="250" y="135" text-anchor="middle" fill="#8A93A0" font-size="10.5">+ secret</text>
+  </g>
+  <g>
+    <rect x="350" y="66" width="140" height="88" rx="11" fill="#2A1B12" stroke="#F5A524" stroke-width="1.6"/>
+    <text x="420" y="58" text-anchor="middle" fill="#F5A524" font-size="10.5" font-weight="700" letter-spacing=".06em">UNIT OF ACCESS</text>
+    <text x="420" y="100" text-anchor="middle" fill="#FFC14D" font-size="14" font-weight="700">API Product</text>
+    <text x="420" y="119" text-anchor="middle" fill="#8A93A0" font-size="10.5">ops · quota</text>
+    <text x="420" y="133" text-anchor="middle" fill="#8A93A0" font-size="10.5">scopes · envs</text>
+  </g>
+  <g>
+    <rect x="520" y="66" width="140" height="88" rx="11" fill="#20242D" stroke="#383F4B"/>
+    <text x="590" y="58" text-anchor="middle" fill="#5BC8C0" font-size="10.5" font-weight="700" letter-spacing=".06em">RUNTIME</text>
+    <text x="590" y="102" text-anchor="middle" fill="#ECEDEE" font-size="14" font-weight="700">API Proxy</text>
+    <text x="590" y="121" text-anchor="middle" fill="#8A93A0" font-size="10.5">paths + methods</text>
+  </g>
+  <g>
+    <rect x="690" y="66" width="140" height="88" rx="11" fill="#241a0f" stroke="#FF6B1A" stroke-width="1.6"/>
+    <text x="760" y="58" text-anchor="middle" fill="#FF9457" font-size="10.5" font-weight="700" letter-spacing=".06em">CREDENTIAL</text>
+    <text x="760" y="100" text-anchor="middle" fill="#FF9457" font-size="14" font-weight="700">Token</text>
+    <text x="760" y="119" text-anchor="middle" fill="#8A93A0" font-size="10.5">API key or</text>
+    <text x="760" y="133" text-anchor="middle" fill="#8A93A0" font-size="10.5">OAuth bearer</text>
+  </g>
+
+  <text x="420" y="190" text-anchor="middle" fill="#8A93A0" font-size="11.5">An app never gets a proxy directly — it is granted a <tspan fill="#FFC14D" font-weight="700">product</tspan>, and the product decides what is reachable.</text>
+</svg>

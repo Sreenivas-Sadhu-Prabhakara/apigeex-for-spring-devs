@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="apolaki">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>3.5 TLS & mTLS: keystores, north- & south-bound · Apigee X for Spring Boot Developers</title>
+  <link rel="stylesheet" href="assets/pygments.css">
+  <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet" href="assets/widgets.css">
+</head>
+<body>
+  <div id="readingBar"></div>
+  <button id="navToggle" class="nav-toggle" aria-label="Toggle navigation">&#9776; Menu</button>
+  <div class="layout">
+    <nav class="sidebar" aria-label="Curriculum">
+<a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true"></span><span class="brand-text">Apigee&nbsp;X <em>for Spring devs</em></span></a>
+<div class="nav-progress"><div class="nav-progress-bar"><span id="navProgressFill"></span></div><span id="navProgressText" class="nav-progress-text">0 / 33 complete</span></div>
+<div class="nav-part">Part 1 — Foundations &amp; the Apigee mental model</div>
+<ul>
+<li data-session="1"><a href="session-01.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">1.1</span> <span class="seqtitle">What an API-gateway product actually is</span></a></li>
+<li data-session="2"><a href="session-02.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">1.2</span> <span class="seqtitle">Architecture &amp; your free evaluation org</span></a></li>
+<li data-session="3"><a href="session-03.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">1.3</span> <span class="seqtitle">Your first passthrough reverse proxy</span></a></li>
+<li data-session="4"><a href="session-04.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">1.4</span> <span class="seqtitle">Revisions, deploy &amp; rollback</span></a></li>
+<li data-session="5"><a href="session-05.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">1.5</span> <span class="seqtitle">The Trace tool is your gateway debugger</span></a></li>
+</ul>
+<div class="nav-part">Part 2 — Flow &amp; mediation engine</div>
+<ul>
+<li data-session="6"><a href="session-06.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">2.1</span> <span class="seqtitle">The flow model &amp; request/response symmetry</span></a></li>
+<li data-session="7"><a href="session-07.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">2.2</span> <span class="seqtitle">The message &amp; flow-variable model</span></a></li>
+<li data-session="8"><a href="session-08.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">2.3</span> <span class="seqtitle">Conditions, RouteRules &amp; conditional flows</span></a></li>
+<li data-session="9"><a href="session-09.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">2.4</span> <span class="seqtitle">AssignMessage &amp; ExtractVariables</span></a></li>
+<li data-session="10"><a href="session-10.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">2.5</span> <span class="seqtitle">JavaScript vs Java callouts: the trade-off</span></a></li>
+<li data-session="11"><a href="session-11.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">2.6</span> <span class="seqtitle">Quotas &amp; SpikeArrest: distributed and product-scoped</span></a></li>
+<li data-session="12"><a href="session-12.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">2.7</span> <span class="seqtitle">Caching vs KVM vs PropertySets: the three stores</span></a></li>
+</ul>
+<div class="nav-part">Part 3 — Security, identity &amp; API products</div>
+<ul>
+<li data-session="13"><a href="session-13.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">3.1</span> <span class="seqtitle">Threat protection, CORS &amp; data masking</span></a></li>
+<li data-session="14"><a href="session-14.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">3.2</span> <span class="seqtitle">API Products, Apps, Developers &amp; keys</span></a></li>
+<li data-session="15"><a href="session-15.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">3.3</span> <span class="seqtitle">OAuthV2 as a token server (client credentials)</span></a></li>
+<li data-session="16"><a href="session-16.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">3.4</span> <span class="seqtitle">Auth-code + PKCE &amp; JWT verification</span></a></li>
+<li class="active" data-session="17"><a href="session-17.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">3.5</span> <span class="seqtitle">TLS &amp; mTLS: keystores, north- &amp; south-bound</span></a></li>
+<li data-session="18"><a href="session-18.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">3.6</span> <span class="seqtitle">TargetServers, load balancing &amp; health</span></a></li>
+<li data-session="19"><a href="session-19.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">3.7</span> <span class="seqtitle">Shared flows, FlowHooks &amp; the fault taxonomy</span></a></li>
+</ul>
+<div class="nav-part">Part 4 — FAPI 1.0 Advanced &amp; the OB trust framework</div>
+<ul>
+<li data-session="20"><a href="session-20.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">4.1</span> <span class="seqtitle">The OB trust framework &amp; OBIE roles</span></a></li>
+<li data-session="21"><a href="session-21.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">4.2</span> <span class="seqtitle">The FAPI Advanced profile: what it requires</span></a></li>
+<li data-session="22"><a href="session-22.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">4.3</span> <span class="seqtitle">Implementing FAPI I: PAR, request objects &amp; client auth</span></a></li>
+<li data-session="23"><a href="session-23.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">4.4</span> <span class="seqtitle">Implementing FAPI II: mTLS-bound tokens &amp; introspection</span></a></li>
+</ul>
+<div class="nav-part">Part 5 — Building the UK Open Banking APIs</div>
+<ul>
+<li data-session="24"><a href="session-24.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">5.1</span> <span class="seqtitle">Dynamic Client Registration (DCR)</span></a></li>
+<li data-session="25"><a href="session-25.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">5.2</span> <span class="seqtitle">The account-access consent lifecycle</span></a></li>
+<li data-session="26"><a href="session-26.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">5.3</span> <span class="seqtitle">AISP reads: accounts, balances &amp; transactions</span></a></li>
+<li data-session="27"><a href="session-27.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">5.4</span> <span class="seqtitle">PISP payments &amp; idempotency</span></a></li>
+<li data-session="28"><a href="session-28.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">5.5</span> <span class="seqtitle">Confirmation of funds &amp; the end-to-end journey</span></a></li>
+</ul>
+<div class="nav-part">Part 6 — Operations, delivery &amp; observability</div>
+<ul>
+<li data-session="29"><a href="session-29.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">6.1</span> <span class="seqtitle">Environments, env groups &amp; hostnames</span></a></li>
+<li data-session="30"><a href="session-30.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">6.2</span> <span class="seqtitle">CI/CD &amp; config-as-code</span></a></li>
+<li data-session="31"><a href="session-31.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">6.3</span> <span class="seqtitle">Observability, analytics &amp; Advanced API Security</span></a></li>
+<li data-session="32"><a href="session-32.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">6.4</span> <span class="seqtitle">Productisation, monetization &amp; API hub</span></a></li>
+</ul>
+<div class="nav-part">Part 7 — Capstone</div>
+<ul>
+<li data-session="33"><a href="session-33.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">7.1</span> <span class="seqtitle">Capstone: a production-grade OB platform &amp; go-live review</span></a></li>
+</ul>
+</nav>
+    <main class="content" data-session="17">
+      <div class="crumbs"><span class="crumb-part">Part 3 — Security, identity &amp; API products</span><span class="crumb-sep">·</span><span class="crumb-code">Session 3.5</span><span class="crumb-sep">·</span><span class="crumb-min">~55 min</span></div><div class="builds-on"><span class="builds-on-tag">Builds on</span> <a href="session-16.html">3.4 · Auth-code + PKCE &amp; JWT verification</a></div><h1 id="35-tls-mtls-keystores-north-south-bound">3.5 — TLS &amp; mTLS: keystores, north- &amp; south-bound</h1>
+<div class="admonition bottomline">
+<p class="admonition-title">Bottom line</p>
+<p>Every session so far secured the <em>message</em> — keys, tokens, JWTs. This one secures the <em>pipe</em>. A proxy has <strong>two edges</strong>, and each can run TLS independently: <strong>north-bound</strong> (client ⇄ Apigee) and <strong>south-bound</strong> (Apigee ⇄ backend). One-way TLS proves the <em>server's</em> identity; <strong>mutual TLS (mTLS)</strong> also proves the <em>client's</em>, using certificates held in <strong>keystores</strong> (your private key + cert) and <strong>truststores</strong> (the peer/CA certs you trust). By the end you can stand up both stores, configure south-bound mTLS in the TargetEndpoint's <code>&lt;SSLInfo&gt;</code>, and reference them so a cert rotation never needs a redeploy.</p>
+</div>
+<h2 id="why-this-exists">Why this exists</h2>
+<p>In a Spring service you've configured each edge separately and probably never thought of them as a pair. The <em>inbound</em> edge is <code>server.ssl.*</code> — a keystore holding your service's private key and certificate, so clients get an HTTPS endpoint. The <em>outbound</em> edge is whatever your HTTP client trusts — a <code>RestTemplate</code>/<code>WebClient</code> built over an <code>SSLContext</code> with a custom truststore, so it'll talk to a backend with a private CA. Two different config blocks, two different mental models, and mutual TLS — where you <em>also</em> present a client cert outbound — was usually a fiddly <code>KeyManagerFactory</code> you set up once and feared touching.</p>
+<p>Apigee makes both edges first-class and symmetric, because a gateway sits in the middle of two TLS conversations at once. North-bound, it is the <em>server</em> a client connects to (and optionally the <em>verifier</em> of the client's cert). South-bound, it is the <em>client</em> connecting to your backend (and optionally the <em>presenter</em> of a client cert the backend verifies). Same TLS primitives, mirror-image roles. Getting the roles straight — who proves identity to whom — is the entire skill here.</p>
+<p>The reason mTLS matters for Open Banking is non-negotiable: FAPI 1.0 Advanced <strong>requires</strong> mutual TLS between the TPP and the API. The client certificate isn't just transport security; in 4.4 the access token gets <em>bound</em> to it, so a stolen bearer token is useless without the matching private key. So the certificate plumbing you build here is the foundation the later token-binding work stands on.</p>
+<p>Finally, <strong>references</strong>. A keystore in Apigee is immutable once created — you can't edit a cert in place. To rotate without downtime you create a <em>new</em> keystore, then repoint a <strong>reference</strong> (a named, mutable pointer) at it. Your <code>&lt;SSLInfo&gt;</code> points at the reference, not the keystore, so rotation is a one-line control-plane update with no proxy redeploy.</p>
+<div class="admonition bridge">
+<p class="admonition-title">Spring Boot bridge</p>
+<p>You've configured each of these edges in Spring; Apigee just names them and puts both under one roof.</p>
+<table>
+<thead>
+<tr>
+<th>Spring SSL config</th>
+<th>Apigee X equivalent</th>
+<th>Edge</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>server.ssl.key-store</code> (your private key + cert)</td>
+<td>env-group <strong>keystore</strong> at the host</td>
+<td>north-bound (server)</td>
+</tr>
+<tr>
+<td><code>server.ssl.client-auth=need</code></td>
+<td>north-bound <strong>mTLS</strong> (client-cert validation)</td>
+<td>north-bound (mutual)</td>
+</tr>
+<tr>
+<td><code>WebClient</code> over an <code>SSLContext</code> <strong>truststore</strong></td>
+<td>TargetEndpoint <code>&lt;SSLInfo&gt;</code> <code>&lt;TrustStore&gt;</code></td>
+<td>south-bound (verify backend)</td>
+</tr>
+<tr>
+<td><code>KeyManagerFactory</code> presenting a client cert</td>
+<td>TargetEndpoint <code>&lt;SSLInfo&gt;</code> <code>&lt;KeyStore&gt;</code>+<code>&lt;KeyAlias&gt;</code> + <code>&lt;ClientAuthEnabled&gt;</code></td>
+<td>south-bound (mutual)</td>
+</tr>
+<tr>
+<td>rebuilding the <code>SSLContext</code> to rotate a cert</td>
+<td>repoint a keystore <strong>reference</strong></td>
+<td>both</td>
+</tr>
+</tbody>
+</table>
+<p>The intuition "inbound keystore, outbound truststore" is exactly right. Apigee's twist is that <em>outbound</em> can also carry a keystore (the client cert it presents) and <em>inbound</em> can also carry a truststore (the client certs it accepts) — both edges can be mutual.</p>
+</div>
+<div class="admonition breaks">
+<p class="admonition-title">Where the analogy breaks</p>
+<p>Two things don't transfer. First, <strong>north-bound TLS is terminated at the host, not in the proxy.</strong> In Spring, <code>server.ssl</code> lives in the same app as your controllers, so it feels like one thing. In Apigee, the listener cert and north-bound mTLS are configured on the <strong>environment group / host alias</strong> — platform config <em>outside</em> any proxy bundle — while only the <em>south-bound</em> <code>&lt;SSLInfo&gt;</code> lives in the proxy XML. Don't go looking for the inbound keystore in <code>default.xml</code>; it isn't there. Second, <strong>keystores are immutable.</strong> There is no "edit the cert." A Spring habit of mutating a keystore file and restarting has no analogue — you create a new keystore and move a reference. Treat keystores as append-only and references as the only mutable handle.</p>
+</div>
+<h2 id="the-concept">The concept</h2>
+<p>Two edges, two TLS conversations, mirror-image roles. North-bound, Apigee is the server (and optionally validates the client's cert). South-bound, Apigee is the client (and optionally presents its own cert to the backend). Each side has a place for a keystore (what <em>I</em> present) and a truststore (whose certs <em>I</em> trust).</p>
+<pre class="mermaid">flowchart LR
+  subgraph CLIENT[&quot;TPP client&quot;]
+    CK[&quot;client keystore&lt;br/&gt;(its cert + key)&quot;]
+  end
+  subgraph APIGEE[&quot;Apigee proxy&quot;]
+    direction TB
+    NB[&quot;North-bound listener&lt;br/&gt;&lt;b&gt;env-group host&lt;/b&gt;&lt;br/&gt;server keystore + client truststore&quot;]
+    SB[&quot;South-bound &amp;lt;SSLInfo&amp;gt;&lt;br/&gt;&lt;b&gt;TargetEndpoint XML&lt;/b&gt;&lt;br/&gt;client keystore + backend truststore&quot;]
+    NB --&gt; SB
+  end
+  subgraph BACKEND[&quot;Spring backend&quot;]
+    BK[&quot;server keystore&lt;br/&gt;(its cert + key)&quot;]
+  end
+  CK -- &quot;mTLS: presents client cert&quot; --&gt; NB
+  NB -- &quot;one-way: presents server cert&quot; --&gt; CK
+  SB -- &quot;mTLS: presents client cert&quot; --&gt; BACKEND
+  BACKEND -- &quot;one-way: presents server cert&quot; --&gt; SB</pre>
+<p>Read it edge by edge. <strong>North-bound</strong> (left): the env-group host holds the <em>server</em> keystore (the cert clients see) and, for mTLS, a <em>truststore</em> of CA/client certs it will accept — <code>ClientAuthEnabled</code> at the host level. <strong>South-bound</strong> (right): the TargetEndpoint's <code>&lt;SSLInfo&gt;</code> holds a <em>truststore</em> (to verify the backend's server cert) and, for mTLS, a <em>keystore</em> + <code>&lt;KeyAlias&gt;</code> (the client cert Apigee presents) with <code>&lt;ClientAuthEnabled&gt;true</code>. The four certificate slots — two keystores, two truststores — are the whole picture; everything else is wiring.</p>
+<p>The south-bound <code>&lt;SSLInfo&gt;</code> block is the one that lives in your proxy bundle. Its knobs:</p>
+<ul>
+<li><code>&lt;Enabled&gt;true&lt;/Enabled&gt;</code> — turn TLS on for this target (required for any <code>https://</code> URL).</li>
+<li><code>&lt;Enforce&gt;true&lt;/Enforce&gt;</code> — fail the handshake on cert problems instead of silently downgrading; always set this in production.</li>
+<li><code>&lt;TrustStore&gt;</code> — the store of CA/server certs Apigee trusts to verify the <em>backend's</em> server certificate.</li>
+<li><code>&lt;ClientAuthEnabled&gt;true&lt;/ClientAuthEnabled&gt;</code> + <code>&lt;KeyStore&gt;</code> + <code>&lt;KeyAlias&gt;</code> — present <em>our</em> client cert for <strong>mTLS</strong>.</li>
+</ul>
+<h2 id="hands-on-lab">Hands-on lab</h2>
+<div class="lab">
+<h4 id="lab-south-bound-mtls-to-a-backend-via-references">Lab — south-bound mTLS to a backend, via references</h4>
+<p><strong>Prereqs:</strong> <code>$ORG</code>, <code>$ENV</code>, <code>$TOKEN</code>, <code>$RUNTIME_HOST</code> exported, and a deployed proxy whose TargetEndpoint points at a backend that <em>requires</em> a client certificate (a Spring service with <code>server.ssl.client-auth=need</code>, or any mTLS-demanding endpoint). You'll create the client identity Apigee presents to it.</p>
+<p><strong>1. Make a self-signed client cert + key</strong> for Apigee to present south-bound, plus grab the backend's CA so Apigee can verify the backend:</p>
+<div class="codehilite"><pre><span></span><code>openssl<span class="w"> </span>req<span class="w"> </span>-x509<span class="w"> </span>-newkey<span class="w"> </span>rsa:2048<span class="w"> </span>-nodes<span class="w"> </span>-days<span class="w"> </span><span class="m">365</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-keyout<span class="w"> </span>apigee-client.key<span class="w"> </span>-out<span class="w"> </span>apigee-client.crt<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-subj<span class="w"> </span><span class="s2">&quot;/CN=apigee-aisp-client/O=AISP&quot;</span>
+<span class="c1"># backend-ca.crt = the CA (or self-signed cert) that signed your backend&#39;s server cert</span>
+</code></pre></div>
+
+<p><strong>2. Create a keystore and load the client cert+key under an alias.</strong> The keystore is <em>what Apigee presents</em>; the alias names the keypair <code>&lt;SSLInfo&gt;</code> will select:</p>
+<div class="codehilite"><pre><span></span><code>apigeecli<span class="w"> </span>keystores<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span>aisp-south-ks<span class="w"> </span>--env<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ENV</span><span class="s2">&quot;</span><span class="w"> </span>--org<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ORG</span><span class="s2">&quot;</span><span class="w"> </span>--token<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>
+
+apigeecli<span class="w"> </span>keyaliases<span class="w"> </span>create<span class="w"> </span>--keystore<span class="w"> </span>aisp-south-ks<span class="w"> </span>--aliasName<span class="w"> </span>aisp-client<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--format<span class="w"> </span>keycertfile<span class="w"> </span>--key<span class="w"> </span>apigee-client.key<span class="w"> </span>--cert<span class="w"> </span>apigee-client.crt<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--env<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ENV</span><span class="s2">&quot;</span><span class="w"> </span>--org<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ORG</span><span class="s2">&quot;</span><span class="w"> </span>--token<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>
+</code></pre></div>
+
+<p><strong>3. Create a truststore and load the backend's CA</strong> so Apigee will trust the backend's <em>server</em> certificate during the handshake:</p>
+<div class="codehilite"><pre><span></span><code>apigeecli<span class="w"> </span>keystores<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span>aisp-south-ts<span class="w"> </span>--env<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ENV</span><span class="s2">&quot;</span><span class="w"> </span>--org<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ORG</span><span class="s2">&quot;</span><span class="w"> </span>--token<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>
+
+apigeecli<span class="w"> </span>keyaliases<span class="w"> </span>create<span class="w"> </span>--keystore<span class="w"> </span>aisp-south-ts<span class="w"> </span>--aliasName<span class="w"> </span>backend-ca<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--format<span class="w"> </span>certonly<span class="w"> </span>--cert<span class="w"> </span>backend-ca.crt<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--env<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ENV</span><span class="s2">&quot;</span><span class="w"> </span>--org<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ORG</span><span class="s2">&quot;</span><span class="w"> </span>--token<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>
+</code></pre></div>
+
+<p><strong>4. Create a reference to the keystore</strong> so you can rotate later without touching the proxy. The proxy will point at <code>aisp-south-ks-ref</code>, never at the keystore name directly:</p>
+<div class="codehilite"><pre><span></span><code>apigeecli<span class="w"> </span>references<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span>aisp-south-ks-ref<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--refers<span class="w"> </span>aisp-south-ks<span class="w"> </span>--resourcetype<span class="w"> </span>KeyStore<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--env<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ENV</span><span class="s2">&quot;</span><span class="w"> </span>--org<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ORG</span><span class="s2">&quot;</span><span class="w"> </span>--token<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>
+</code></pre></div>
+
+<p><strong>5. Configure south-bound mTLS in the TargetEndpoint</strong> (<code>targets/default.xml</code>). Note <code>ref://</code> for the keystore (rotatable) and <code>&lt;Enforce&gt;</code> so a bad handshake fails loudly:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">&lt;TargetEndpoint</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;default&quot;</span><span class="nt">&gt;</span>
+<span class="w">  </span><span class="nt">&lt;HTTPTargetConnection&gt;</span>
+<span class="w">    </span><span class="nt">&lt;URL&gt;</span>https://accounts-backend.internal:8443/accounts<span class="nt">&lt;/URL&gt;</span>
+<span class="w">    </span><span class="nt">&lt;SSLInfo&gt;</span>
+<span class="w">      </span><span class="nt">&lt;Enabled&gt;</span>true<span class="nt">&lt;/Enabled&gt;</span>
+<span class="w">      </span><span class="nt">&lt;Enforce&gt;</span>true<span class="nt">&lt;/Enforce&gt;</span>
+<span class="w">      </span><span class="nt">&lt;ClientAuthEnabled&gt;</span>true<span class="nt">&lt;/ClientAuthEnabled&gt;</span>
+<span class="w">      </span><span class="nt">&lt;KeyStore&gt;</span>ref://aisp-south-ks-ref<span class="nt">&lt;/KeyStore&gt;</span>
+<span class="w">      </span><span class="nt">&lt;KeyAlias&gt;</span>aisp-client<span class="nt">&lt;/KeyAlias&gt;</span>
+<span class="w">      </span><span class="nt">&lt;TrustStore&gt;</span>aisp-south-ts<span class="nt">&lt;/TrustStore&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/SSLInfo&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/HTTPTargetConnection&gt;</span>
+<span class="nt">&lt;/TargetEndpoint&gt;</span>
+</code></pre></div>
+
+<p><strong>6. Bundle, deploy, and call through a debug session</strong> so the handshake shows up in Trace:</p>
+<div class="codehilite"><pre><span></span><code>apigeecli<span class="w"> </span>apis<span class="w"> </span>create<span class="w"> </span>bundle<span class="w"> </span>--name<span class="w"> </span>aisp-accounts<span class="w"> </span>--proxy-folder<span class="w"> </span>./aisp-accounts/apiproxy<span class="w"> </span>--org<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ORG</span><span class="s2">&quot;</span><span class="w"> </span>--token<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>
+apigeecli<span class="w"> </span>apis<span class="w"> </span>deploy<span class="w"> </span>--name<span class="w"> </span>aisp-accounts<span class="w"> </span>--org<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ORG</span><span class="s2">&quot;</span><span class="w"> </span>--env<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ENV</span><span class="s2">&quot;</span><span class="w"> </span>--ovr<span class="w"> </span>--wait<span class="w"> </span>--token<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>
+
+apigeecli<span class="w"> </span>apis<span class="w"> </span>debug<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span>aisp-accounts<span class="w"> </span>--env<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ENV</span><span class="s2">&quot;</span><span class="w"> </span>--org<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ORG</span><span class="s2">&quot;</span><span class="w"> </span>--token<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>
+curl<span class="w"> </span>-s<span class="w"> </span>-o<span class="w"> </span>/dev/null<span class="w"> </span>-w<span class="w"> </span><span class="s2">&quot;backend mTLS call: %{http_code}\n&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s2">&quot;https://</span><span class="nv">$RUNTIME_HOST</span><span class="s2">/aisp-accounts/accounts&quot;</span>
+</code></pre></div>
+
+<p><strong>What success looks like:</strong> the <strong>backend mTLS handshake succeeds in Trace</strong> — the TargetEndpoint shows the request reaching the backend with a <code>200</code>, and the handshake step records the client certificate <code>aisp-client</code> being presented. Then prove rotation: create <code>aisp-south-ks-v2</code> with a fresh cert, repoint the reference with <code>apigeecli references update --name aisp-south-ks-ref --refers aisp-south-ks-v2 …</code>, and call again — it keeps working with <strong>no redeploy</strong>, because the proxy pointed at the reference, not the keystore.</p>
+</div>
+<h2 id="verify-it">Verify it</h2>
+<p>In the Trace of a successful call, expand the TargetEndpoint request: the connection step should report <code>https</code>, the resolved <code>TrustStore</code>, and the presented <code>KeyAlias</code> (<code>aisp-client</code>). If <code>&lt;ClientAuthEnabled&gt;</code> were off, the backend (with <code>client-auth=need</code>) would reset the connection and Trace would show a handshake failure <em>before</em> any HTTP status — that absence-of-a-status is the fingerprint of a TLS-layer problem versus an application one.</p>
+<p>Run two negative checks. Remove <code>backend-ca</code> from the truststore and redeploy: the handshake fails because Apigee can no longer verify the backend's server cert — proving the truststore is doing its job (the mirror of a Spring <code>WebClient</code> whose <code>SSLContext</code> lacks the backend CA). Then set <code>&lt;Enforce&gt;false&lt;/Enforce&gt;</code> against a backend with a bad cert: the call may <em>silently</em> succeed over a downgraded connection — which is exactly why <code>&lt;Enforce&gt;true&lt;/Enforce&gt;</code> is mandatory in production. Inline <code>curl -v</code> from a shell that has the client cert (<code>--cert apigee-client.crt --key apigee-client.key</code>) is a useful way to confirm the backend's mTLS expectation independently of Apigee.</p>
+<div class="admonition failure">
+<p class="admonition-title">Common failure modes</p>
+<ul>
+<li><strong><code>Enabled</code> on but <code>Enforce</code> off.</strong> Cert problems are swallowed and the connection silently downgrades. Symptom: "it works in eval but a man-in-the-middle would too." Always set <code>&lt;Enforce&gt;true&lt;/Enforce&gt;</code>.</li>
+<li><strong>mTLS configured at the wrong edge.</strong> Putting client-cert config in <code>&lt;SSLInfo&gt;</code> secures <em>south-bound</em>; north-bound client-cert validation lives on the <strong>env-group host</strong>, not the proxy. Symptom: you wanted to validate the TPP's cert but configured the backend leg instead. Match the edge to the role.</li>
+<li><strong>Editing a keystore in place.</strong> Keystores are immutable; there's no update. Symptom: <code>apigeecli</code> errors trying to overwrite an alias, or a stale cert persists. Create a new keystore and move the <strong>reference</strong>.</li>
+<li><strong>Truststore missing the peer CA.</strong> South-bound, Apigee can't verify the backend's server cert; north-bound mTLS, it can't verify the client's. Symptom: <code>SSL handshake failed</code> / <code>unable to find valid certification path</code> in Trace, no HTTP status. Load the signing CA into the truststore.</li>
+<li><strong><code>&lt;KeyAlias&gt;</code> doesn't match the alias name.</strong> <code>&lt;SSLInfo&gt;</code> selects the keypair by alias; a typo means no cert is presented. Symptom: backend resets an mTLS connection as if no cert arrived. Confirm the alias name from <code>keyaliases get</code>.</li>
+</ul>
+</div>
+<div class="admonition stretch">
+<p class="admonition-title">Stretch goal</p>
+<p>Stand up a minimal Spring Boot backend with <code>server.ssl.client-auth=need</code> and a self-signed server cert, then make the full south-bound mTLS round-trip work against it: load <em>its</em> CA into Apigee's truststore, present Apigee's <code>aisp-client</code> cert from the keystore, and watch the Spring app's logs show the peer certificate <code>CN=apigee-aisp-client</code> on the accepted connection. Then break it on purpose — present a <em>different</em> self-signed client cert that the Spring app's truststore doesn't trust — and confirm the handshake is rejected at the backend. That rejection is the same client-identity proof FAPI uses; in 4.4 you'll bind the access token to exactly this certificate.</p>
+</div>
+<h2 id="recap-next">Recap &amp; next</h2>
+<p>You can now reason about a proxy as <strong>two independent TLS edges</strong> with mirror-image roles: north-bound (Apigee as server, terminated at the env-group host, optionally validating client certs) and south-bound (Apigee as client, configured in the TargetEndpoint <code>&lt;SSLInfo&gt;</code>, optionally presenting a client cert). You built a keystore (what we present), a truststore (whom we trust), wired south-bound mTLS with <code>ClientAuthEnabled</code> + <code>KeyAlias</code> + <code>TrustStore</code>, and used a <strong>reference</strong> so a cert rotation is a control-plane update with no redeploy.</p>
+<p><strong>Next — 3.6:</strong> that south-bound target was a single hard-coded <code>https://</code> URL. You'll decouple the backend hostname from the proxy with <strong>TargetServers</strong> — externalised, environment-scoped backend definitions (the platform-config version of Spring Cloud LoadBalancer instances) — and add <strong>load balancing across multiple targets with health monitoring</strong>, so a sick backend is taken out of rotation automatically.</p><div class="session-complete" data-session-code="3.5"><button id="markComplete" type="button" class="mark-btn"><span class="mark-box">&#10003;</span> Mark 3.5 complete</button><span class="mark-hint">Progress is saved in your browser.</span></div><div class="pager">
+<a class="prev" href="session-16.html"><span class="pager-dir">&larr; Previous</span><span class="pager-label">3.4 · Auth-code + PKCE &amp; JWT verification</span></a>
+<a class="next" href="session-18.html"><span class="pager-dir">Next &rarr;</span><span class="pager-label">3.6 · TargetServers, load balancing &amp; health</span></a>
+</div>
+    </main>
+    <aside class="toc-rail" aria-label="On this page"><div class="toc-title">On this page</div><div class="toc">
+<ul>
+<li><a href="#why-this-exists">Why this exists</a></li>
+<li><a href="#the-concept">The concept</a></li>
+<li><a href="#hands-on-lab">Hands-on lab</a></li>
+<li><a href="#verify-it">Verify it</a></li>
+<li><a href="#recap-next">Recap &amp; next</a></li>
+</ul>
+</div>
+</aside>
+  </div>
+
+  <script>
+    window.__COURSE__ = { total: 33, key: "apigeex-spring.progress.v1" };
+  </script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({
+      startOnLoad: true,
+      securityLevel: 'loose',
+      theme: 'base',
+      themeVariables: {
+        background: '#1A1D24',
+        primaryColor: '#1F2530', primaryBorderColor: '#F5A524', primaryTextColor: '#ECEDEE',
+        lineColor: '#7A8290', secondaryColor: '#2A1B12', tertiaryColor: '#241a0f',
+        secondaryBorderColor: '#FF6B1A', tertiaryBorderColor: '#E03131',
+        noteBkgColor: '#241a0f', noteTextColor: '#ECEDEE', noteBorderColor: '#F5A524',
+        fontFamily: '-apple-system, Segoe UI, Roboto, sans-serif', fontSize: '14px'
+      }
+    });
+    window.__mermaidReady = true;
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script defer src="assets/widgets.js"></script>
+  <script defer src="assets/app.js"></script>
+
+</body>
+</html>

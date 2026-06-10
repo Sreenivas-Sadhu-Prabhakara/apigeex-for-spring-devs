@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="apolaki">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>4.1 The OB trust framework & OBIE roles · Apigee X for Spring Boot Developers</title>
+  <link rel="stylesheet" href="assets/pygments.css">
+  <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet" href="assets/widgets.css">
+</head>
+<body>
+  <div id="readingBar"></div>
+  <button id="navToggle" class="nav-toggle" aria-label="Toggle navigation">&#9776; Menu</button>
+  <div class="layout">
+    <nav class="sidebar" aria-label="Curriculum">
+<a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true"></span><span class="brand-text">Apigee&nbsp;X <em>for Spring devs</em></span></a>
+<div class="nav-progress"><div class="nav-progress-bar"><span id="navProgressFill"></span></div><span id="navProgressText" class="nav-progress-text">0 / 33 complete</span></div>
+<div class="nav-part">Part 1 — Foundations &amp; the Apigee mental model</div>
+<ul>
+<li data-session="1"><a href="session-01.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">1.1</span> <span class="seqtitle">What an API-gateway product actually is</span></a></li>
+<li data-session="2"><a href="session-02.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">1.2</span> <span class="seqtitle">Architecture &amp; your free evaluation org</span></a></li>
+<li data-session="3"><a href="session-03.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">1.3</span> <span class="seqtitle">Your first passthrough reverse proxy</span></a></li>
+<li data-session="4"><a href="session-04.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">1.4</span> <span class="seqtitle">Revisions, deploy &amp; rollback</span></a></li>
+<li data-session="5"><a href="session-05.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">1.5</span> <span class="seqtitle">The Trace tool is your gateway debugger</span></a></li>
+</ul>
+<div class="nav-part">Part 2 — Flow &amp; mediation engine</div>
+<ul>
+<li data-session="6"><a href="session-06.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">2.1</span> <span class="seqtitle">The flow model &amp; request/response symmetry</span></a></li>
+<li data-session="7"><a href="session-07.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">2.2</span> <span class="seqtitle">The message &amp; flow-variable model</span></a></li>
+<li data-session="8"><a href="session-08.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">2.3</span> <span class="seqtitle">Conditions, RouteRules &amp; conditional flows</span></a></li>
+<li data-session="9"><a href="session-09.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">2.4</span> <span class="seqtitle">AssignMessage &amp; ExtractVariables</span></a></li>
+<li data-session="10"><a href="session-10.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">2.5</span> <span class="seqtitle">JavaScript vs Java callouts: the trade-off</span></a></li>
+<li data-session="11"><a href="session-11.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">2.6</span> <span class="seqtitle">Quotas &amp; SpikeArrest: distributed and product-scoped</span></a></li>
+<li data-session="12"><a href="session-12.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">2.7</span> <span class="seqtitle">Caching vs KVM vs PropertySets: the three stores</span></a></li>
+</ul>
+<div class="nav-part">Part 3 — Security, identity &amp; API products</div>
+<ul>
+<li data-session="13"><a href="session-13.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">3.1</span> <span class="seqtitle">Threat protection, CORS &amp; data masking</span></a></li>
+<li data-session="14"><a href="session-14.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">3.2</span> <span class="seqtitle">API Products, Apps, Developers &amp; keys</span></a></li>
+<li data-session="15"><a href="session-15.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">3.3</span> <span class="seqtitle">OAuthV2 as a token server (client credentials)</span></a></li>
+<li data-session="16"><a href="session-16.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">3.4</span> <span class="seqtitle">Auth-code + PKCE &amp; JWT verification</span></a></li>
+<li data-session="17"><a href="session-17.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">3.5</span> <span class="seqtitle">TLS &amp; mTLS: keystores, north- &amp; south-bound</span></a></li>
+<li data-session="18"><a href="session-18.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">3.6</span> <span class="seqtitle">TargetServers, load balancing &amp; health</span></a></li>
+<li data-session="19"><a href="session-19.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">3.7</span> <span class="seqtitle">Shared flows, FlowHooks &amp; the fault taxonomy</span></a></li>
+</ul>
+<div class="nav-part">Part 4 — FAPI 1.0 Advanced &amp; the OB trust framework</div>
+<ul>
+<li class="active" data-session="20"><a href="session-20.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">4.1</span> <span class="seqtitle">The OB trust framework &amp; OBIE roles</span></a></li>
+<li data-session="21"><a href="session-21.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">4.2</span> <span class="seqtitle">The FAPI Advanced profile: what it requires</span></a></li>
+<li data-session="22"><a href="session-22.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">4.3</span> <span class="seqtitle">Implementing FAPI I: PAR, request objects &amp; client auth</span></a></li>
+<li data-session="23"><a href="session-23.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">4.4</span> <span class="seqtitle">Implementing FAPI II: mTLS-bound tokens &amp; introspection</span></a></li>
+</ul>
+<div class="nav-part">Part 5 — Building the UK Open Banking APIs</div>
+<ul>
+<li data-session="24"><a href="session-24.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">5.1</span> <span class="seqtitle">Dynamic Client Registration (DCR)</span></a></li>
+<li data-session="25"><a href="session-25.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">5.2</span> <span class="seqtitle">The account-access consent lifecycle</span></a></li>
+<li data-session="26"><a href="session-26.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">5.3</span> <span class="seqtitle">AISP reads: accounts, balances &amp; transactions</span></a></li>
+<li data-session="27"><a href="session-27.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">5.4</span> <span class="seqtitle">PISP payments &amp; idempotency</span></a></li>
+<li data-session="28"><a href="session-28.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">5.5</span> <span class="seqtitle">Confirmation of funds &amp; the end-to-end journey</span></a></li>
+</ul>
+<div class="nav-part">Part 6 — Operations, delivery &amp; observability</div>
+<ul>
+<li data-session="29"><a href="session-29.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">6.1</span> <span class="seqtitle">Environments, env groups &amp; hostnames</span></a></li>
+<li data-session="30"><a href="session-30.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">6.2</span> <span class="seqtitle">CI/CD &amp; config-as-code</span></a></li>
+<li data-session="31"><a href="session-31.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">6.3</span> <span class="seqtitle">Observability, analytics &amp; Advanced API Security</span></a></li>
+<li data-session="32"><a href="session-32.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">6.4</span> <span class="seqtitle">Productisation, monetization &amp; API hub</span></a></li>
+</ul>
+<div class="nav-part">Part 7 — Capstone</div>
+<ul>
+<li data-session="33"><a href="session-33.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">7.1</span> <span class="seqtitle">Capstone: a production-grade OB platform &amp; go-live review</span></a></li>
+</ul>
+</nav>
+    <main class="content" data-session="20">
+      <figure class="hero"><img src="assets/heroes/part-4.svg" alt="Abstract sun over interlocking rings" loading="lazy"><figcaption class="hero-cap"><span class="hero-eyebrow">Part 4</span><span class="hero-headline">FAPI 1.0 Advanced &amp; the OB trust framework</span></figcaption></figure><div class="crumbs"><span class="crumb-part">Part 4 — FAPI 1.0 Advanced &amp; the OB trust framework</span><span class="crumb-sep">·</span><span class="crumb-code">Session 4.1</span><span class="crumb-sep">·</span><span class="crumb-min">~45 min</span></div><div class="builds-on"><span class="builds-on-tag">Builds on</span> <a href="session-19.html">3.7 · Shared flows, FlowHooks &amp; the fault taxonomy</a></div><h1 id="41-the-ob-trust-framework-obie-roles">4.1 — The OB trust framework &amp; OBIE roles</h1>
+<div class="admonition bottomline">
+<p class="admonition-title">Bottom line</p>
+<p>UK Open Banking is a <strong>regulated trust framework</strong>, not a protocol you invent. Four roles — <strong>ASPSP</strong> (you, the bank), <strong>AISP</strong>, <strong>PISP</strong>, <strong>CBPII</strong> — are onboarded by the <strong>OB Directory</strong>, which issues each participant a machine identity: <strong>eIDAS / OB certificates</strong> (an <strong>OBWAC</strong> transport cert and an <strong>OBSeal</strong> signing cert) plus a signed <strong>Software Statement Assertion (SSA)</strong> describing the TPP. Your gateway's entire job in Parts 4–5 is to <em>enforce</em> this framework at the edge. This session is the map; everything after is enforcement.</p>
+</div>
+<h2 id="why-this-exists">Why this exists</h2>
+<p>When you build a Spring API for an external partner, <em>you</em> decide who the partners are and what credentials they carry — you run the client registry, you issue the keys, you write the onboarding form. Open Banking takes that decision away from you. In the UK, a central authority (originally OBIE, now operated as the Open Banking Directory) decides who is allowed to call your bank's APIs, vets them, and issues their identity. You do not onboard a fintech; you <em>trust the Directory's word</em> that this fintech is a real, authorised TPP.</p>
+<p>That inversion is the whole point of a trust framework. A bank cannot individually KYC every budgeting app and accounting tool in the country, and a fintech cannot integrate separately with every bank's bespoke onboarding. So the ecosystem agrees on a <strong>shared trust anchor</strong> — the OB Directory — and a <strong>shared identity format</strong> — eIDAS-based certificates with OB-specific roles encoded in them. Once you trust the Directory's issuing CA, you trust everyone it vouches for, and you reject everyone it doesn't.</p>
+<p>For you, the <strong>ASPSP</strong> (Account Servicing Payment Service Provider — the bank that holds the customer's account), this means your gateway must do two things you've never had to do in Spring: validate that an incoming caller presents a <strong>cert chained to the OB issuing CA</strong>, and read the <strong>role</strong> that cert (and the TPP's SSA) authorises — AISP, PISP, or CBPII — to decide what they may even attempt. Get the trust framework wrong and you've either locked out legitimate TPPs (a regulatory breach) or let an unvetted party touch customer accounts (a much worse one).</p>
+<div class="admonition bridge">
+<p class="admonition-title">Spring Boot bridge</p>
+<p>Be honest: <strong>this is a regulated domain model, not a Spring concept.</strong> There is no <code>@EnableOpenBanking</code>. What you <em>can</em> map is the shape of the trust:</p>
+<table>
+<thead>
+<tr>
+<th>Open Banking concept</th>
+<th>Closest thing you've built in Spring</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>OB Directory</strong> (central registry + trust anchor)</td>
+<td>A <code>RegisteredClientRepository</code> — except run by an industry body, not you, and you can't edit it</td>
+</tr>
+<tr>
+<td><strong>OBWAC</strong> transport cert</td>
+<td>The client cert in an mTLS <code>KeyStore</code>/<code>TrustStore</code> for partner connections</td>
+</tr>
+<tr>
+<td><strong>OBSeal</strong> signing cert</td>
+<td>The public key you'd load to verify a partner's JWS-signed payloads</td>
+</tr>
+<tr>
+<td><strong>SSA</strong> (Software Statement Assertion)</td>
+<td>A signed JWT describing a registered client — like an OIDC software statement (RFC 7591)</td>
+</tr>
+<tr>
+<td><strong>AISP / PISP / CBPII</strong> roles</td>
+<td>Authorities/scopes — but assigned by the regulator and <em>encoded in the certificate</em>, not granted by you</td>
+</tr>
+</tbody>
+</table>
+<p>The mechanics (mTLS truststores, JWS verification, scope checks) are all things you know. What's new is that <strong>you don't own the identity provider</strong> — the Directory does — and the roles are legally defined.</p>
+</div>
+<div class="admonition breaks">
+<p class="admonition-title">Where the analogy breaks</p>
+<p>In Spring you are the authority: you decide who's registered and what they can do. In Open Banking you are a <em>relying party</em>. You can't add a client, can't grant a role, can't override a revocation — you can only check certificates against the Directory's CA and honour what the SSA and certs assert. Worse, the role is <strong>dual-encoded</strong>: it appears both in the OB certificate (as policy OIDs / roles) and in the SSA's <code>software_roles</code> claim, and a single TPP can hold <em>several</em> roles at once. Treating "AISP" as one scope you grant, the way you'd add <code>ROLE_PARTNER</code> in your own authz, misses that the role is an externally-issued, certificate-bound fact you merely verify — and that a payment-initiation call from an AISP-only TPP must be refused no matter what token it waves at you.</p>
+</div>
+<h2 id="the-concept">The concept</h2>
+<figure class="svg-figure">
+<img src="assets/svg/ob-ecosystem.svg" alt="The OB Directory at top onboards TPPs (AISP, PISP, CBPII) on the left and registers the ASPSP on the right; TPPs call the ASPSP's AIS, PIS and CoF APIs through the Apigee X gateway; the PSU authenticates and consents at the ASPSP.">
+<figcaption>The UK Open Banking ecosystem. The <b>OB Directory</b> is the trust anchor — it onboards every party and issues the certs/SSAs. You are the <b>ASPSP</b> on the right; your <b>Apigee X gateway</b> is where the framework is enforced. The <b>PSU</b> (the customer) authenticates and consents at <i>your</i> bank, never at the TPP.</figcaption>
+</figure>
+
+<p>The four roles, precisely:</p>
+<ul>
+<li><strong>ASPSP</strong> — the Account Servicing PSP: the bank holding the account. <em>This is you.</em> You expose the AIS (account information), PIS (payment initiation), and CoF (confirmation of funds) APIs, and you authenticate the <strong>PSU</strong> (Payment Service User — the customer).</li>
+<li><strong>AISP</strong> — Account Information Service Provider: reads accounts, balances, transactions on the PSU's behalf. <em>Read-only.</em></li>
+<li><strong>PISP</strong> — Payment Initiation Service Provider: initiates payments out of the PSU's account. <em>Write — the high-risk role.</em></li>
+<li><strong>CBPII</strong> — Card-Based Payment Instrument Issuer: asks one question — "are there funds?" — via the confirmation-of-funds API. <em>Yes/no, no detail.</em></li>
+</ul>
+<p>Collectively AISP/PISP/CBPII are <strong>TPPs</strong> (Third-Party Providers). The <strong>OB Directory</strong> is the registry and trust anchor: it vets each TPP, issues its <strong>OBWAC</strong> (transport, used in mTLS) and <strong>OBSeal</strong> (signing, used for JWS) certificates from the <strong>OB issuing CA</strong>, and publishes a signed <strong>SSA</strong> carrying the TPP's <code>software_client_id</code>, <code>software_redirect_uris</code>, <code>org_id</code>, and <code>software_roles</code>. Your gateway trusts the <strong>OB root + issuing CA</strong>, so it can validate any TPP's transport cert without ever pre-registering that individual TPP.</p>
+<p>The trust handshake your gateway runs on every call looks like this:</p>
+<div class="widget" data-widget="sequence"><script type="application/json">{"type": "sequence", "title": "Establishing trust for a single TPP call", "actors": [{"id": "d", "label": "OB Directory"}, {"id": "t", "label": "TPP (AISP)"}, {"id": "g", "label": "Apigee (ASPSP)"}], "steps": [{"from": "d", "to": "t", "label": "issue OBWAC + OBSeal + SSA", "note": "One-time onboarding. The Directory vets the TPP and issues certs chained to the OB issuing CA, plus a signed Software Statement Assertion listing its roles."}, {"from": "d", "to": "g", "label": "publish OB root + issuing CA", "note": "You load these once into an Apigee truststore \u2014 your trust anchor. You never see the individual TPP in advance."}, {"from": "t", "to": "g", "label": "mTLS: presents OBWAC transport cert", "note": "GET /open-banking/v3.1/aisp/accounts with x-fapi-interaction-id. The TLS handshake carries the client cert."}, {"from": "g", "to": "g", "label": "validate cert chains to OB issuing CA", "note": "SSLInfo exposes the client cert; chain it to the truststore. Not chained \u2192 reject before any policy runs."}, {"from": "g", "to": "g", "label": "read role from cert / SSA", "note": "Is this a current AISP? A PIS path with an AISP-only cert is refused here, regardless of token."}, {"from": "g", "to": "t", "kind": "return", "label": "200 (or 401/403)", "note": "Trust established \u2192 proceed to FAPI/OAuth checks (4.2+). Untrusted cert \u2192 handshake/identity failure."}]}</script></div>
+<h2 id="hands-on-lab">Hands-on lab</h2>
+<div class="lab">
+<h4 id="lab-load-the-ob-ca-chain-into-an-apigee-truststore-and-inspect-an-ssa">Lab — load the OB CA chain into an Apigee truststore and inspect an SSA</h4>
+<p>You won't enforce anything yet — that's 4.2 onward. Here you build the <strong>trust anchor</strong> your gateway needs (the OB CA chain in a truststore) and read a sample SSA so you know what claims you'll later check.</p>
+<p><strong>Prereqs:</strong> <code>$ORG</code>, <code>$ENV</code>, <code>$TOKEN</code>, <code>$RUNTIME_HOST</code> exported (from 1.2). In production you'd fetch the real OB root + issuing CA from the Directory; for the lab any CA PEM stands in for the chain.</p>
+<p><strong>1. Get the OB CA chain.</strong> Production: download the OB <strong>Root CA</strong> and <strong>Issuing CA</strong> PEMs from the Open Banking Directory. For the lab, simulate the issuing CA so the mechanics are real:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Stand-in for the OB issuing CA you&#39;d download from the Directory:</span>
+openssl<span class="w"> </span>req<span class="w"> </span>-x509<span class="w"> </span>-newkey<span class="w"> </span>rsa:2048<span class="w"> </span>-nodes<span class="w"> </span>-days<span class="w"> </span><span class="m">3650</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-keyout<span class="w"> </span>ob-issuing-ca.key<span class="w"> </span>-out<span class="w"> </span>ob-issuing-ca.pem<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-subj<span class="w"> </span><span class="s2">&quot;/C=GB/O=OpenBanking/CN=OB Issuing CA G1&quot;</span>
+cat<span class="w"> </span>ob-issuing-ca.pem<span class="w">   </span><span class="c1"># this PEM is what goes into the truststore</span>
+</code></pre></div>
+
+<p><strong>2. Create an environment keystore to act as the truststore:</strong></p>
+<div class="codehilite"><pre><span></span><code>apigeecli<span class="w"> </span>keystores<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span>ob-truststore<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--env<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ENV</span><span class="s2">&quot;</span><span class="w"> </span>--org<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ORG</span><span class="s2">&quot;</span><span class="w"> </span>--token<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>
+</code></pre></div>
+
+<p><strong>3. Load the CA chain as a trusted certificate alias</strong> (no private key — a truststore holds only the certs you trust):</p>
+<div class="codehilite"><pre><span></span><code>apigeecli<span class="w"> </span>keyaliases<span class="w"> </span>create<span class="w"> </span>cert<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--name<span class="w"> </span>ob-issuing-ca<span class="w"> </span>--keystore<span class="w"> </span>ob-truststore<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--cert-filepath<span class="w"> </span>./ob-issuing-ca.pem<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--env<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ENV</span><span class="s2">&quot;</span><span class="w"> </span>--org<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ORG</span><span class="s2">&quot;</span><span class="w"> </span>--token<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>
+</code></pre></div>
+
+<p><strong>4. Confirm the alias landed</strong> — this proves the trust anchor exists in the runtime:</p>
+<div class="codehilite"><pre><span></span><code>apigeecli<span class="w"> </span>keyaliases<span class="w"> </span>get<span class="w"> </span>--name<span class="w"> </span>ob-issuing-ca<span class="w"> </span>--keystore<span class="w"> </span>ob-truststore<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--env<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ENV</span><span class="s2">&quot;</span><span class="w"> </span>--org<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ORG</span><span class="s2">&quot;</span><span class="w"> </span>--token<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TOKEN</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;{alias: .alias, type: .type}&#39;</span>
+<span class="c1"># → { &quot;alias&quot;: &quot;ob-issuing-ca&quot;, &quot;type&quot;: &quot;trusted&quot; }</span>
+</code></pre></div>
+
+<p><strong>5. Inspect a sample SSA.</strong> The Directory issues this as a signed JWT; decode the payload (don't verify here — just read the claims you'll enforce later). An illustrative decoded payload:</p>
+<div class="codehilite"><pre><span></span><code>cat<span class="w"> </span><span class="s">&lt;&lt;&#39;JSON&#39;</span>
+<span class="s">{</span>
+<span class="s">  &quot;iss&quot;: &quot;OpenBanking Ltd&quot;,</span>
+<span class="s">  &quot;software_client_id&quot;: &quot;5f9a2b-acme-aisp&quot;,</span>
+<span class="s">  &quot;org_id&quot;: &quot;0014H00001xYzAbQAK&quot;,</span>
+<span class="s">  &quot;software_redirect_uris&quot;: [&quot;https://acme.example.com/cb&quot;],</span>
+<span class="s">  &quot;software_roles&quot;: [&quot;AISP&quot;, &quot;CBPII&quot;]</span>
+<span class="s">}</span>
+<span class="s">JSON</span>
+</code></pre></div>
+
+<p>Note <code>software_roles</code> — this TPP is an AISP and a CBPII, but <strong>not</strong> a PISP. That fact, plus the cert's policy OIDs, is what your gateway will gate payment paths on from 4.2 onward.</p>
+<p><strong>What success looks like:</strong> <code>apigeecli keyaliases get</code> returns the <code>ob-issuing-ca</code> alias with type <code>trusted</code> — the OB CA chain now lives in an Apigee truststore in your environment, ready to validate TPP transport certs. You can also read an SSA's <code>software_roles</code> and explain why this TPP can call AIS but not PIS.</p>
+</div>
+<h2 id="verify-it">Verify it</h2>
+<p>List the keystore's aliases and confirm the OB CA is present: <code>apigeecli keyaliases list --keystore ob-truststore --env "$ENV" --org "$ORG" --token "$TOKEN"</code> should include <code>ob-issuing-ca</code>. Re-fetch the alias and check its <code>type</code> is <code>trusted</code> and the cert subject is <code>CN=OB Issuing CA G1</code> — that's the anchor a later <strong>SSLInfo</strong>-based check will chain TPP certs against.</p>
+<p>To prove you understand the <em>roles</em>, take the sample SSA and answer out loud: which of <code>/aisp/accounts</code>, <code>/pisp/domestic-payments</code>, <code>/cbpii/funds-confirmations</code> may this TPP call? With <code>software_roles: ["AISP","CBPII"]</code> the answer is the first and third, never the second — and your gateway must enforce exactly that.</p>
+<div class="admonition failure">
+<p class="admonition-title">Common failure modes</p>
+<ul>
+<li><strong>Treating the TPP like a client you onboard.</strong> You don't issue OB identities — the Directory does. Symptom: you build a local "TPP registration" table as your source of truth; it drifts from the Directory and you keep trusting a TPP whose authorisation was withdrawn.</li>
+<li><strong>Loading the leaf TPP cert instead of the CA into the truststore.</strong> A truststore holds the <strong>issuing/root CA</strong>, so <em>any</em> validly-issued TPP cert validates. Symptom: only one hard-coded TPP works; every other legitimate TPP fails the chain check.</li>
+<li><strong>Putting a private key in the truststore.</strong> A truststore holds public certs you <em>trust</em>, not your own key material. Symptom: you accidentally reuse this keystore for outbound mTLS identity and leak or mismatch keys.</li>
+<li><strong>Confusing OBWAC with OBSeal.</strong> OBWAC is <strong>transport</strong> (mTLS handshake); OBSeal is <strong>signing</strong> (JWS on request objects/payloads). Symptom: you try to verify a signed request object against the transport cert and every signature check fails.</li>
+<li><strong>Reading the role from the wrong place — or assuming one.</strong> A TPP can hold several roles; the role lives in the cert's policy OIDs <em>and</em> the SSA <code>software_roles</code>. Symptom: you assume one role per TPP and wrongly refuse a multi-role caller.</li>
+</ul>
+</div>
+<div class="admonition stretch">
+<p class="admonition-title">Stretch goal</p>
+<p>Place <em>your</em> organisation on the OBIE role map. If you're a bank you're the ASPSP — list which APIs (AIS, PIS, CoF) you'd expose and therefore which TPP roles you must accept. If you're a fintech, decide whether you'd register as AISP, PISP, CBPII, or several, and write down the exact certificates and SSA claims you'd need from the Directory to operate — OBWAC for transport, OBSeal for signing, an SSA listing your roles and redirect URIs. Then identify the single trust decision your current Spring onboarding makes that the Directory would take out of your hands.</p>
+</div>
+<h2 id="recap-next">Recap &amp; next</h2>
+<p>You now hold the map of UK Open Banking: the four roles (<strong>ASPSP</strong> is you; <strong>AISP/PISP/CBPII</strong> are the TPPs), the <strong>OB Directory</strong> as registry and trust anchor, and the machine identities it issues — <strong>OBWAC</strong> transport certs, <strong>OBSeal</strong> signing certs, and the signed <strong>SSA</strong> carrying <code>software_roles</code>. You've loaded the OB CA chain into an Apigee truststore so your gateway has a trust anchor, and you can read an SSA to tell which APIs a TPP may call. This is the regulated domain your gateway enforces — not a Spring abstraction, but one whose mechanics (mTLS, JWS, scopes) you already know.</p>
+<p><strong>Next — 4.2:</strong> the security profile that rides on top of this trust framework. You'll read the <strong>FAPI 1.0 Advanced</strong> profile clause by clause — PAR, signed request objects, mTLS-bound tokens, JARM, algorithm restrictions — and map each requirement onto the exact Apigee mechanism that satisfies it, turning a hardening spec into a policy checklist.</p><div class="session-complete" data-session-code="4.1"><button id="markComplete" type="button" class="mark-btn"><span class="mark-box">&#10003;</span> Mark 4.1 complete</button><span class="mark-hint">Progress is saved in your browser.</span></div><div class="pager">
+<a class="prev" href="session-19.html"><span class="pager-dir">&larr; Previous</span><span class="pager-label">3.7 · Shared flows, FlowHooks &amp; the fault taxonomy</span></a>
+<a class="next" href="session-21.html"><span class="pager-dir">Next &rarr;</span><span class="pager-label">4.2 · The FAPI Advanced profile: what it requires</span></a>
+</div>
+    </main>
+    <aside class="toc-rail" aria-label="On this page"><div class="toc-title">On this page</div><div class="toc">
+<ul>
+<li><a href="#why-this-exists">Why this exists</a></li>
+<li><a href="#the-concept">The concept</a></li>
+<li><a href="#hands-on-lab">Hands-on lab</a></li>
+<li><a href="#verify-it">Verify it</a></li>
+<li><a href="#recap-next">Recap &amp; next</a></li>
+</ul>
+</div>
+</aside>
+  </div>
+
+  <script>
+    window.__COURSE__ = { total: 33, key: "apigeex-spring.progress.v1" };
+  </script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({
+      startOnLoad: true,
+      securityLevel: 'loose',
+      theme: 'base',
+      themeVariables: {
+        background: '#1A1D24',
+        primaryColor: '#1F2530', primaryBorderColor: '#F5A524', primaryTextColor: '#ECEDEE',
+        lineColor: '#7A8290', secondaryColor: '#2A1B12', tertiaryColor: '#241a0f',
+        secondaryBorderColor: '#FF6B1A', tertiaryBorderColor: '#E03131',
+        noteBkgColor: '#241a0f', noteTextColor: '#ECEDEE', noteBorderColor: '#F5A524',
+        fontFamily: '-apple-system, Segoe UI, Roboto, sans-serif', fontSize: '14px'
+      }
+    });
+    window.__mermaidReady = true;
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script defer src="assets/widgets.js"></script>
+  <script defer src="assets/app.js"></script>
+
+</body>
+</html>

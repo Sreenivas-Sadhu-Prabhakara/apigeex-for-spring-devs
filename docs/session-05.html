@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="apolaki">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>1.5 The Trace tool is your gateway debugger · Apigee X for Spring Boot Developers</title>
+  <link rel="stylesheet" href="assets/pygments.css">
+  <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet" href="assets/widgets.css">
+</head>
+<body>
+  <div id="readingBar"></div>
+  <button id="navToggle" class="nav-toggle" aria-label="Toggle navigation">&#9776; Menu</button>
+  <div class="layout">
+    <nav class="sidebar" aria-label="Curriculum">
+<a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true"></span><span class="brand-text">Apigee&nbsp;X <em>for Spring devs</em></span></a>
+<div class="nav-progress"><div class="nav-progress-bar"><span id="navProgressFill"></span></div><span id="navProgressText" class="nav-progress-text">0 / 33 complete</span></div>
+<div class="nav-part">Part 1 — Foundations &amp; the Apigee mental model</div>
+<ul>
+<li data-session="1"><a href="session-01.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">1.1</span> <span class="seqtitle">What an API-gateway product actually is</span></a></li>
+<li data-session="2"><a href="session-02.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">1.2</span> <span class="seqtitle">Architecture &amp; your free evaluation org</span></a></li>
+<li data-session="3"><a href="session-03.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">1.3</span> <span class="seqtitle">Your first passthrough reverse proxy</span></a></li>
+<li data-session="4"><a href="session-04.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">1.4</span> <span class="seqtitle">Revisions, deploy &amp; rollback</span></a></li>
+<li class="active" data-session="5"><a href="session-05.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">1.5</span> <span class="seqtitle">The Trace tool is your gateway debugger</span></a></li>
+</ul>
+<div class="nav-part">Part 2 — Flow &amp; mediation engine</div>
+<ul>
+<li data-session="6"><a href="session-06.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">2.1</span> <span class="seqtitle">The flow model &amp; request/response symmetry</span></a></li>
+<li data-session="7"><a href="session-07.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">2.2</span> <span class="seqtitle">The message &amp; flow-variable model</span></a></li>
+<li data-session="8"><a href="session-08.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">2.3</span> <span class="seqtitle">Conditions, RouteRules &amp; conditional flows</span></a></li>
+<li data-session="9"><a href="session-09.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">2.4</span> <span class="seqtitle">AssignMessage &amp; ExtractVariables</span></a></li>
+<li data-session="10"><a href="session-10.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">2.5</span> <span class="seqtitle">JavaScript vs Java callouts: the trade-off</span></a></li>
+<li data-session="11"><a href="session-11.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">2.6</span> <span class="seqtitle">Quotas &amp; SpikeArrest: distributed and product-scoped</span></a></li>
+<li data-session="12"><a href="session-12.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">2.7</span> <span class="seqtitle">Caching vs KVM vs PropertySets: the three stores</span></a></li>
+</ul>
+<div class="nav-part">Part 3 — Security, identity &amp; API products</div>
+<ul>
+<li data-session="13"><a href="session-13.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">3.1</span> <span class="seqtitle">Threat protection, CORS &amp; data masking</span></a></li>
+<li data-session="14"><a href="session-14.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">3.2</span> <span class="seqtitle">API Products, Apps, Developers &amp; keys</span></a></li>
+<li data-session="15"><a href="session-15.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">3.3</span> <span class="seqtitle">OAuthV2 as a token server (client credentials)</span></a></li>
+<li data-session="16"><a href="session-16.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">3.4</span> <span class="seqtitle">Auth-code + PKCE &amp; JWT verification</span></a></li>
+<li data-session="17"><a href="session-17.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">3.5</span> <span class="seqtitle">TLS &amp; mTLS: keystores, north- &amp; south-bound</span></a></li>
+<li data-session="18"><a href="session-18.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">3.6</span> <span class="seqtitle">TargetServers, load balancing &amp; health</span></a></li>
+<li data-session="19"><a href="session-19.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">3.7</span> <span class="seqtitle">Shared flows, FlowHooks &amp; the fault taxonomy</span></a></li>
+</ul>
+<div class="nav-part">Part 4 — FAPI 1.0 Advanced &amp; the OB trust framework</div>
+<ul>
+<li data-session="20"><a href="session-20.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">4.1</span> <span class="seqtitle">The OB trust framework &amp; OBIE roles</span></a></li>
+<li data-session="21"><a href="session-21.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">4.2</span> <span class="seqtitle">The FAPI Advanced profile: what it requires</span></a></li>
+<li data-session="22"><a href="session-22.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">4.3</span> <span class="seqtitle">Implementing FAPI I: PAR, request objects &amp; client auth</span></a></li>
+<li data-session="23"><a href="session-23.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">4.4</span> <span class="seqtitle">Implementing FAPI II: mTLS-bound tokens &amp; introspection</span></a></li>
+</ul>
+<div class="nav-part">Part 5 — Building the UK Open Banking APIs</div>
+<ul>
+<li data-session="24"><a href="session-24.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">5.1</span> <span class="seqtitle">Dynamic Client Registration (DCR)</span></a></li>
+<li data-session="25"><a href="session-25.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">5.2</span> <span class="seqtitle">The account-access consent lifecycle</span></a></li>
+<li data-session="26"><a href="session-26.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">5.3</span> <span class="seqtitle">AISP reads: accounts, balances &amp; transactions</span></a></li>
+<li data-session="27"><a href="session-27.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">5.4</span> <span class="seqtitle">PISP payments &amp; idempotency</span></a></li>
+<li data-session="28"><a href="session-28.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">5.5</span> <span class="seqtitle">Confirmation of funds &amp; the end-to-end journey</span></a></li>
+</ul>
+<div class="nav-part">Part 6 — Operations, delivery &amp; observability</div>
+<ul>
+<li data-session="29"><a href="session-29.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">6.1</span> <span class="seqtitle">Environments, env groups &amp; hostnames</span></a></li>
+<li data-session="30"><a href="session-30.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">6.2</span> <span class="seqtitle">CI/CD &amp; config-as-code</span></a></li>
+<li data-session="31"><a href="session-31.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">6.3</span> <span class="seqtitle">Observability, analytics &amp; Advanced API Security</span></a></li>
+<li data-session="32"><a href="session-32.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">6.4</span> <span class="seqtitle">Productisation, monetization &amp; API hub</span></a></li>
+</ul>
+<div class="nav-part">Part 7 — Capstone</div>
+<ul>
+<li data-session="33"><a href="session-33.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">7.1</span> <span class="seqtitle">Capstone: a production-grade OB platform &amp; go-live review</span></a></li>
+</ul>
+</nav>
+    <main class="content" data-session="5">
+      <div class="crumbs"><span class="crumb-part">Part 1 — Foundations &amp; the Apigee mental model</span><span class="crumb-sep">·</span><span class="crumb-code">Session 1.5</span><span class="crumb-sep">·</span><span class="crumb-min">~40 min</span></div><div class="builds-on"><span class="builds-on-tag">Builds on</span> <a href="session-04.html">1.4 · Revisions, deploy &amp; rollback</a></div><h1 id="15-the-trace-tool-is-your-gateway-debugger">1.5 — The Trace tool is your gateway debugger</h1>
+<div class="admonition bottomline">
+<p class="admonition-title">Bottom line</p>
+<p>When a proxy doesn't behave the way your <code>curl</code> predicted, <strong>Trace</strong> (the Debug API) is how you see inside the running request. It records every policy that executed, in order, with the full set of flow variables <em>before and after</em> each step — the gateway's equivalent of stepping through code with a breakpoint and a watch window. By the end you can open a session, fire a request into it, and point at exactly which policy ran and what each one changed.</p>
+</div>
+<h2 id="why-this-exists">Why this exists</h2>
+<p>When a Spring request misbehaves, you don't read it back from the logs and guess. You set a breakpoint, you step, and you <em>watch</em> the variables mutate line by line — you see the value go wrong at a specific frame. The bug stops being "the response is 401" and becomes "this filter set <code>authenticated=false</code> <em>here</em>."</p>
+<p>A gateway needs the same thing, because a proxy is even more opaque than your code: there's no source file to step through, just a chain of declarative policies you didn't write line-by-line, mutating a shared message as it flows. Logs tell you the <em>outcome</em>; they don't tell you that <code>ExtractVariables</code> populated an empty string because the JSONPath missed, which made the condition on the next policy fall through, which is why the wrong target was chosen. <strong>Trace</strong> captures that entire causal chain for a single request: each policy as a timeline step, and the flow variables snapshotted at every step so you can see the exact moment a value became wrong.</p>
+<p>It's the tool you'll reach for in nearly every later session — when a condition doesn't match, when a header isn't where the backend expects it, when a token verifies in <code>curl</code> but not through the proxy. Learn it now, on a trivial proxy, so it's reflex when the proxy is complicated.</p>
+<div class="admonition bridge">
+<p class="admonition-title">Spring Boot bridge</p>
+<p>Trace maps almost one-to-one onto the debugger you already use:</p>
+<table>
+<thead>
+<tr>
+<th>IDE debugger</th>
+<th>Apigee Trace</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A breakpoint on a line</td>
+<td>A <strong>policy step</strong> in the transaction timeline</td>
+</tr>
+<tr>
+<td>The call stack / step-over</td>
+<td>The ordered list of executed policies</td>
+</tr>
+<tr>
+<td>The <strong>Variables / watch</strong> pane</td>
+<td>Flow variables snapshotted at each step</td>
+</tr>
+<tr>
+<td>Conditional breakpoint</td>
+<td>A flow <strong>condition</strong> that did or didn't match</td>
+</tr>
+<tr>
+<td>"Step into" the framework</td>
+<td>Seeing PreFlow → Flows → PostFlow expand</td>
+</tr>
+</tbody>
+</table>
+<p>The instinct "set a breakpoint, then look at the variables right there" is exactly right. The difference is that Trace is <em>retrospective and per-request</em> — you don't pause the world; you record one request and read the whole filmstrip afterward.</p>
+</div>
+<div class="admonition breaks">
+<p class="admonition-title">Where the analogy breaks</p>
+<p>A debugger pauses execution — the thread is frozen on the line, the rest of the system waits, and you can change values and resume. Trace never pauses anything: the request runs to completion at full speed and Trace hands you the <em>recording</em>. You cannot edit a variable mid-flight or "resume," and you can't step backward into a branch that wasn't taken. It's also sampled and bounded — a debug session captures a fixed number of transactions (default around ten) over a short window, then stops on its own; it is a diagnostic, never something you leave running in production. And because it records <em>everything</em>, by default it captures sensitive values too — masking those (tokens, PANs, consent data) is its own concern, covered in <strong>3.1</strong>, and you should assume an unmasked Trace is as sensitive as a heap dump.</p>
+</div>
+<h2 id="the-concept">The concept</h2>
+<p>Trace records one journey through the same pipeline you'll dissect in 2.1. For now, hold the silhouette: a request enters, crosses the attach points, hits the backend, and the response retraces them. Trace's job is to tell you <em>which policy ran at each of these points, and what the variables were when it did</em>.</p>
+<figure class="svg-figure">
+<img src="assets/svg/flow-pipeline.svg" alt="A request flows Client → ProxyEndpoint → TargetEndpoint → Backend and the response flows back, with four numbered attach points.">
+<figcaption>Trace shows you <em>which policy executed at each of these points</em>, in order, with the flow-variable values it read and set. You don't need the four attach points memorised yet — that's session 2.1. Today you just read the recording.</figcaption>
+</figure>
+
+<p>Mechanically: you <strong>start a debug session</strong> on a specific revision in a specific environment. That opens a short recording window. Any request that hits that revision while the window is open is captured as a <strong>transaction</strong> — an ordered timeline of every policy that executed, each step carrying the flow variables as they stood at that moment. You then <strong>read</strong> the session: walk the timeline, click a step, and compare the variable state before and after to see precisely what that policy mutated.</p>
+<p>Three reading moves cover almost everything:</p>
+<ul>
+<li><strong>Step</strong> — walk the timeline top to bottom. The order <em>is</em> the execution order, so a policy you expected that isn't in the list simply never ran (usually a condition that didn't match).</li>
+<li><strong>Watch</strong> — pick a variable (say <code>request.header.x-fapi-interaction-id</code> or your own <code>extracted.account</code>) and follow its value down the timeline to find the step where it first appears or goes wrong.</li>
+<li><strong>Inspect</strong> — open a single step and read the full variable set and the policy's own status, including any fault it raised.</li>
+</ul>
+<h2 id="hands-on-lab">Hands-on lab</h2>
+<div class="lab">
+<h4 id="lab-open-a-trace-and-read-what-each-policy-did">Lab — open a Trace and read what each policy did</h4>
+<p>You'll start a debug session on <code>hello-proxy</code>, send one request into it, and read back the timeline — then add a tiny <code>AssignMessage</code> and watch the variable it sets appear at exactly one step.</p>
+<p><strong>Prereqs:</strong> <code>hello-proxy</code> deployed in <code>eval</code> (from 1.3/1.4) with <code>$ORG</code>, <code>$ENV</code>, <code>$TOKEN</code>, and <code>$RUNTIME_HOST</code> exported, and the deployed revision known. Capture it so the commands target the right artifact:</p>
+<div class="codehilite"><pre><span></span><code><span class="nv">REV</span><span class="o">=</span><span class="k">$(</span>apigeecli<span class="w"> </span>apis<span class="w"> </span>listdeploy<span class="w"> </span>--name<span class="w"> </span>hello-proxy<span class="w"> </span>--org<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ORG</span><span class="s2">&quot;</span><span class="w"> </span>--token<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TOKEN</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.deployments[] | select(.environment==&quot;&#39;</span><span class="s2">&quot;</span><span class="nv">$ENV</span><span class="s2">&quot;</span><span class="s1">&#39;&quot;) | .revision&#39;</span><span class="k">)</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;tracing revision </span><span class="nv">$REV</span><span class="s2">&quot;</span>
+</code></pre></div>
+
+<p><strong>1. Open a debug session</strong> on that revision. The returned session id is the recording window's handle:</p>
+<div class="codehilite"><pre><span></span><code><span class="nv">SESSION</span><span class="o">=</span><span class="k">$(</span>apigeecli<span class="w"> </span>apis<span class="w"> </span>debug<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span>hello-proxy<span class="w"> </span>--rev<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$REV</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--env<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ENV</span><span class="s2">&quot;</span><span class="w"> </span>--org<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ORG</span><span class="s2">&quot;</span><span class="w"> </span>--token<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TOKEN</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.name&#39;</span><span class="k">)</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;session: </span><span class="nv">$SESSION</span><span class="s2">&quot;</span>
+</code></pre></div>
+
+<p><strong>2. Send a request into the open window</strong> so there's a transaction to capture. The interaction id gives you something distinctive to watch later:</p>
+<div class="codehilite"><pre><span></span><code><span class="nv">IID</span><span class="o">=</span><span class="k">$(</span>uuidgen<span class="k">)</span>
+curl<span class="w"> </span>-s<span class="w"> </span>-o<span class="w"> </span>/dev/null<span class="w"> </span><span class="s2">&quot;https://</span><span class="nv">$RUNTIME_HOST</span><span class="s2">/v1/hello/json&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;x-fapi-interaction-id: </span><span class="nv">$IID</span><span class="s2">&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;sent </span><span class="nv">$IID</span><span class="s2">&quot;</span>
+</code></pre></div>
+
+<p><strong>3. List the captured transactions, then fetch one</strong> to read its timeline. Each transaction id is one recorded request:</p>
+<div class="codehilite"><pre><span></span><code>apigeecli<span class="w"> </span>apis<span class="w"> </span>debug<span class="w"> </span>list<span class="w"> </span>--name<span class="w"> </span>hello-proxy<span class="w"> </span>--rev<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$REV</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--session<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SESSION</span><span class="s2">&quot;</span><span class="w"> </span>--env<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ENV</span><span class="s2">&quot;</span><span class="w"> </span>--org<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ORG</span><span class="s2">&quot;</span><span class="w"> </span>--token<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>
+
+<span class="c1"># grab the first transaction id from that list, then pull the full recording</span>
+<span class="nv">TX</span><span class="o">=</span><span class="s2">&quot;&lt;paste a transaction id&gt;&quot;</span>
+apigeecli<span class="w"> </span>apis<span class="w"> </span>debug<span class="w"> </span>get<span class="w"> </span>--name<span class="w"> </span>hello-proxy<span class="w"> </span>--rev<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$REV</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--session<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SESSION</span><span class="s2">&quot;</span><span class="w"> </span>--transaction<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TX</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--env<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ENV</span><span class="s2">&quot;</span><span class="w"> </span>--org<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ORG</span><span class="s2">&quot;</span><span class="w"> </span>--token<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TOKEN</span><span class="s2">&quot;</span><span class="w"> </span>&gt;<span class="w"> </span>trace.json
+</code></pre></div>
+
+<p><strong>4. Read the timeline.</strong> The recording is an ordered list of execution points. List what ran, and confirm your interaction id is in the captured variables:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># the ordered execution points (PreFlow, RouteRule, target request/response, …)</span>
+jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.point[].id&#39;</span><span class="w"> </span>trace.json
+
+<span class="c1"># prove Trace captured the variable you sent — your interaction id</span>
+grep<span class="w"> </span>-o<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$IID</span><span class="s2">&quot;</span><span class="w"> </span>trace.json<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Trace captured this request&quot;</span>
+</code></pre></div>
+
+<p>For the same request in the Apigee UI, open <strong>Debug → start a session</strong> on <code>hello-proxy</code> / <code>eval</code>, replay the <code>curl</code>, and click each step in the transaction map. The UI's variable pane is the "watch window"; the <code>trace.json</code> above is the same data, scriptable.</p>
+<p><strong>5. Now make a policy <em>do</em> something, and watch it in the trace.</strong> Add <code>apiproxy/policies/AM-Stamp.xml</code> that copies the interaction id into a variable of your own:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">&lt;AssignMessage</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;AM-Stamp&quot;</span><span class="nt">&gt;</span>
+<span class="w">  </span><span class="nt">&lt;AssignVariable&gt;</span>
+<span class="w">    </span><span class="nt">&lt;Name&gt;</span>trace.demo.iid<span class="nt">&lt;/Name&gt;</span>
+<span class="w">    </span><span class="nt">&lt;Ref&gt;</span>request.header.x-fapi-interaction-id<span class="nt">&lt;/Ref&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/AssignVariable&gt;</span>
+<span class="nt">&lt;/AssignMessage&gt;</span>
+</code></pre></div>
+
+<p>Attach it in the ProxyEndpoint request PreFlow, redeploy (this mints a new revision per 1.4), recapture <code>$REV</code>, and re-run steps 1–4. In the new <code>trace.json</code>, your variable now appears — and only <em>after</em> the <code>AM-Stamp</code> step:</p>
+<div class="codehilite"><pre><span></span><code>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.. | objects | select(.name==&quot;trace.demo.iid&quot;) | .value&#39;</span><span class="w"> </span>trace.json<span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-1
+</code></pre></div>
+
+<p><strong>What success looks like:</strong> you can point at the ordered list of execution points and name what ran where; you can find your <code>x-fapi-interaction-id</code> in the captured variables; and after step 5 you can show that <code>trace.demo.iid</code> is <em>absent</em> before <code>AM-Stamp</code> and <em>present</em> after it — you watched a single policy mutate the message, exactly like watching a variable change one line at a time in your IDE.</p>
+</div>
+<h2 id="verify-it">Verify it</h2>
+<p>You should be able to answer "what ran, in what order, and what did it change?" entirely from the recording:</p>
+<ul>
+<li>The order of <code>point[].id</code> in the trace <em>is</em> the execution order. A policy you expected but don't see in the list never executed — almost always a condition that evaluated false (you'll branch deliberately in 2.3).</li>
+<li>Pick any one step and you can read the variable set as it stood <em>at that step</em> — that before/after delta is how you attribute a change to a specific policy rather than guessing.</li>
+</ul>
+<p>If you just want a quick scripted check that a session captured anything at all:</p>
+<div class="codehilite"><pre><span></span><code>apigeecli<span class="w"> </span>apis<span class="w"> </span>debug<span class="w"> </span>list<span class="w"> </span>--name<span class="w"> </span>hello-proxy<span class="w"> </span>--rev<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$REV</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--session<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SESSION</span><span class="s2">&quot;</span><span class="w"> </span>--env<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ENV</span><span class="s2">&quot;</span><span class="w"> </span>--org<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ORG</span><span class="s2">&quot;</span><span class="w"> </span>--token<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TOKEN</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.[] | length&#39;</span>
+</code></pre></div>
+
+<p>A non-zero count means your request landed inside the open window. Zero almost always means the window closed, or you traced the wrong revision.</p>
+<div class="admonition failure">
+<p class="admonition-title">Common failure modes</p>
+<ul>
+<li><strong>Empty trace — no transactions captured.</strong> The session expired (it auto-closes after a short window / a fixed transaction count) before your request arrived, so the recording is empty. Symptom: <code>debug list</code> returns nothing. Open the session and send the request promptly, in that order.</li>
+<li><strong>Tracing the wrong revision.</strong> You started the session on the deployed revision but tested against a freshly-minted-but-undeployed one (or vice versa). Symptom: requests succeed yet never appear in the trace. Always derive <code>$REV</code> from <code>listdeploy</code>, as in the lab.</li>
+<li><strong>Expecting a pause.</strong> Treating Trace like a breakpoint and waiting for execution to "stop." It never stops — the request completes and you read the recording afterward. Symptom: "my curl returned but the debugger didn't break."</li>
+<li><strong>Reading the response and ignoring the request side.</strong> A value that looks wrong in the response was often already wrong inbound. Walk the timeline from the <em>first</em> point, not from the response. Symptom: blaming a response policy for a value an earlier request policy set.</li>
+<li><strong>Leaving sensitive data unmasked.</strong> A raw trace of a real OAuth/Open Banking call captures tokens and account data in plaintext. Don't share <code>trace.json</code> casually; masking is configured in 3.1. Symptom: secrets sitting in a file you were about to paste into a ticket.</li>
+</ul>
+</div>
+<div class="admonition stretch">
+<p class="admonition-title">Stretch goal</p>
+<p>Capture a full Trace session, export the transaction to a file (the <code>debug get … &gt; trace.json</code> above), and annotate it the way you'd comment a stack trace: for each policy step, write one line saying <em>which flow variable it read, which it wrote, and why that step exists</em>. Pick a proxy with at least three policies so there's a real chain to narrate. The exercise that pays off later is finding the single step where a variable first becomes wrong — that's the gateway equivalent of locating the frame where your Spring object went null, and doing it on a trivial proxy now is what makes you fast on a FAPI proxy in Part 4.</p>
+</div>
+<h2 id="recap-next">Recap &amp; next</h2>
+<p>Trace is your gateway debugger: start a debug session on a deployed revision, fire a request into the recording window, then read the ordered timeline of every policy that executed with its flow variables snapshotted at each step. <strong>Step</strong> the timeline, <strong>watch</strong> a variable down it, <strong>inspect</strong> a single step — the same three moves you make in an IDE — and you can attribute any change to the exact policy that made it. You'll use this in nearly every session from here.</p>
+<p><strong>Next — 2.1:</strong> you've been reading a pipeline you haven't formally dissected. Part 2 opens with <strong>the flow model &amp; request/response symmetry</strong> — the two endpoints and four attach points that those Trace steps were running at all along.</p><div class="session-complete" data-session-code="1.5"><button id="markComplete" type="button" class="mark-btn"><span class="mark-box">&#10003;</span> Mark 1.5 complete</button><span class="mark-hint">Progress is saved in your browser.</span></div><div class="pager">
+<a class="prev" href="session-04.html"><span class="pager-dir">&larr; Previous</span><span class="pager-label">1.4 · Revisions, deploy &amp; rollback</span></a>
+<a class="next" href="session-06.html"><span class="pager-dir">Next &rarr;</span><span class="pager-label">2.1 · The flow model &amp; request/response symmetry</span></a>
+</div>
+    </main>
+    <aside class="toc-rail" aria-label="On this page"><div class="toc-title">On this page</div><div class="toc">
+<ul>
+<li><a href="#why-this-exists">Why this exists</a></li>
+<li><a href="#the-concept">The concept</a></li>
+<li><a href="#hands-on-lab">Hands-on lab</a></li>
+<li><a href="#verify-it">Verify it</a></li>
+<li><a href="#recap-next">Recap &amp; next</a></li>
+</ul>
+</div>
+</aside>
+  </div>
+
+  <script>
+    window.__COURSE__ = { total: 33, key: "apigeex-spring.progress.v1" };
+  </script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({
+      startOnLoad: true,
+      securityLevel: 'loose',
+      theme: 'base',
+      themeVariables: {
+        background: '#1A1D24',
+        primaryColor: '#1F2530', primaryBorderColor: '#F5A524', primaryTextColor: '#ECEDEE',
+        lineColor: '#7A8290', secondaryColor: '#2A1B12', tertiaryColor: '#241a0f',
+        secondaryBorderColor: '#FF6B1A', tertiaryBorderColor: '#E03131',
+        noteBkgColor: '#241a0f', noteTextColor: '#ECEDEE', noteBorderColor: '#F5A524',
+        fontFamily: '-apple-system, Segoe UI, Roboto, sans-serif', fontSize: '14px'
+      }
+    });
+    window.__mermaidReady = true;
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script defer src="assets/widgets.js"></script>
+  <script defer src="assets/app.js"></script>
+
+</body>
+</html>

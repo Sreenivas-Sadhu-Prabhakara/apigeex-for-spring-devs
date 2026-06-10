@@ -1,0 +1,3 @@
+# Build-time only. The hosted site is plain static HTML and needs none of this.
+markdown>=3.4,<4
+pygments>=2.15

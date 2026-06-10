@@ -1,0 +1,53 @@
+{
+  "_comment": "Hero image slots. build.py reads `src` and overlays the eyebrow/headline as crisp HTML. Placeholders are abstract SVGs (tools/gen_placeholders.py). To use generated raster art, drop a PNG into assets/heroes/ and point `src` at it — nothing else changes.",
+  "splash": {
+    "src": "assets/heroes/splash.svg",
+    "alt": "Abstract Apolaki sun rising over a charcoal horizon",
+    "eyebrow": "Apigee X · for Spring Boot developers",
+    "headline": "Learn the gateway by bridging from what you already know"
+  },
+  "parts": {
+    "1": {
+      "src": "assets/heroes/part-1.svg",
+      "alt": "Abstract solar disc at dawn",
+      "eyebrow": "Part 1",
+      "headline": "Foundations & the Apigee mental model"
+    },
+    "2": {
+      "src": "assets/heroes/part-2.svg",
+      "alt": "Abstract sun with radiating flow lines",
+      "eyebrow": "Part 2",
+      "headline": "Flow & mediation engine"
+    },
+    "3": {
+      "src": "assets/heroes/part-3.svg",
+      "alt": "Abstract sun behind a layered shield form",
+      "eyebrow": "Part 3",
+      "headline": "Security, identity & API products"
+    },
+    "4": {
+      "src": "assets/heroes/part-4.svg",
+      "alt": "Abstract sun over interlocking rings",
+      "eyebrow": "Part 4",
+      "headline": "FAPI 1.0 Advanced & the OB trust framework"
+    },
+    "5": {
+      "src": "assets/heroes/part-5.svg",
+      "alt": "Abstract sun over a connected network",
+      "eyebrow": "Part 5",
+      "headline": "Building the UK Open Banking APIs"
+    },
+    "6": {
+      "src": "assets/heroes/part-6.svg",
+      "alt": "Abstract sun over a steady horizon line",
+      "eyebrow": "Part 6",
+      "headline": "Operations, delivery & observability"
+    },
+    "7": {
+      "src": "assets/heroes/part-7.svg",
+      "alt": "Abstract sun at full zenith",
+      "eyebrow": "Part 7",
+      "headline": "Capstone — a production-grade platform"
+    }
+  }
+}

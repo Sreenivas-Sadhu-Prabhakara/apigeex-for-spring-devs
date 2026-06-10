@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="apolaki">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>6.4 Productisation, monetization & API hub · Apigee X for Spring Boot Developers</title>
+  <link rel="stylesheet" href="assets/pygments.css">
+  <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet" href="assets/widgets.css">
+</head>
+<body>
+  <div id="readingBar"></div>
+  <button id="navToggle" class="nav-toggle" aria-label="Toggle navigation">&#9776; Menu</button>
+  <div class="layout">
+    <nav class="sidebar" aria-label="Curriculum">
+<a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true"></span><span class="brand-text">Apigee&nbsp;X <em>for Spring devs</em></span></a>
+<div class="nav-progress"><div class="nav-progress-bar"><span id="navProgressFill"></span></div><span id="navProgressText" class="nav-progress-text">0 / 33 complete</span></div>
+<div class="nav-part">Part 1 — Foundations &amp; the Apigee mental model</div>
+<ul>
+<li data-session="1"><a href="session-01.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">1.1</span> <span class="seqtitle">What an API-gateway product actually is</span></a></li>
+<li data-session="2"><a href="session-02.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">1.2</span> <span class="seqtitle">Architecture &amp; your free evaluation org</span></a></li>
+<li data-session="3"><a href="session-03.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">1.3</span> <span class="seqtitle">Your first passthrough reverse proxy</span></a></li>
+<li data-session="4"><a href="session-04.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">1.4</span> <span class="seqtitle">Revisions, deploy &amp; rollback</span></a></li>
+<li data-session="5"><a href="session-05.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">1.5</span> <span class="seqtitle">The Trace tool is your gateway debugger</span></a></li>
+</ul>
+<div class="nav-part">Part 2 — Flow &amp; mediation engine</div>
+<ul>
+<li data-session="6"><a href="session-06.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">2.1</span> <span class="seqtitle">The flow model &amp; request/response symmetry</span></a></li>
+<li data-session="7"><a href="session-07.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">2.2</span> <span class="seqtitle">The message &amp; flow-variable model</span></a></li>
+<li data-session="8"><a href="session-08.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">2.3</span> <span class="seqtitle">Conditions, RouteRules &amp; conditional flows</span></a></li>
+<li data-session="9"><a href="session-09.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">2.4</span> <span class="seqtitle">AssignMessage &amp; ExtractVariables</span></a></li>
+<li data-session="10"><a href="session-10.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">2.5</span> <span class="seqtitle">JavaScript vs Java callouts: the trade-off</span></a></li>
+<li data-session="11"><a href="session-11.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">2.6</span> <span class="seqtitle">Quotas &amp; SpikeArrest: distributed and product-scoped</span></a></li>
+<li data-session="12"><a href="session-12.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">2.7</span> <span class="seqtitle">Caching vs KVM vs PropertySets: the three stores</span></a></li>
+</ul>
+<div class="nav-part">Part 3 — Security, identity &amp; API products</div>
+<ul>
+<li data-session="13"><a href="session-13.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">3.1</span> <span class="seqtitle">Threat protection, CORS &amp; data masking</span></a></li>
+<li data-session="14"><a href="session-14.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">3.2</span> <span class="seqtitle">API Products, Apps, Developers &amp; keys</span></a></li>
+<li data-session="15"><a href="session-15.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">3.3</span> <span class="seqtitle">OAuthV2 as a token server (client credentials)</span></a></li>
+<li data-session="16"><a href="session-16.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">3.4</span> <span class="seqtitle">Auth-code + PKCE &amp; JWT verification</span></a></li>
+<li data-session="17"><a href="session-17.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">3.5</span> <span class="seqtitle">TLS &amp; mTLS: keystores, north- &amp; south-bound</span></a></li>
+<li data-session="18"><a href="session-18.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">3.6</span> <span class="seqtitle">TargetServers, load balancing &amp; health</span></a></li>
+<li data-session="19"><a href="session-19.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">3.7</span> <span class="seqtitle">Shared flows, FlowHooks &amp; the fault taxonomy</span></a></li>
+</ul>
+<div class="nav-part">Part 4 — FAPI 1.0 Advanced &amp; the OB trust framework</div>
+<ul>
+<li data-session="20"><a href="session-20.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">4.1</span> <span class="seqtitle">The OB trust framework &amp; OBIE roles</span></a></li>
+<li data-session="21"><a href="session-21.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">4.2</span> <span class="seqtitle">The FAPI Advanced profile: what it requires</span></a></li>
+<li data-session="22"><a href="session-22.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">4.3</span> <span class="seqtitle">Implementing FAPI I: PAR, request objects &amp; client auth</span></a></li>
+<li data-session="23"><a href="session-23.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">4.4</span> <span class="seqtitle">Implementing FAPI II: mTLS-bound tokens &amp; introspection</span></a></li>
+</ul>
+<div class="nav-part">Part 5 — Building the UK Open Banking APIs</div>
+<ul>
+<li data-session="24"><a href="session-24.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">5.1</span> <span class="seqtitle">Dynamic Client Registration (DCR)</span></a></li>
+<li data-session="25"><a href="session-25.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">5.2</span> <span class="seqtitle">The account-access consent lifecycle</span></a></li>
+<li data-session="26"><a href="session-26.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">5.3</span> <span class="seqtitle">AISP reads: accounts, balances &amp; transactions</span></a></li>
+<li data-session="27"><a href="session-27.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">5.4</span> <span class="seqtitle">PISP payments &amp; idempotency</span></a></li>
+<li data-session="28"><a href="session-28.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">5.5</span> <span class="seqtitle">Confirmation of funds &amp; the end-to-end journey</span></a></li>
+</ul>
+<div class="nav-part">Part 6 — Operations, delivery &amp; observability</div>
+<ul>
+<li data-session="29"><a href="session-29.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">6.1</span> <span class="seqtitle">Environments, env groups &amp; hostnames</span></a></li>
+<li data-session="30"><a href="session-30.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">6.2</span> <span class="seqtitle">CI/CD &amp; config-as-code</span></a></li>
+<li data-session="31"><a href="session-31.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">6.3</span> <span class="seqtitle">Observability, analytics &amp; Advanced API Security</span></a></li>
+<li class="active" data-session="32"><a href="session-32.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">6.4</span> <span class="seqtitle">Productisation, monetization &amp; API hub</span></a></li>
+</ul>
+<div class="nav-part">Part 7 — Capstone</div>
+<ul>
+<li data-session="33"><a href="session-33.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">7.1</span> <span class="seqtitle">Capstone: a production-grade OB platform &amp; go-live review</span></a></li>
+</ul>
+</nav>
+    <main class="content" data-session="32">
+      <div class="crumbs"><span class="crumb-part">Part 6 — Operations, delivery &amp; observability</span><span class="crumb-sep">·</span><span class="crumb-code">Session 6.4</span><span class="crumb-sep">·</span><span class="crumb-min">~45 min</span></div><div class="builds-on"><span class="builds-on-tag">Builds on</span> <a href="session-31.html">6.3 · Observability, analytics &amp; Advanced API Security</a></div><h1 id="64-productisation-monetization-api-hub">6.4 — Productisation, monetization &amp; API hub</h1>
+<div class="admonition bottomline">
+<p class="admonition-title">Bottom line</p>
+<p>An endpoint that works is not yet a <em>product</em>. Apigee's productisation layer turns your proxies into consumable, governed, sellable units: an <strong>API product</strong> bundles operations into a thing developers subscribe to, a <strong>developer portal</strong> publishes its OpenAPI docs so a TPP can self-serve a key, <strong>monetization</strong> attaches a rate plan (free / tiered / per-call), and <strong>API hub</strong> catalogues every API across the org for governance. There is no Spring analogue for any of this — it's the business-and-governance wrapper around the technology you've already built.</p>
+</div>
+<h2 id="why-this-exists">Why this exists</h2>
+<p>Everything to this point has been engineering: proxies, policies, security, CI/CD, observability. None of it answers the questions a real API programme actually runs on — <em>how does an outside developer discover this API, read its docs, agree to terms, and get a working credential without emailing you?</em> And <em>how do you charge for it, or at least cap and tier it, per customer?</em> In Spring you'd hand-build a signup page, a docs site, a key-issuing endpoint, and a billing integration — four bespoke systems glued to your service. Apigee ships them as platform features that sit on top of the entitlement chain you already know.</p>
+<p>The <strong>API product</strong> is the hinge, and you met it in 3.2 as the unit of <em>access</em>. Here it does a second job: it's also the unit of <em>packaging and monetization</em>. The same object that decides "this app may call <code>/accounts</code> GET at 1000/day" is the thing a developer subscribes to in a portal and the thing a rate plan prices. One concept, three roles — access control, packaging, and pricing — which is why getting the product boundaries right matters far more than it first appears.</p>
+<p>The <strong>developer portal</strong> is the self-service front door. You publish a product plus its OpenAPI spec; the portal renders human-readable reference docs and a signup flow, so a third party registers an app and receives a <code>consumerKey</code> <em>without you in the loop</em>. <strong>Monetization</strong> layers rate plans onto products — free tiers, tiered volume pricing, per-call charges — with billing and reporting. And <strong>API hub</strong> is the org-wide catalogue: every API (Apigee-managed or not) registered with its metadata, lifecycle stage, and governance attributes, so a large organisation can find, standardise, and govern its whole API estate. The lab focuses on the first two; monetization and API hub are awareness-level.</p>
+<div class="admonition bridge">
+<p class="admonition-title">Spring Boot bridge</p>
+<p>This is the rare session where the honest mapping is <em>there isn't one</em>. The closest fragments in the Spring world are tools you'd assemble yourself, and none of them is the product/monetization concept:</p>
+<table>
+<thead>
+<tr>
+<th>What you'd build in the Spring world</th>
+<th>Apigee X feature</th>
+<th>Why it's not really the same</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>springdoc-openapi serving <code>/v3/api-docs</code> + Swagger UI</td>
+<td>OpenAPI spec published to the <strong>developer portal</strong></td>
+<td>The portal adds signup, key issuance, and access terms, not just rendering</td>
+</tr>
+<tr>
+<td>A hand-rolled "request an API key" form + admin approval</td>
+<td><strong>Developer portal</strong> self-service registration</td>
+<td>Issues a real credential bound to a product, with approval workflow</td>
+</tr>
+<tr>
+<td>A custom usage-metering + Stripe billing integration</td>
+<td><strong>Monetization</strong> rate plans</td>
+<td>First-class tiers/quotas/billing wired to the product, not bespoke code</td>
+</tr>
+<tr>
+<td>A spreadsheet or wiki listing your services</td>
+<td><strong>API hub</strong> catalogue</td>
+<td>Governed metadata, lifecycle, and discovery across the whole org</td>
+</tr>
+</tbody>
+</table>
+<p>The takeaway: productisation is a <em>business and governance</em> layer. Spring gives you the runtime; it deliberately has nothing to say about packaging your runtime into something a stranger can buy and self-serve.</p>
+</div>
+<div class="admonition breaks">
+<p class="admonition-title">Where the analogy breaks</p>
+<p>springdoc makes people reach for the portal as "just hosted Swagger UI" — and that misses the point entirely. The portal's reason to exist is not documentation; it's the <strong>self-service trust boundary</strong>: an unknown developer agrees to terms, registers an app, and walks away with a working, product-scoped credential, all without a human. Swagger UI renders a spec; it never issues you a key bound to a quota and a set of allowed operations. Likewise monetization is not a billing plugin you could swap in — the rate plan is anchored to the <em>product</em>, so changing what a customer can do and what they pay for is one governed edit in the same place that controls their access. The analogy breaks because Spring has no notion of an endpoint as a <em>commercial, self-serviceable unit</em>; here that's the whole subject.</p>
+</div>
+<h2 id="the-concept">The concept</h2>
+<p>The product is the unit of access <em>and</em> the unit of packaging and monetization. The same entitlement chain you enforce at runtime is what a developer subscribes to in the portal and what a rate plan prices — so the picture from 3.2 is exactly the picture here, read commercially:</p>
+<figure class="svg-figure">
+<img src="assets/svg/entitlement-chain.svg" alt="Developer owns an App; the App is granted an API Product; the Product exposes specific Proxy operations and now also carries the rate plan and portal listing.">
+<figcaption>The entitlement chain, read as packaging. The <b>API product</b> is simultaneously the access boundary (right), the thing a developer self-serves in the <b>portal</b> (left), and the thing a <b>rate plan</b> prices. One object, three jobs.</figcaption>
+</figure>
+
+<p>A rate plan attaches tiers to a product. A typical AISP shape:</p>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Monthly fee</th>
+<th>Included calls/day</th>
+<th>Overage</th>
+<th>Typical consumer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Free / Sandbox</strong></td>
+<td>£0</td>
+<td>1,000</td>
+<td>hard cap (429)</td>
+<td>TPP evaluating the API</td>
+</tr>
+<tr>
+<td><strong>Standard</strong></td>
+<td>£99</td>
+<td>50,000</td>
+<td>£0.001 / call</td>
+<td>a small budgeting app in production</td>
+</tr>
+<tr>
+<td><strong>Partner</strong></td>
+<td>negotiated</td>
+<td>custom</td>
+<td>per contract</td>
+<td>a regulated bank partner</td>
+</tr>
+</tbody>
+</table>
+<p>Those tiers map straight onto the <code>Quota</code> you already drive from the product (3.2) — monetization adds the <em>pricing and billing</em> on top of the <em>limit</em> you can already enforce. The portal, meanwhile, takes the product plus its OpenAPI spec and renders the developer-facing front door.</p>
+<h2 id="hands-on-lab">Hands-on lab</h2>
+<div class="lab">
+<h4 id="lab-productise-the-aisp-api-and-publish-it-to-a-portal">Lab — productise the AISP API and publish it to a portal</h4>
+<p><strong>Prereqs:</strong> <code>$ORG</code>, <code>$ENV</code>, <code>$TOKEN</code>, <code>$RUNTIME_HOST</code> exported, the deployed <code>aisp-accounts</code> proxy and the <code>aisp-read</code> product from 3.2, and an OpenAPI 3 spec for the AISP API (write a minimal one below if you don't have it).</p>
+<p><strong>1. Refine the API product</strong> so it's portal-ready — a customer-facing display name and description, a published <code>productized</code> flag isn't needed, but quota and scopes should match the tier you intend to sell. Re-create or update <code>aisp-read</code>:</p>
+<div class="codehilite"><pre><span></span><code>apigeecli<span class="w"> </span>products<span class="w"> </span>create<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--name<span class="w"> </span>aisp-read<span class="w"> </span>--displayName<span class="w"> </span><span class="s2">&quot;AISP Accounts (Read)&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--approval<span class="w"> </span>auto<span class="w"> </span>--envs<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ENV</span><span class="s2">&quot;</span><span class="w"> </span>--scopes<span class="w"> </span><span class="s2">&quot;accounts&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--quota<span class="w"> </span><span class="m">1000</span><span class="w"> </span>--interval<span class="w"> </span><span class="m">1</span><span class="w"> </span>--unit<span class="w"> </span>day<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--opgrp<span class="w"> </span><span class="s1">&#39;{&quot;operationConfigs&quot;:[{&quot;apiSource&quot;:&quot;aisp-accounts&quot;,&quot;operations&quot;:[{&quot;resource&quot;:&quot;/accounts&quot;,&quot;methods&quot;:[&quot;GET&quot;]},{&quot;resource&quot;:&quot;/accounts/**&quot;,&quot;methods&quot;:[&quot;GET&quot;]}]}]}&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--org<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ORG</span><span class="s2">&quot;</span><span class="w"> </span>--token<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>
+</code></pre></div>
+
+<p><strong>2. A minimal OpenAPI spec</strong> for the developer-facing docs. Save as <code>aisp-openapi.yaml</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">openapi</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3.0.3</span>
+<span class="nt">info</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">AISP Accounts API</span>
+<span class="w">  </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1.0&quot;</span>
+<span class="w">  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read-only access to a PSU&#39;s account list and balances (UK Open Banking AISP).</span>
+<span class="nt">servers</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://RUNTIME_HOST/aisp-accounts</span>
+<span class="nt">security</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">apiKey</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="nt">paths</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">/accounts</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">get</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">summary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">List the PSU&#39;s accounts</span>
+<span class="w">      </span><span class="nt">responses</span><span class="p">:</span>
+<span class="w">        </span><span class="s">&quot;200&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="nv">A list of authorised accounts</span><span class="p p-Indicator">}</span>
+<span class="w">        </span><span class="s">&quot;401&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="nv">Missing or invalid API key</span><span class="p p-Indicator">}</span>
+<span class="nt">components</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">securitySchemes</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">apiKey</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apiKey</span>
+<span class="w">      </span><span class="nt">in</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">header</span>
+<span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">x-api-key</span>
+</code></pre></div>
+
+<p><strong>3. Create a developer portal</strong> and register the spec. Apigee provides an <em>integrated</em> portal per org; create one and attach an API documentation entry sourced from your spec:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># create the portal (sites) for this org</span>
+apigeecli<span class="w"> </span>sites<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span>aisp-portal<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--org<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ORG</span><span class="s2">&quot;</span><span class="w"> </span>--token<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>
+
+<span class="c1"># publish the OpenAPI spec into the spec store</span>
+apigeecli<span class="w"> </span>spec<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span>aisp-accounts<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--file<span class="w"> </span>./aisp-openapi.yaml<span class="w"> </span>--org<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ORG</span><span class="s2">&quot;</span><span class="w"> </span>--token<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>
+</code></pre></div>
+
+<p>Then in the Apigee UI under <strong>Publish → Portals → aisp-portal → API catalog</strong>, add a catalog item: select the <strong>aisp-read</strong> product, attach the <strong>aisp-accounts</strong> spec as its reference docs, mark it <strong>Published</strong> and <strong>visible to anonymous users</strong> (or registered users), and enable <strong>self-service key registration</strong>. (The console flow is the supported path for catalog visibility and theming; the CLI seeds the spec and product the catalog item points at.)</p>
+<p><strong>4. Draft a rate plan (awareness — console).</strong> Under <strong>Monetization → Rate plans</strong>, create a plan against <code>aisp-read</code> with a Free tier (1,000 calls/day, hard cap) and a Standard tier (50,000/day, per-call overage), matching the table above. No billing account is required to <em>draft</em> the plan; publishing it is what makes it purchasable.</p>
+<p><strong>5. Verify the self-service path</strong> by walking it as a developer would: open the portal URL (shown in the portal's settings), register a developer account, create an app against <strong>AISP Accounts (Read)</strong>, and copy the issued key. Then call the live API with it:</p>
+<div class="codehilite"><pre><span></span><code><span class="nv">KEY</span><span class="o">=</span><span class="s2">&quot;&lt;key self-served from the portal&gt;&quot;</span>
+curl<span class="w"> </span>-s<span class="w"> </span>-o<span class="w"> </span>/dev/null<span class="w"> </span>-w<span class="w"> </span><span class="s2">&quot;portal key: %{http_code}\n&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;x-api-key: </span><span class="nv">$KEY</span><span class="s2">&quot;</span><span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;x-fapi-interaction-id: </span><span class="k">$(</span>uuidgen<span class="k">)</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s2">&quot;https://</span><span class="nv">$RUNTIME_HOST</span><span class="s2">/aisp-accounts/accounts&quot;</span>
+</code></pre></div>
+
+<p><strong>What success looks like:</strong> the <strong>AISP Accounts (Read)</strong> product appears in the portal with rendered OpenAPI docs; a developer can self-register, create an app, and receive a <code>consumerKey</code> <em>without any action from you</em>; and that key returns <code>200</code> from the live proxy — proving the portal-issued credential is the same product-scoped key your <code>VerifyAPIKey</code> enforces. A draft rate plan exists against the product, ready to publish when a billing account is attached.</p>
+</div>
+<h2 id="verify-it">Verify it</h2>
+<p>The decisive test is the self-service loop with <em>you not involved</em>: a key minted through the portal must be a fully-fledged credential, not a placeholder. Confirm it by inspecting the app the portal created — <code>apigeecli apps list --org "$ORG" --token "$TOKEN"</code> should show the developer's app bound to <code>aisp-read</code>, and the key it issued is the same one that returned <code>200</code> above. That round-trip — portal signup to a live, product-scoped, quota-bound call — is the productisation layer working end to end.</p>
+<p>For governance, register the API in <strong>API hub</strong> (Apigee's catalogue) and set its lifecycle stage and owner. Then confirm the rate plan is anchored to the product, not the proxy: the Free tier's 1,000/day cap is the <em>same</em> <code>Quota</code> your proxy already enforces from the product, so a customer's plan and a customer's access are one edit in one place — exactly the single-source-of-truth that makes the product the centre of gravity.</p>
+<div class="admonition failure">
+<p class="admonition-title">Common failure modes</p>
+<ul>
+<li><strong>Treating the portal as hosted Swagger.</strong> You publish docs but never enable self-service registration, so a developer can read but not get a key. Symptom: "great docs, how do I actually call it?" Enable key registration on the catalog item.</li>
+<li><strong>Product boundaries too coarse.</strong> One giant product bundling AISP, PISP, and CoF can't be priced or tiered independently. Symptom: you can't offer a read-only free tier. Split products along the lines you'd sell and govern.</li>
+<li><strong>Spec server URL wrong.</strong> Leaving <code>RUNTIME_HOST</code> as a literal (or pointing at the backend) means the portal's "try it" calls hit the wrong host. Symptom: portal examples 404 or CORS-fail. Set the <code>servers.url</code> to your env-group hostname + base path.</li>
+<li><strong>Publishing a rate plan with no billing account.</strong> Drafting is free; <em>publishing</em> a monetized plan needs billing configured. Symptom: publish fails or the plan never becomes purchasable. Draft now, publish once billing is attached.</li>
+<li><strong>Forgetting visibility/approval.</strong> A product with <code>approval manual</code> or a catalog item not marked published leaves developers stuck pending. Symptom: signup succeeds but no key arrives. Set the product approval and catalog visibility deliberately.</li>
+</ul>
+</div>
+<div class="admonition stretch">
+<p class="admonition-title">Stretch goal</p>
+<p>Draft the full <strong>product bundle and rate plan for your AISP API</strong> the curriculum asks for. Decide the product split — is read-only accounts one product and transactions another, so you can give accounts away free and charge for transactions? Write the rate plan tiers (free / standard / partner), choosing for each the included volume, the overage model, and whether the cap is hard (429) or billed. Then map every tier's <em>limit</em> back to the <code>Quota</code> you'd drive from the product (3.2) and every tier's <em>price</em> to a monetization plan, and note the one decision that's purely commercial — usually the overage price — that no amount of proxy config can make for you.</p>
+</div>
+<h2 id="recap-next">Recap &amp; next</h2>
+<p>You can now explain why the <strong>API product</strong> is the unit of <em>packaging and monetization</em>, not just access — the same object from 3.2, read commercially. You refined a portal-ready AISP product, published an <strong>OpenAPI spec to a developer portal</strong> where a TPP self-serves a working, product-scoped key with no human in the loop, drafted <strong>monetization</strong> rate plan tiers anchored to that product, and saw where <strong>API hub</strong> catalogues and governs APIs across the org. This is the layer Spring deliberately has nothing to say about: turning a running endpoint into a consumable, governed, sellable product.</p>
+<p><strong>Next — 7.1:</strong> the capstone. You'll compose every concept — consent, AISP, PISP, and CoF, FAPI-secured end to end — into one operated Open Banking platform and run a <strong>go-live readiness review</strong>: the full system, every Spring-bridge concept assembled into one regulated, production-grade build.</p><div class="session-complete" data-session-code="6.4"><button id="markComplete" type="button" class="mark-btn"><span class="mark-box">&#10003;</span> Mark 6.4 complete</button><span class="mark-hint">Progress is saved in your browser.</span></div><div class="pager">
+<a class="prev" href="session-31.html"><span class="pager-dir">&larr; Previous</span><span class="pager-label">6.3 · Observability, analytics &amp; Advanced API Security</span></a>
+<a class="next" href="session-33.html"><span class="pager-dir">Next &rarr;</span><span class="pager-label">7.1 · Capstone: a production-grade OB platform &amp; go-live review</span></a>
+</div>
+    </main>
+    <aside class="toc-rail" aria-label="On this page"><div class="toc-title">On this page</div><div class="toc">
+<ul>
+<li><a href="#why-this-exists">Why this exists</a></li>
+<li><a href="#the-concept">The concept</a></li>
+<li><a href="#hands-on-lab">Hands-on lab</a></li>
+<li><a href="#verify-it">Verify it</a></li>
+<li><a href="#recap-next">Recap &amp; next</a></li>
+</ul>
+</div>
+</aside>
+  </div>
+
+  <script>
+    window.__COURSE__ = { total: 33, key: "apigeex-spring.progress.v1" };
+  </script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({
+      startOnLoad: true,
+      securityLevel: 'loose',
+      theme: 'base',
+      themeVariables: {
+        background: '#1A1D24',
+        primaryColor: '#1F2530', primaryBorderColor: '#F5A524', primaryTextColor: '#ECEDEE',
+        lineColor: '#7A8290', secondaryColor: '#2A1B12', tertiaryColor: '#241a0f',
+        secondaryBorderColor: '#FF6B1A', tertiaryBorderColor: '#E03131',
+        noteBkgColor: '#241a0f', noteTextColor: '#ECEDEE', noteBorderColor: '#F5A524',
+        fontFamily: '-apple-system, Segoe UI, Roboto, sans-serif', fontSize: '14px'
+      }
+    });
+    window.__mermaidReady = true;
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script defer src="assets/widgets.js"></script>
+  <script defer src="assets/app.js"></script>
+
+</body>
+</html>

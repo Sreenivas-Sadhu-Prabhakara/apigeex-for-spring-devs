@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="apolaki">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>2.7 Caching vs KVM vs PropertySets: the three stores · Apigee X for Spring Boot Developers</title>
+  <link rel="stylesheet" href="assets/pygments.css">
+  <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet" href="assets/widgets.css">
+</head>
+<body>
+  <div id="readingBar"></div>
+  <button id="navToggle" class="nav-toggle" aria-label="Toggle navigation">&#9776; Menu</button>
+  <div class="layout">
+    <nav class="sidebar" aria-label="Curriculum">
+<a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true"></span><span class="brand-text">Apigee&nbsp;X <em>for Spring devs</em></span></a>
+<div class="nav-progress"><div class="nav-progress-bar"><span id="navProgressFill"></span></div><span id="navProgressText" class="nav-progress-text">0 / 33 complete</span></div>
+<div class="nav-part">Part 1 — Foundations &amp; the Apigee mental model</div>
+<ul>
+<li data-session="1"><a href="session-01.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">1.1</span> <span class="seqtitle">What an API-gateway product actually is</span></a></li>
+<li data-session="2"><a href="session-02.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">1.2</span> <span class="seqtitle">Architecture &amp; your free evaluation org</span></a></li>
+<li data-session="3"><a href="session-03.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">1.3</span> <span class="seqtitle">Your first passthrough reverse proxy</span></a></li>
+<li data-session="4"><a href="session-04.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">1.4</span> <span class="seqtitle">Revisions, deploy &amp; rollback</span></a></li>
+<li data-session="5"><a href="session-05.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">1.5</span> <span class="seqtitle">The Trace tool is your gateway debugger</span></a></li>
+</ul>
+<div class="nav-part">Part 2 — Flow &amp; mediation engine</div>
+<ul>
+<li data-session="6"><a href="session-06.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">2.1</span> <span class="seqtitle">The flow model &amp; request/response symmetry</span></a></li>
+<li data-session="7"><a href="session-07.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">2.2</span> <span class="seqtitle">The message &amp; flow-variable model</span></a></li>
+<li data-session="8"><a href="session-08.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">2.3</span> <span class="seqtitle">Conditions, RouteRules &amp; conditional flows</span></a></li>
+<li data-session="9"><a href="session-09.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">2.4</span> <span class="seqtitle">AssignMessage &amp; ExtractVariables</span></a></li>
+<li data-session="10"><a href="session-10.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">2.5</span> <span class="seqtitle">JavaScript vs Java callouts: the trade-off</span></a></li>
+<li data-session="11"><a href="session-11.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">2.6</span> <span class="seqtitle">Quotas &amp; SpikeArrest: distributed and product-scoped</span></a></li>
+<li class="active" data-session="12"><a href="session-12.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">2.7</span> <span class="seqtitle">Caching vs KVM vs PropertySets: the three stores</span></a></li>
+</ul>
+<div class="nav-part">Part 3 — Security, identity &amp; API products</div>
+<ul>
+<li data-session="13"><a href="session-13.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">3.1</span> <span class="seqtitle">Threat protection, CORS &amp; data masking</span></a></li>
+<li data-session="14"><a href="session-14.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">3.2</span> <span class="seqtitle">API Products, Apps, Developers &amp; keys</span></a></li>
+<li data-session="15"><a href="session-15.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">3.3</span> <span class="seqtitle">OAuthV2 as a token server (client credentials)</span></a></li>
+<li data-session="16"><a href="session-16.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">3.4</span> <span class="seqtitle">Auth-code + PKCE &amp; JWT verification</span></a></li>
+<li data-session="17"><a href="session-17.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">3.5</span> <span class="seqtitle">TLS &amp; mTLS: keystores, north- &amp; south-bound</span></a></li>
+<li data-session="18"><a href="session-18.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">3.6</span> <span class="seqtitle">TargetServers, load balancing &amp; health</span></a></li>
+<li data-session="19"><a href="session-19.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">3.7</span> <span class="seqtitle">Shared flows, FlowHooks &amp; the fault taxonomy</span></a></li>
+</ul>
+<div class="nav-part">Part 4 — FAPI 1.0 Advanced &amp; the OB trust framework</div>
+<ul>
+<li data-session="20"><a href="session-20.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">4.1</span> <span class="seqtitle">The OB trust framework &amp; OBIE roles</span></a></li>
+<li data-session="21"><a href="session-21.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">4.2</span> <span class="seqtitle">The FAPI Advanced profile: what it requires</span></a></li>
+<li data-session="22"><a href="session-22.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">4.3</span> <span class="seqtitle">Implementing FAPI I: PAR, request objects &amp; client auth</span></a></li>
+<li data-session="23"><a href="session-23.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">4.4</span> <span class="seqtitle">Implementing FAPI II: mTLS-bound tokens &amp; introspection</span></a></li>
+</ul>
+<div class="nav-part">Part 5 — Building the UK Open Banking APIs</div>
+<ul>
+<li data-session="24"><a href="session-24.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">5.1</span> <span class="seqtitle">Dynamic Client Registration (DCR)</span></a></li>
+<li data-session="25"><a href="session-25.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">5.2</span> <span class="seqtitle">The account-access consent lifecycle</span></a></li>
+<li data-session="26"><a href="session-26.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">5.3</span> <span class="seqtitle">AISP reads: accounts, balances &amp; transactions</span></a></li>
+<li data-session="27"><a href="session-27.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">5.4</span> <span class="seqtitle">PISP payments &amp; idempotency</span></a></li>
+<li data-session="28"><a href="session-28.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">5.5</span> <span class="seqtitle">Confirmation of funds &amp; the end-to-end journey</span></a></li>
+</ul>
+<div class="nav-part">Part 6 — Operations, delivery &amp; observability</div>
+<ul>
+<li data-session="29"><a href="session-29.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">6.1</span> <span class="seqtitle">Environments, env groups &amp; hostnames</span></a></li>
+<li data-session="30"><a href="session-30.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">6.2</span> <span class="seqtitle">CI/CD &amp; config-as-code</span></a></li>
+<li data-session="31"><a href="session-31.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">6.3</span> <span class="seqtitle">Observability, analytics &amp; Advanced API Security</span></a></li>
+<li data-session="32"><a href="session-32.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">6.4</span> <span class="seqtitle">Productisation, monetization &amp; API hub</span></a></li>
+</ul>
+<div class="nav-part">Part 7 — Capstone</div>
+<ul>
+<li data-session="33"><a href="session-33.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">7.1</span> <span class="seqtitle">Capstone: a production-grade OB platform &amp; go-live review</span></a></li>
+</ul>
+</nav>
+    <main class="content" data-session="12">
+      <div class="crumbs"><span class="crumb-part">Part 2 — Flow &amp; mediation engine</span><span class="crumb-sep">·</span><span class="crumb-code">Session 2.7</span><span class="crumb-sep">·</span><span class="crumb-min">~50 min</span></div><div class="builds-on"><span class="builds-on-tag">Builds on</span> <a href="session-11.html">2.6 · Quotas &amp; SpikeArrest: distributed and product-scoped</a></div><h1 id="27-caching-vs-kvm-vs-propertysets-the-three-stores">2.7 — Caching vs KVM vs PropertySets: the three stores</h1>
+<div class="admonition bottomline">
+<p class="admonition-title">Bottom line</p>
+<p>Apigee gives you three small, purpose-built stores, and the skill is matching data to the right one. <strong>ResponseCache</strong> (and the lower-level <strong>LookupCache</strong> / <strong>PopulateCache</strong>) holds <em>transient cached values</em>. <strong>Key-Value Maps (KVM)</strong> hold <em>mutable, encrypted, environment-scoped</em> config and tokens — but a KVM is <strong>not a database</strong>. <strong>PropertySets</strong> hold <em>read-only</em> properties packaged with the bundle at deploy time. Reach for these before you reach for "just add a database," because three of the four reasons you'd want one are already solved.</p>
+</div>
+<h2 id="why-this-exists">Why this exists</h2>
+<p>A Spring developer under pressure has a reflex: any time state needs to outlive a single request, add a row, add a table, add a datasource. That instinct is wrong at the gateway tier most of the time, because the things a <em>proxy</em> needs to remember are narrow and short-lived — a cached backend response, a rotating OAuth token, a feature flag, a per-environment base URL — and a relational database is heavy, slow, and one more thing to operate on the hot path.</p>
+<p>Apigee already ships the three stores those needs map to, and they differ along exactly the axes you care about: <strong>lifetime</strong> (does it expire?), <strong>mutability</strong> (can a running proxy write it?), and <strong>scope</strong> (environment-wide, or baked into the bundle?). Choosing correctly is a design decision with real consequences — put a secret in a PropertySet and you've committed it to the bundle; treat a KVM like Postgres and you'll be surprised by eventual consistency.</p>
+<p>The fourth need — actual relational or document data, things like <em>account balances</em> and <em>transactions</em> — genuinely is a backend's job, and Apigee is right to route to it rather than store it. The point of this session is to stop you using a database for the <em>first three</em> needs, where a native store is faster, cheaper, and already encrypted.</p>
+<div class="admonition bridge">
+<p class="admonition-title">Spring Boot bridge</p>
+<p>Each store maps to something you already use in Spring — and none of them maps to a database.</p>
+<table>
+<thead>
+<tr>
+<th>Spring concept</th>
+<th>Apigee store</th>
+<th>Lifetime</th>
+<th>Mutable at runtime?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@Cacheable</code> / Spring Cache (Caffeine, Redis)</td>
+<td><strong>ResponseCache</strong> / <strong>PopulateCache</strong> + <strong>LookupCache</strong></td>
+<td>TTL-bound, expires</td>
+<td>Written by the cache policy</td>
+</tr>
+<tr>
+<td><code>@ConfigurationProperties</code> you can change without redeploy (e.g. Spring Cloud Config)</td>
+<td><strong>Key-Value Map (KVM)</strong></td>
+<td>Persistent until overwritten</td>
+<td><strong>Yes</strong> — encrypted, env-scoped</td>
+</tr>
+<tr>
+<td><code>application.yml</code> / a read-only <code>@PropertySource</code> baked into the jar</td>
+<td><strong>PropertySet</strong></td>
+<td>Lifetime of the deployed revision</td>
+<td><strong>No</strong> — deploy-time only</td>
+</tr>
+<tr>
+<td>A JPA entity / relational table</td>
+<td><em>(none — call the backend)</em></td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="admonition breaks">
+<p class="admonition-title">Where the analogy breaks</p>
+<p>The one that bites is <strong>"KVM is not a database."</strong> It looks like a key/value table you can read and write, so people treat it like one — bulk-loading thousands of rows, expecting read-your-writes, querying it on every request. It is <strong>eventually consistent</strong>: a write may take seconds to propagate to every runtime instance, there are no transactions, no queries beyond key lookup, and it's tuned for <em>config-shaped</em> data (dozens to hundreds of small entries), not high-cardinality records. The other break: a <code>@PropertySource</code> in Spring can be re-read or overridden at runtime via the environment; an Apigee <strong>PropertySet</strong> is genuinely immutable for the life of the deployed revision — to change a value you redeploy the bundle. Read-only means read-only.</p>
+</div>
+<h2 id="the-concept">The concept</h2>
+<p>Match the data to the store along three axes — lifetime, mutability, scope:</p>
+<div class="codehilite"><pre><span></span><code>ResponseCache      cache a whole backend RESPONSE keyed by request. TTL. Skips the
+                   backend entirely on a hit. ↔ @Cacheable on a controller method.
+LookupCache /      cache ARBITRARY values (a computed token, a JWKS doc). PopulateCache
+PopulateCache      writes with a TTL; LookupCache reads. ↔ manual CacheManager.put/get.
+KVM                MUTABLE, ENCRYPTED, environment-scoped key/value. Eventually
+                   consistent. Good for rotating tokens + config. NOT a database.
+                   ↔ @ConfigurationProperties you can edit without a redeploy.
+PropertySet        READ-ONLY properties packaged in the bundle at deploy time. Read as
+                   propertyset.&lt;name&gt;.&lt;key&gt;. ↔ a baked-in application.yml.
+</code></pre></div>
+
+<p>Decision rule: <strong>Does it expire?</strong> → cache. <strong>Must a running proxy change it (a rotating token, a flag you flip without shipping)?</strong> → KVM. <strong>Is it fixed config that travels with the code (a backend base URL per environment, a feature constant)?</strong> → PropertySet. <strong>Is it real relational/document data (balances, transactions)?</strong> → none of these; call the backend.</p>
+<pre class="mermaid">flowchart TB
+  Q{&quot;What kind of data?&quot;}
+  Q --&gt;|&quot;expires / TTL&quot;| CACHE[&quot;ResponseCache · PopulateCache/LookupCache&quot;]
+  Q --&gt;|&quot;mutable, change without redeploy&quot;| KVM[&quot;Key-Value Map (encrypted, env-scoped, eventually consistent)&quot;]
+  Q --&gt;|&quot;fixed, ships with the bundle&quot;| PS[&quot;PropertySet (read-only, deploy-time)&quot;]
+  Q --&gt;|&quot;relational / high-cardinality records&quot;| DB[&quot;Backend service / database&quot;]</pre>
+<p>Now check your instinct — pick the right store for each case:</p>
+<div class="widget" data-widget="quiz"><script type="application/json">{"type": "quiz", "title": "Which store?", "questions": [{"q": "A rotating client-credentials token for a downstream backend, valid ~1 hour, must be reused across requests and refreshed when it expires. Where does it live?", "options": ["PropertySet", "ResponseCache", "A KVM (or PopulateCache with a TTL)", "A new Postgres table"], "answer": 2, "explain": "It's mutable and reused: a KVM (it survives, can be overwritten on refresh) or PopulateCache with a TTL matching the token lifetime. Not a PropertySet \u2014 that's read-only and deploy-time."}, {"q": "The per-environment base URL of the accounts backend (different in eval vs prod), fixed for the life of the deployment. Where does it belong?", "options": ["A PropertySet, read as propertyset.&lt;name&gt;.&lt;key&gt;", "A KVM written at runtime", "ResponseCache", "Hard-coded in the TargetEndpoint XML"], "answer": 0, "explain": "Fixed config that ships with the bundle and never changes at runtime is a PropertySet. (TargetServers also work, but the question is about the three stores.)"}, {"q": "A full GET /accounts response you want to serve without hitting the backend for 60 seconds. Which store?", "options": ["KVM", "PropertySet", "ResponseCache", "A database"], "answer": 2, "explain": "Caching a whole backend response keyed by the request, with a TTL, is exactly ResponseCache \u2014 the @Cacheable of the gateway."}, {"q": "Why is 'just put it in a KVM' wrong for 50,000 customer records queried per request?", "options": ["KVMs are read-only", "A KVM is not a database \u2014 eventually consistent, key-lookup only, tuned for config-sized data", "KVMs can't be encrypted", "KVMs expire after 60s"], "answer": 1, "explain": "KVM is config-shaped storage: eventually consistent, no queries beyond key lookup, no transactions. High-cardinality record data belongs behind a backend."}]}</script></div>
+<h2 id="hands-on-lab">Hands-on lab</h2>
+<div class="lab">
+<h4 id="lab-use-all-three-stores-in-one-proxy">Lab — use all three stores in one proxy</h4>
+<p><strong>Prereqs:</strong> <code>$ORG</code>, <code>$ENV</code>, <code>$TOKEN</code>, <code>$RUNTIME_HOST</code> exported, and the deployed <code>aisp-accounts</code> proxy from earlier sessions.</p>
+<p><strong>1. Create an encrypted KVM and seed a value</strong> — environment-scoped, encrypted at rest. We'll store a downstream backend token (the kind of mutable, rotatable value a KVM is <em>for</em>):</p>
+<div class="codehilite"><pre><span></span><code>apigeecli<span class="w"> </span>kvms<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span>backend-secrets<span class="w"> </span>--env<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ENV</span><span class="s2">&quot;</span><span class="w"> </span>--org<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ORG</span><span class="s2">&quot;</span><span class="w"> </span>--token<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>
+apigeecli<span class="w"> </span>kvms<span class="w"> </span>entries<span class="w"> </span>create<span class="w"> </span>--map<span class="w"> </span>backend-secrets<span class="w"> </span>--key<span class="w"> </span>downstream-token<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--value<span class="w"> </span><span class="s2">&quot;seed-token-rotate-me&quot;</span><span class="w"> </span>--env<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ENV</span><span class="s2">&quot;</span><span class="w"> </span>--org<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ORG</span><span class="s2">&quot;</span><span class="w"> </span>--token<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>
+</code></pre></div>
+
+<p><strong>2. Read the KVM from a policy</strong> with KeyValueMapOperations. <code>mapIdentifier</code> names the map; <code>Get</code> pulls the entry into a variable. Put this in <code>apiproxy/policies/KVM-Get-Token.xml</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">&lt;KeyValueMapOperations</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;KVM-Get-Token&quot;</span><span class="w"> </span><span class="na">mapIdentifier=</span><span class="s">&quot;backend-secrets&quot;</span><span class="nt">&gt;</span>
+<span class="w">  </span><span class="nt">&lt;Scope&gt;</span>environment<span class="nt">&lt;/Scope&gt;</span>
+<span class="w">  </span><span class="nt">&lt;ExpiryTimeInSecs&gt;</span>300<span class="nt">&lt;/ExpiryTimeInSecs&gt;</span>
+<span class="w">  </span><span class="nt">&lt;Get</span><span class="w"> </span><span class="na">assignTo=</span><span class="s">&quot;private.downstream.token&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="nt">&lt;Key&gt;&lt;Parameter&gt;</span>downstream-token<span class="nt">&lt;/Parameter&gt;&lt;/Key&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/Get&gt;</span>
+<span class="nt">&lt;/KeyValueMapOperations&gt;</span>
+</code></pre></div>
+
+<p><code>ExpiryTimeInSecs</code> caches the read in-memory so you're not hitting the KVM store every request — the <code>private.</code> prefix keeps the value out of Trace.</p>
+<p><strong>3. Add a PropertySet for read-only, deploy-time config.</strong> Drop a properties file into the bundle at <code>apiproxy/resources/properties/backend.properties</code>:</p>
+<div class="codehilite"><pre><span></span><code>base.url=https://mocktarget.apigee.net
+accounts.path=/json
+feature.masking.enabled=true
+</code></pre></div>
+
+<p>Reference it anywhere a variable is allowed as <code>propertyset.backend.base.url</code>, <code>propertyset.backend.accounts.path</code>, etc. No policy is needed to "load" it — it's resolved at deploy time and read inline.</p>
+<p><strong>4. Cache the GET with ResponseCache</strong> so repeat reads skip the backend. Put this in <code>apiproxy/policies/RC-Accounts.xml</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">&lt;ResponseCache</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;RC-Accounts&quot;</span><span class="nt">&gt;</span>
+<span class="w">  </span><span class="nt">&lt;CacheKey&gt;</span>
+<span class="w">    </span><span class="nt">&lt;KeyFragment</span><span class="w"> </span><span class="na">ref=</span><span class="s">&quot;request.uri&quot;</span><span class="w"> </span><span class="na">type=</span><span class="s">&quot;string&quot;</span><span class="nt">/&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/CacheKey&gt;</span>
+<span class="w">  </span><span class="nt">&lt;ExpirySettings&gt;</span>
+<span class="w">    </span><span class="nt">&lt;TimeoutInSeconds&gt;</span>60<span class="nt">&lt;/TimeoutInSeconds&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/ExpirySettings&gt;</span>
+<span class="w">  </span><span class="nt">&lt;Scope&gt;</span>Exclusive<span class="nt">&lt;/Scope&gt;</span>
+<span class="nt">&lt;/ResponseCache&gt;</span>
+</code></pre></div>
+
+<p>Attach <code>RC-Accounts</code> in the ProxyEndpoint: a ResponseCache policy is referenced <em>once</em> but acts on both the request (lookup) and response (populate) flows automatically. Attach <code>KVM-Get-Token</code> in the request PreFlow so the token is available before the backend call. In <code>proxies/default.xml</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">&lt;PreFlow</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;PreFlow&quot;</span><span class="nt">&gt;</span>
+<span class="w">  </span><span class="nt">&lt;Request&gt;</span>
+<span class="w">    </span><span class="nt">&lt;Step&gt;&lt;Name&gt;</span>RC-Accounts<span class="nt">&lt;/Name&gt;&lt;/Step&gt;</span>
+<span class="w">    </span><span class="nt">&lt;Step&gt;&lt;Name&gt;</span>KVM-Get-Token<span class="nt">&lt;/Name&gt;&lt;/Step&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/Request&gt;</span>
+<span class="w">  </span><span class="nt">&lt;Response&gt;</span>
+<span class="w">    </span><span class="nt">&lt;Step&gt;&lt;Name&gt;</span>RC-Accounts<span class="nt">&lt;/Name&gt;&lt;/Step&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/Response&gt;</span>
+<span class="nt">&lt;/PreFlow&gt;</span>
+</code></pre></div>
+
+<p><strong>5. Deploy:</strong></p>
+<div class="codehilite"><pre><span></span><code>apigeecli<span class="w"> </span>apis<span class="w"> </span>create<span class="w"> </span>bundle<span class="w"> </span>--name<span class="w"> </span>aisp-accounts<span class="w"> </span>--proxy-folder<span class="w"> </span>./aisp-accounts/apiproxy<span class="w"> </span>--org<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ORG</span><span class="s2">&quot;</span><span class="w"> </span>--token<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>
+apigeecli<span class="w"> </span>apis<span class="w"> </span>deploy<span class="w"> </span>--name<span class="w"> </span>aisp-accounts<span class="w"> </span>--org<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ORG</span><span class="s2">&quot;</span><span class="w"> </span>--env<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ENV</span><span class="s2">&quot;</span><span class="w"> </span>--ovr<span class="w"> </span>--wait<span class="w"> </span>--token<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>
+</code></pre></div>
+
+<p><strong>6. Prove the cache works</strong> — first call hits the backend, the second is served from cache (notably faster, identical body):</p>
+<div class="codehilite"><pre><span></span><code><span class="nv">KEY</span><span class="o">=</span><span class="s2">&quot;&lt;paste consumerKey&gt;&quot;</span>
+<span class="k">for</span><span class="w"> </span>i<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">2</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span>curl<span class="w"> </span>-s<span class="w"> </span>-o<span class="w"> </span>/dev/null<span class="w"> </span>-w<span class="w"> </span><span class="s2">&quot;call </span><span class="nv">$i</span><span class="s2">: status=%{http_code} time=%{time_total}s\n&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-H<span class="w"> </span><span class="s2">&quot;x-api-key: </span><span class="nv">$KEY</span><span class="s2">&quot;</span><span class="w"> </span><span class="s2">&quot;https://</span><span class="nv">$RUNTIME_HOST</span><span class="s2">/aisp-accounts/accounts&quot;</span>
+<span class="k">done</span>
+</code></pre></div>
+
+<p><strong>What success looks like:</strong> call 2's <code>time_total</code> is dramatically lower than call 1's (cache hit). In Trace you see <code>KVM-Get-Token</code> populate <code>private.downstream.token</code> from the encrypted map, <code>propertyset.backend.base.url</code> resolve to the value from your properties file with no policy, and <code>RC-Accounts</code> report a <em>CacheHit</em> on the second request. Three stores, three jobs, zero databases.</p>
+</div>
+<h2 id="verify-it">Verify it</h2>
+<p>Confirm each store behaves to its own contract. For the <strong>KVM</strong>, rotate the value at runtime and watch the proxy pick it up <em>without a redeploy</em> — <code>apigeecli kvms entries update --map backend-secrets --key downstream-token --value "rotated-2026" ...</code> then re-trace; the new value appears (allow a few seconds for propagation — that's the eventual consistency the analogy warns about). For the <strong>PropertySet</strong>, try to "change" <code>base.url</code> the same way and you'll find there's no runtime write at all — it only changes when you redeploy the bundle. For <strong>ResponseCache</strong>, watch the <code>time_total</code> collapse on the second call and confirm Trace shows <code>responsecache.RC-Accounts.cachehit = true</code>.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># KVM is mutable at runtime; PropertySet is not</span>
+apigeecli<span class="w"> </span>kvms<span class="w"> </span>entries<span class="w"> </span>update<span class="w"> </span>--map<span class="w"> </span>backend-secrets<span class="w"> </span>--key<span class="w"> </span>downstream-token<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--value<span class="w"> </span><span class="s2">&quot;rotated-2026&quot;</span><span class="w"> </span>--env<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ENV</span><span class="s2">&quot;</span><span class="w"> </span>--org<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ORG</span><span class="s2">&quot;</span><span class="w"> </span>--token<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>
+<span class="c1"># re-call and check Trace: private.downstream.token now reads &quot;rotated-2026&quot;</span>
+</code></pre></div>
+
+<div class="admonition failure">
+<p class="admonition-title">Common failure modes</p>
+<ul>
+<li><strong>Treating a KVM like a database.</strong> Bulk-loading thousands of records and expecting queries or read-your-writes. Symptom: stale reads right after a write, or slow lookups at scale. KVM is config-sized, eventually consistent, key-lookup only.</li>
+<li><strong>Putting secrets in a PropertySet.</strong> It's read-only <em>and</em> committed to the bundle, so the secret lands in source control and is visible to anyone with the bundle. Symptom: a token in git history. Secrets belong in an encrypted KVM (or a secrets manager via 3.x).</li>
+<li><strong>Expecting to change a PropertySet at runtime.</strong> There's no write API — it's deploy-time only. Symptom: you "update" a value and nothing changes until you redeploy. If it must change without shipping, it's a KVM.</li>
+<li><strong>ResponseCache with a key too broad or too narrow.</strong> Too broad (omitting a query param) serves one user's data to another; too narrow (including a volatile header) never hits. Symptom: wrong cached body, or a cache that never warms.</li>
+<li><strong>Caching authenticated, per-user responses globally.</strong> A shared cache key leaks data across consumers. Symptom: customer A sees customer B's accounts. Include the identity in the <code>CacheKey</code> or don't cache it.</li>
+</ul>
+</div>
+<div class="admonition stretch">
+<p class="admonition-title">Stretch goal</p>
+<p>Take one hard-coded value from a real <code>application.yml</code> — a downstream base URL or a feature flag — and move it into a <strong>PropertySet</strong> in a proxy, reading it as <code>propertyset.&lt;name&gt;.&lt;key&gt;</code> from a policy or condition. Then decide, honestly, whether it <em>should</em> have been a PropertySet at all: if you'd ever want to flip it without a redeploy, it belonged in a <strong>KVM</strong> instead. Writing down <em>why</em> you chose one over the other — "this never changes between deploys" vs "ops needs to toggle this live" — is the actual skill this session is teaching.</p>
+</div>
+<h2 id="recap-next">Recap &amp; next</h2>
+<p>You can now place data in the right store instead of reflexively adding a database: <strong>ResponseCache</strong> (plus <strong>LookupCache</strong>/<strong>PopulateCache</strong>) for TTL-bound cached values, a <strong>KVM</strong> for mutable, encrypted, environment-scoped config and tokens — remembering it's <em>eventually consistent and not a database</em> — and a <strong>PropertySet</strong> for read-only config that ships with the bundle and is read as <code>propertyset.&lt;name&gt;.&lt;key&gt;</code>. Real relational records still belong behind a backend; everything else has a native home at the edge.</p>
+<p><strong>Next — 3.1:</strong> with state sorted, you turn to the message itself — <strong>threat protection, CORS, and data masking</strong>. You'll defend against payload-borne attacks (JSON/XML bombs, injection), get cross-origin requests right at the edge, and scrub sensitive fields out of logs and traces before they ever leak.</p><div class="session-complete" data-session-code="2.7"><button id="markComplete" type="button" class="mark-btn"><span class="mark-box">&#10003;</span> Mark 2.7 complete</button><span class="mark-hint">Progress is saved in your browser.</span></div><div class="pager">
+<a class="prev" href="session-11.html"><span class="pager-dir">&larr; Previous</span><span class="pager-label">2.6 · Quotas &amp; SpikeArrest: distributed and product-scoped</span></a>
+<a class="next" href="session-13.html"><span class="pager-dir">Next &rarr;</span><span class="pager-label">3.1 · Threat protection, CORS &amp; data masking</span></a>
+</div>
+    </main>
+    <aside class="toc-rail" aria-label="On this page"><div class="toc-title">On this page</div><div class="toc">
+<ul>
+<li><a href="#why-this-exists">Why this exists</a></li>
+<li><a href="#the-concept">The concept</a></li>
+<li><a href="#hands-on-lab">Hands-on lab</a></li>
+<li><a href="#verify-it">Verify it</a></li>
+<li><a href="#recap-next">Recap &amp; next</a></li>
+</ul>
+</div>
+</aside>
+  </div>
+
+  <script>
+    window.__COURSE__ = { total: 33, key: "apigeex-spring.progress.v1" };
+  </script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({
+      startOnLoad: true,
+      securityLevel: 'loose',
+      theme: 'base',
+      themeVariables: {
+        background: '#1A1D24',
+        primaryColor: '#1F2530', primaryBorderColor: '#F5A524', primaryTextColor: '#ECEDEE',
+        lineColor: '#7A8290', secondaryColor: '#2A1B12', tertiaryColor: '#241a0f',
+        secondaryBorderColor: '#FF6B1A', tertiaryBorderColor: '#E03131',
+        noteBkgColor: '#241a0f', noteTextColor: '#ECEDEE', noteBorderColor: '#F5A524',
+        fontFamily: '-apple-system, Segoe UI, Roboto, sans-serif', fontSize: '14px'
+      }
+    });
+    window.__mermaidReady = true;
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script defer src="assets/widgets.js"></script>
+  <script defer src="assets/app.js"></script>
+
+</body>
+</html>

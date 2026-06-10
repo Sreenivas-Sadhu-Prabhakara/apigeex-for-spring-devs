@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 300" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Abstract Apolaki sun motif">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0F1115"/>
+      <stop offset="100%" stop-color="#12141A"/>
+    </linearGradient>
+    <radialGradient id="sun" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFE6B0"/>
+      <stop offset="40%" stop-color="#FFD27A"/>
+      <stop offset="72%" stop-color="#F5A524"/>
+      <stop offset="100%" stop-color="#C9461A" stop-opacity="0.18"/>
+    </radialGradient>
+    <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#F5A524" stop-opacity="0.34"/>
+      <stop offset="100%" stop-color="#F5A524" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="ray" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#F5A524" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#FFD27A"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="300" fill="url(#sky)"/>
+  <circle cx="312" cy="150" r="280" fill="url(#halo)"/>
+  <g>
+  <line x1="312" y1="-1" x2="312" y2="-116" transform="rotate(0.0 312 150)" stroke="url(#ray)" stroke-width="2.4" opacity="0.3"/>
+  <line x1="312" y1="-1" x2="312" y2="-116" transform="rotate(18.0 312 150)" stroke="url(#ray)" stroke-width="1.4" opacity="0.13"/>
+  <line x1="312" y1="-1" x2="312" y2="-116" transform="rotate(36.0 312 150)" stroke="url(#ray)" stroke-width="1.4" opacity="0.13"/>
+  <line x1="312" y1="-1" x2="312" y2="-116" transform="rotate(54.0 312 150)" stroke="url(#ray)" stroke-width="2.4" opacity="0.3"/>
+  <line x1="312" y1="-1" x2="312" y2="-116" transform="rotate(72.0 312 150)" stroke="url(#ray)" stroke-width="1.4" opacity="0.13"/>
+  <line x1="312" y1="-1" x2="312" y2="-116" transform="rotate(90.0 312 150)" stroke="url(#ray)" stroke-width="1.4" opacity="0.13"/>
+  <line x1="312" y1="-1" x2="312" y2="-116" transform="rotate(108.0 312 150)" stroke="url(#ray)" stroke-width="2.4" opacity="0.3"/>
+  <line x1="312" y1="-1" x2="312" y2="-116" transform="rotate(126.0 312 150)" stroke="url(#ray)" stroke-width="1.4" opacity="0.13"/>
+  <line x1="312" y1="-1" x2="312" y2="-116" transform="rotate(144.0 312 150)" stroke="url(#ray)" stroke-width="1.4" opacity="0.13"/>
+  <line x1="312" y1="-1" x2="312" y2="-116" transform="rotate(162.0 312 150)" stroke="url(#ray)" stroke-width="2.4" opacity="0.3"/>
+  <line x1="312" y1="-1" x2="312" y2="-116" transform="rotate(180.0 312 150)" stroke="url(#ray)" stroke-width="1.4" opacity="0.13"/>
+  <line x1="312" y1="-1" x2="312" y2="-116" transform="rotate(198.0 312 150)" stroke="url(#ray)" stroke-width="1.4" opacity="0.13"/>
+  <line x1="312" y1="-1" x2="312" y2="-116" transform="rotate(216.0 312 150)" stroke="url(#ray)" stroke-width="2.4" opacity="0.3"/>
+  <line x1="312" y1="-1" x2="312" y2="-116" transform="rotate(234.0 312 150)" stroke="url(#ray)" stroke-width="1.4" opacity="0.13"/>
+  <line x1="312" y1="-1" x2="312" y2="-116" transform="rotate(252.0 312 150)" stroke="url(#ray)" stroke-width="1.4" opacity="0.13"/>
+  <line x1="312" y1="-1" x2="312" y2="-116" transform="rotate(270.0 312 150)" stroke="url(#ray)" stroke-width="2.4" opacity="0.3"/>
+  <line x1="312" y1="-1" x2="312" y2="-116" transform="rotate(288.0 312 150)" stroke="url(#ray)" stroke-width="1.4" opacity="0.13"/>
+  <line x1="312" y1="-1" x2="312" y2="-116" transform="rotate(306.0 312 150)" stroke="url(#ray)" stroke-width="1.4" opacity="0.13"/>
+  <line x1="312" y1="-1" x2="312" y2="-116" transform="rotate(324.0 312 150)" stroke="url(#ray)" stroke-width="2.4" opacity="0.3"/>
+  <line x1="312" y1="-1" x2="312" y2="-116" transform="rotate(342.0 312 150)" stroke="url(#ray)" stroke-width="1.4" opacity="0.13"/>
+  </g>
+  <circle cx="312" cy="150" r="140" fill="url(#sun)"/>
+  <circle cx="312" cy="150" r="140" fill="none" stroke="#FFD27A" stroke-width="1.5" opacity="0.5"/>
+  <circle cx="312" cy="150" r="92" fill="none" stroke="#FFE6B0" stroke-width="1" opacity="0.25"/>
+  <!-- horizon haze -->
+  <rect x="0" y="222" width="1200" height="78" fill="#0B0C10" opacity="0.55"/>
+</svg>

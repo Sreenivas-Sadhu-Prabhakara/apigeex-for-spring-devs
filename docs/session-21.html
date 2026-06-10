@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="apolaki">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>4.2 The FAPI Advanced profile: what it requires · Apigee X for Spring Boot Developers</title>
+  <link rel="stylesheet" href="assets/pygments.css">
+  <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet" href="assets/widgets.css">
+</head>
+<body>
+  <div id="readingBar"></div>
+  <button id="navToggle" class="nav-toggle" aria-label="Toggle navigation">&#9776; Menu</button>
+  <div class="layout">
+    <nav class="sidebar" aria-label="Curriculum">
+<a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true"></span><span class="brand-text">Apigee&nbsp;X <em>for Spring devs</em></span></a>
+<div class="nav-progress"><div class="nav-progress-bar"><span id="navProgressFill"></span></div><span id="navProgressText" class="nav-progress-text">0 / 33 complete</span></div>
+<div class="nav-part">Part 1 — Foundations &amp; the Apigee mental model</div>
+<ul>
+<li data-session="1"><a href="session-01.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">1.1</span> <span class="seqtitle">What an API-gateway product actually is</span></a></li>
+<li data-session="2"><a href="session-02.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">1.2</span> <span class="seqtitle">Architecture &amp; your free evaluation org</span></a></li>
+<li data-session="3"><a href="session-03.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">1.3</span> <span class="seqtitle">Your first passthrough reverse proxy</span></a></li>
+<li data-session="4"><a href="session-04.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">1.4</span> <span class="seqtitle">Revisions, deploy &amp; rollback</span></a></li>
+<li data-session="5"><a href="session-05.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">1.5</span> <span class="seqtitle">The Trace tool is your gateway debugger</span></a></li>
+</ul>
+<div class="nav-part">Part 2 — Flow &amp; mediation engine</div>
+<ul>
+<li data-session="6"><a href="session-06.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">2.1</span> <span class="seqtitle">The flow model &amp; request/response symmetry</span></a></li>
+<li data-session="7"><a href="session-07.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">2.2</span> <span class="seqtitle">The message &amp; flow-variable model</span></a></li>
+<li data-session="8"><a href="session-08.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">2.3</span> <span class="seqtitle">Conditions, RouteRules &amp; conditional flows</span></a></li>
+<li data-session="9"><a href="session-09.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">2.4</span> <span class="seqtitle">AssignMessage &amp; ExtractVariables</span></a></li>
+<li data-session="10"><a href="session-10.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">2.5</span> <span class="seqtitle">JavaScript vs Java callouts: the trade-off</span></a></li>
+<li data-session="11"><a href="session-11.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">2.6</span> <span class="seqtitle">Quotas &amp; SpikeArrest: distributed and product-scoped</span></a></li>
+<li data-session="12"><a href="session-12.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">2.7</span> <span class="seqtitle">Caching vs KVM vs PropertySets: the three stores</span></a></li>
+</ul>
+<div class="nav-part">Part 3 — Security, identity &amp; API products</div>
+<ul>
+<li data-session="13"><a href="session-13.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">3.1</span> <span class="seqtitle">Threat protection, CORS &amp; data masking</span></a></li>
+<li data-session="14"><a href="session-14.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">3.2</span> <span class="seqtitle">API Products, Apps, Developers &amp; keys</span></a></li>
+<li data-session="15"><a href="session-15.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">3.3</span> <span class="seqtitle">OAuthV2 as a token server (client credentials)</span></a></li>
+<li data-session="16"><a href="session-16.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">3.4</span> <span class="seqtitle">Auth-code + PKCE &amp; JWT verification</span></a></li>
+<li data-session="17"><a href="session-17.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">3.5</span> <span class="seqtitle">TLS &amp; mTLS: keystores, north- &amp; south-bound</span></a></li>
+<li data-session="18"><a href="session-18.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">3.6</span> <span class="seqtitle">TargetServers, load balancing &amp; health</span></a></li>
+<li data-session="19"><a href="session-19.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">3.7</span> <span class="seqtitle">Shared flows, FlowHooks &amp; the fault taxonomy</span></a></li>
+</ul>
+<div class="nav-part">Part 4 — FAPI 1.0 Advanced &amp; the OB trust framework</div>
+<ul>
+<li data-session="20"><a href="session-20.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">4.1</span> <span class="seqtitle">The OB trust framework &amp; OBIE roles</span></a></li>
+<li class="active" data-session="21"><a href="session-21.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">4.2</span> <span class="seqtitle">The FAPI Advanced profile: what it requires</span></a></li>
+<li data-session="22"><a href="session-22.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">4.3</span> <span class="seqtitle">Implementing FAPI I: PAR, request objects &amp; client auth</span></a></li>
+<li data-session="23"><a href="session-23.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">4.4</span> <span class="seqtitle">Implementing FAPI II: mTLS-bound tokens &amp; introspection</span></a></li>
+</ul>
+<div class="nav-part">Part 5 — Building the UK Open Banking APIs</div>
+<ul>
+<li data-session="24"><a href="session-24.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">5.1</span> <span class="seqtitle">Dynamic Client Registration (DCR)</span></a></li>
+<li data-session="25"><a href="session-25.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">5.2</span> <span class="seqtitle">The account-access consent lifecycle</span></a></li>
+<li data-session="26"><a href="session-26.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">5.3</span> <span class="seqtitle">AISP reads: accounts, balances &amp; transactions</span></a></li>
+<li data-session="27"><a href="session-27.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">5.4</span> <span class="seqtitle">PISP payments &amp; idempotency</span></a></li>
+<li data-session="28"><a href="session-28.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">5.5</span> <span class="seqtitle">Confirmation of funds &amp; the end-to-end journey</span></a></li>
+</ul>
+<div class="nav-part">Part 6 — Operations, delivery &amp; observability</div>
+<ul>
+<li data-session="29"><a href="session-29.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">6.1</span> <span class="seqtitle">Environments, env groups &amp; hostnames</span></a></li>
+<li data-session="30"><a href="session-30.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">6.2</span> <span class="seqtitle">CI/CD &amp; config-as-code</span></a></li>
+<li data-session="31"><a href="session-31.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">6.3</span> <span class="seqtitle">Observability, analytics &amp; Advanced API Security</span></a></li>
+<li data-session="32"><a href="session-32.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">6.4</span> <span class="seqtitle">Productisation, monetization &amp; API hub</span></a></li>
+</ul>
+<div class="nav-part">Part 7 — Capstone</div>
+<ul>
+<li data-session="33"><a href="session-33.html"><span class="done-check" aria-hidden="true">&#10003;</span><span class="seqnum">7.1</span> <span class="seqtitle">Capstone: a production-grade OB platform &amp; go-live review</span></a></li>
+</ul>
+</nav>
+    <main class="content" data-session="21">
+      <div class="crumbs"><span class="crumb-part">Part 4 — FAPI 1.0 Advanced &amp; the OB trust framework</span><span class="crumb-sep">·</span><span class="crumb-code">Session 4.2</span><span class="crumb-sep">·</span><span class="crumb-min">~55 min</span></div><div class="builds-on"><span class="builds-on-tag">Builds on</span> <a href="session-20.html">4.1 · The OB trust framework &amp; OBIE roles</a></div><h1 id="42-the-fapi-advanced-profile-what-it-requires">4.2 — The FAPI Advanced profile: what it requires</h1>
+<div class="admonition bottomline">
+<p class="admonition-title">Bottom line</p>
+<p><strong>FAPI 1.0 Advanced</strong> is a hardening profile layered on the OAuth 2.0 and OIDC you already know — it doesn't replace them, it tightens them. Every clause (PAR, signed request objects, mTLS-bound tokens, JARM, algorithm restrictions, exact redirect-URI matching) maps to a concrete Apigee mechanism: a <strong>VerifyJWT</strong>, an <strong>OAuthV2</strong>, an <strong>SSLInfo</strong> check, a <strong>GenerateJWT</strong>. This session is the <strong>requirement → policy traceability table</strong> — the centrepiece you'll implement in 4.3 and 4.4.</p>
+</div>
+<h2 id="why-this-exists">Why this exists</h2>
+<p>Plain OAuth 2.0 leaves a lot to the deployment. Bearer tokens can be replayed by anyone who steals them. Authorization-request parameters travel through the browser where they can be tampered with. A client can be authenticated with a shared secret that leaks. None of that is acceptable when the API moves money out of someone's bank account. FAPI — the Financial-grade API profile from the OpenID Foundation — exists to close those gaps by <em>removing options</em> and <em>mandating proofs</em>: it says which algorithms are allowed, how requests must be signed, how tokens must be bound to a client, and how responses must be protected from tampering.</p>
+<p>For a Spring developer this is the comfortable part of Part 4. Unlike the trust framework in 4.1 — which is a regulated domain model with no Spring analogue — FAPI is a <strong>technical spec made of OAuth primitives</strong>. You already verify JWTs, terminate mTLS, issue tokens. FAPI just dictates <em>exactly how strict</em> each of those must be. There is no framework magic and no proprietary Apigee feature: each FAPI clause becomes a specific policy with specific settings.</p>
+<p>The trap is thinking FAPI is one big switch. It isn't — it's roughly a dozen independent requirements, and an auditor will check them individually. So the job of this session is to enumerate them and pin each to the Apigee mechanism that satisfies it, so that when you implement in 4.3 and 4.4 you're filling in a checklist, not improvising. The artifact you walk away with is a <strong>traceability table</strong>: clause, what it demands, the policy that enforces it.</p>
+<div class="admonition bridge">
+<p class="admonition-title">Spring Boot bridge</p>
+<p>FAPI maps onto things you've configured in <strong>Spring Security / Spring Authorization Server</strong> — Apigee just enforces them at the edge instead of in-process:</p>
+<table>
+<thead>
+<tr>
+<th>FAPI requirement</th>
+<th>Spring equivalent you've touched</th>
+<th>Apigee mechanism</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Signed request object (JWS)</td>
+<td><code>JwtDecoder</code> verifying a signed JWT</td>
+<td><strong>VerifyJWT</strong></td>
+</tr>
+<tr>
+<td>Algorithm allow-list (PS256/ES256)</td>
+<td><code>NimbusJwtDecoder</code> with a <code>JWSAlgorithm</code> set</td>
+<td><strong>VerifyJWT</strong> <code>&lt;Algorithms&gt;</code></td>
+</tr>
+<tr>
+<td><code>private_key_jwt</code> client auth</td>
+<td><code>client-authentication-method: private_key_jwt</code></td>
+<td><strong>VerifyJWT</strong> on the <code>client_assertion</code></td>
+</tr>
+<tr>
+<td>mTLS-bound tokens</td>
+<td><code>RequestedTokenUse</code> / cert-bound config</td>
+<td><strong>SSLInfo</strong> + <strong>OAuthV2</strong> with <code>cnf</code> x5t#S256</td>
+</tr>
+<tr>
+<td>Issue signed tokens / JARM</td>
+<td><code>JwtEncoder</code> / signed <code>id_token</code></td>
+<td><strong>GenerateJWT</strong></td>
+</tr>
+<tr>
+<td>Token introspection / validation</td>
+<td><code>OpaqueTokenIntrospector</code> / <code>JwtDecoder</code></td>
+<td><strong>OAuthV2</strong> (<code>VerifyAccessToken</code>)</td>
+</tr>
+</tbody>
+</table>
+<p>The intuition "decode-and-validate inbound, sign outbound" is exactly right. What changes is <em>where</em> it runs and that FAPI makes the strictness <strong>mandatory</strong>, not a default you could relax.</p>
+</div>
+<div class="admonition breaks">
+<p class="admonition-title">Where the analogy breaks</p>
+<p>In Spring you tend to trust the framework's defaults — <code>NimbusJwtDecoder</code> will happily accept <code>RS256</code>, redirect-URI matching is a property you rarely think about, and <code>none</code> is refused for you. FAPI forbids you from leaning on defaults: you must <em>explicitly</em> allow only <code>PS256</code>/<code>ES256</code>, <em>explicitly</em> reject <code>none</code> and <code>RS256</code>, <em>exactly</em> match the registered redirect URI (no prefix or wildcard matching), and <em>prove</em> the token is bound to the presenting client's certificate. Apigee won't infer any of this — an empty <code>&lt;Algorithms&gt;</code> element on VerifyJWT accepts whatever the token claims, which is precisely the FAPI failure mode. The analogy breaks at "the framework has my back": at the edge, every FAPI clause is a setting you must assert, and a missing assertion is a silent hole an auditor (or attacker) will find.</p>
+</div>
+<h2 id="the-concept">The concept</h2>
+<p>FAPI 1.0 Advanced is a set of independent clauses. Here is the centrepiece — the <strong>traceability table</strong> mapping each requirement to the Apigee mechanism that satisfies it. Implementations land in 4.3 (PAR, request objects, client auth) and 4.4 (mTLS-bound tokens, JARM, consent):</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>FAPI 1.0 Advanced requirement</th>
+<th>What it demands</th>
+<th>Apigee mechanism</th>
+<th>Implemented in</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>PAR</strong> (Pushed Authorization Requests, RFC 9126)</td>
+<td>Client pushes the authz request server-side first, gets a <code>request_uri</code>; nothing sensitive in the browser URL</td>
+<td>Proxy on <code>/par</code> that stores the request and returns a one-time <code>request_uri</code> (KVM/cache + <strong>GenerateJWT</strong>/AssignMessage)</td>
+<td>4.3</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Signed request object</strong> (JWS)</td>
+<td>Authorization parameters carried in a <code>request</code>/<code>request_uri</code> JWT, signed by the client (OBSeal)</td>
+<td><strong>VerifyJWT</strong> against the TPP's JWKS</td>
+<td>4.3</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Algorithm restrictions</strong></td>
+<td>Only <code>PS256</code>/<code>ES256</code>; reject <code>none</code>, <code>RS256</code>, <code>HS*</code></td>
+<td><strong>VerifyJWT</strong> <code>&lt;Algorithms&gt;&lt;Algorithm&gt;PS256&lt;/Algorithm&gt;…&lt;/Algorithms&gt;</code></td>
+<td>4.2 (this lab)</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>Client authentication</strong></td>
+<td><code>private_key_jwt</code> <strong>or</strong> <code>tls_client_auth</code> (mTLS) — never a plain shared secret</td>
+<td><strong>VerifyJWT</strong> on <code>client_assertion</code> <em>or</em> <strong>SSLInfo</strong> cert-subject match</td>
+<td>4.3</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>mTLS-bound (certificate-bound) access tokens</strong></td>
+<td>Token carries a <code>cnf</code> claim with the client cert thumbprint (<code>x5t#S256</code>, RFC 8705); presented cert must match</td>
+<td><strong>OAuthV2</strong> issues token with <code>cnf</code>; <strong>SSLInfo</strong> + <strong>VerifyJWT</strong>/condition checks the thumbprint on each call</td>
+<td>4.4</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>JARM</strong> (signed authorization responses)</td>
+<td>The authorization response is returned as a signed JWT (<code>response_mode=jwt</code>), so it can't be tampered with in the browser</td>
+<td><strong>GenerateJWT</strong> to sign the response parameters</td>
+<td>4.4</td>
+</tr>
+<tr>
+<td>7</td>
+<td><strong><code>s_hash</code> / <code>nonce</code> / <code>state</code></strong></td>
+<td>Detached-signature/<code>s_hash</code> and a per-request <code>nonce</code>+<code>state</code> to bind request and response</td>
+<td><strong>VerifyJWT</strong> claim checks + JavaScript/condition to compare <code>s_hash</code></td>
+<td>4.4</td>
+</tr>
+<tr>
+<td>8</td>
+<td><strong>Exact redirect-URI matching</strong></td>
+<td>The <code>redirect_uri</code> must <em>exactly</em> equal one registered in the SSA — no wildcards, no prefixes</td>
+<td>Condition comparing <code>redirect_uri</code> to the SSA <code>software_redirect_uris</code> (KVM lookup)</td>
+<td>4.3</td>
+</tr>
+<tr>
+<td>9</td>
+<td><strong><code>x-fapi-interaction-id</code></strong></td>
+<td>Echo the client's interaction id, or mint a UUID, on every response for traceability</td>
+<td><strong>AssignMessage</strong> to set/echo <code>x-fapi-interaction-id</code> (and read <code>x-fapi-auth-date</code>)</td>
+<td>4.3</td>
+</tr>
+</tbody>
+</table>
+<p>The single most foundational of these — and the one this session's lab nails down — is <strong>#3, algorithm restrictions</strong>, because every signed artifact in FAPI (request object, client assertion, JARM, id_token) is only as safe as the algorithm allow-list verifying it. Accept <code>none</code> anywhere and an attacker forges any claim they like.</p>
+<div class="widget" data-widget="sequence"><script type="application/json">{"type": "sequence", "title": "Where each FAPI clause fires in one authorize-then-call journey", "actors": [{"id": "t", "label": "TPP"}, {"id": "g", "label": "Apigee (FAPI)"}, {"id": "a", "label": "Token/Authz"}], "steps": [{"from": "t", "to": "g", "label": "POST /par  (signed request object)", "note": "Clause 1 (PAR) + clause 2 (VerifyJWT on the request JWT) + clause 3 (PS256/ES256 only). Returns a one-time request_uri."}, {"from": "t", "to": "g", "label": "GET /authorize?request_uri=\u2026", "note": "Clause 8: redirect_uri must exactly match the SSA. PSU then authenticates and consents at the ASPSP."}, {"from": "g", "to": "t", "kind": "return", "label": "response as signed JWT (JARM)", "note": "Clause 6: response parameters returned signed (GenerateJWT) so the browser can't tamper with code/state."}, {"from": "t", "to": "a", "label": "POST /token  (private_key_jwt + mTLS)", "note": "Clause 4: client auth by signed client_assertion or tls_client_auth. Clause 5: token minted with cnf x5t#S256."}, {"from": "t", "to": "g", "label": "GET /aisp/accounts  (mTLS, bearer + cnf)", "note": "Clause 5 again: SSLInfo cert thumbprint must equal the token's cnf. Clause 9: echo x-fapi-interaction-id."}]}</script></div>
+<h2 id="hands-on-lab">Hands-on lab</h2>
+<div class="lab">
+<h4 id="lab-pin-the-traceability-table-as-config-as-code-then-enforce-clause-3-on-verifyjwt">Lab — pin the traceability table as config-as-code, then enforce clause #3 on VerifyJWT</h4>
+<p>You'll produce the traceability table as a versioned artifact <em>and</em> implement the one clause that everything else depends on: <strong>algorithm restrictions</strong>. The success criterion is a <strong>VerifyJWT</strong> that rejects a token signed with a disallowed algorithm (<code>none</code> or <code>RS256</code>).</p>
+<p><strong>Prereqs:</strong> <code>$ORG</code>, <code>$ENV</code>, <code>$TOKEN</code>, <code>$RUNTIME_HOST</code> exported; the OB truststore from 4.1; a deployed proxy you can attach a policy to (reuse <code>aisp-accounts</code> from 3.2).</p>
+<p><strong>1. Commit the traceability table as config-as-code.</strong> Drop it beside the proxy so it's reviewed and versioned, not buried in a wiki:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># fapi-traceability.yaml — FAPI 1.0 Advanced → Apigee mechanism</span>
+<span class="nt">requirements</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">par,          requirement</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;Pushed</span><span class="nv"> </span><span class="s">Authorization</span><span class="nv"> </span><span class="s">Requests&quot;</span><span class="err">,</span><span class="w">  </span><span class="nt">mechanism</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/par</span><span class="nv"> </span><span class="s">proxy</span><span class="nv"> </span><span class="s">+</span><span class="nv"> </span><span class="s">KVM/cache&quot;</span><span class="err">,</span><span class="w">        </span><span class="nt">session</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;4.3&quot;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">request-obj,  requirement</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;Signed</span><span class="nv"> </span><span class="s">request</span><span class="nv"> </span><span class="s">object</span><span class="nv"> </span><span class="s">(JWS)&quot;</span><span class="err">,</span><span class="w">    </span><span class="nt">mechanism</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;VerifyJWT</span><span class="nv"> </span><span class="s">vs</span><span class="nv"> </span><span class="s">TPP</span><span class="nv"> </span><span class="s">JWKS&quot;</span><span class="err">,</span><span class="w">          </span><span class="nt">session</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;4.3&quot;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">alg,          requirement</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;PS256/ES256</span><span class="nv"> </span><span class="s">only;</span><span class="nv"> </span><span class="s">no</span><span class="nv"> </span><span class="s">none/RS256&quot;</span><span class="err">,</span><span class="w"> </span><span class="nt">mechanism</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;VerifyJWT</span><span class="nv"> </span><span class="s">&lt;Algorithms&gt;&quot;</span><span class="err">,</span><span class="w">         </span><span class="nt">session</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;4.2&quot;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">client-auth,  requirement</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;private_key_jwt</span><span class="nv"> </span><span class="s">or</span><span class="nv"> </span><span class="s">tls_client_auth&quot;</span><span class="err">,</span><span class="w"> </span><span class="nt">mechanism</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;VerifyJWT(client_assertion)/SSLInfo&quot;</span><span class="err">,</span><span class="w"> </span><span class="nt">session</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;4.3&quot;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cnf-token,    requirement</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;mTLS-bound</span><span class="nv"> </span><span class="s">access</span><span class="nv"> </span><span class="s">tokens</span><span class="nv"> </span><span class="s">(cnf</span><span class="nv"> </span><span class="s">x5t#S256)&quot;</span><span class="err">,</span><span class="w"> </span><span class="nt">mechanism</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;OAuthV2</span><span class="nv"> </span><span class="s">cnf</span><span class="nv"> </span><span class="s">+</span><span class="nv"> </span><span class="s">SSLInfo</span><span class="nv"> </span><span class="s">match&quot;</span><span class="err">,</span><span class="w"> </span><span class="nt">session</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;4.4&quot;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jarm,         requirement</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;Signed</span><span class="nv"> </span><span class="s">authorization</span><span class="nv"> </span><span class="s">responses</span><span class="nv"> </span><span class="s">(JARM)&quot;</span><span class="err">,</span><span class="w"> </span><span class="nt">mechanism</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;GenerateJWT&quot;</span><span class="err">,</span><span class="w">              </span><span class="nt">session</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;4.4&quot;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redirect,     requirement</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;Exact</span><span class="nv"> </span><span class="s">redirect_uri</span><span class="nv"> </span><span class="s">match&quot;</span><span class="err">,</span><span class="w">        </span><span class="nt">mechanism</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;condition</span><span class="nv"> </span><span class="s">vs</span><span class="nv"> </span><span class="s">SSA</span><span class="nv"> </span><span class="s">redirect_uris&quot;</span><span class="err">,</span><span class="w"> </span><span class="nt">session</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;4.3&quot;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fapi-headers, requirement</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;x-fapi-interaction-id</span><span class="nv"> </span><span class="s">traceability&quot;</span><span class="err">,</span><span class="w"> </span><span class="nt">mechanism</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;AssignMessage</span><span class="nv"> </span><span class="s">echo/mint&quot;</span><span class="err">,</span><span class="w">      </span><span class="nt">session</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;4.3&quot;</span>
+</code></pre></div>
+
+<p><strong>2. Write the VerifyJWT that enforces clause #3.</strong> The <code>&lt;Algorithms&gt;</code> element is the FAPI control: list <em>only</em> the allowed algorithms, so a token using <code>none</code> or <code>RS256</code> is rejected before its claims are even read. Put this in <code>apiproxy/policies/</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">&lt;VerifyJWT</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;VJ-FAPI-RequestObject&quot;</span><span class="nt">&gt;</span>
+<span class="w">  </span><span class="nt">&lt;DisplayName&gt;</span>VJ-FAPI-RequestObject<span class="nt">&lt;/DisplayName&gt;</span>
+<span class="w">  </span><span class="nt">&lt;Algorithms&gt;</span>
+<span class="w">    </span><span class="nt">&lt;Algorithm&gt;</span>PS256<span class="nt">&lt;/Algorithm&gt;</span>
+<span class="w">    </span><span class="nt">&lt;Algorithm&gt;</span>ES256<span class="nt">&lt;/Algorithm&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/Algorithms&gt;</span>
+<span class="w">  </span><span class="nt">&lt;Source&gt;</span>request.formparam.request<span class="nt">&lt;/Source&gt;</span>
+<span class="w">  </span><span class="nt">&lt;PublicKey&gt;</span>
+<span class="w">    </span><span class="nt">&lt;JWKS</span><span class="w"> </span><span class="na">uri=</span><span class="s">&quot;https://keystore.openbanking.example/0014H/acme.jwks&quot;</span><span class="nt">/&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/PublicKey&gt;</span>
+<span class="w">  </span><span class="nt">&lt;AdditionalClaims&gt;</span>
+<span class="w">    </span><span class="nt">&lt;Claim</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;aud&quot;</span><span class="nt">&gt;</span>https://{organization.name}.apigee.net/par<span class="nt">&lt;/Claim&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/AdditionalClaims&gt;</span>
+<span class="nt">&lt;/VerifyJWT&gt;</span>
+</code></pre></div>
+
+<p><strong>3. Attach it</strong> in the ProxyEndpoint request PreFlow (point ① from 2.1), so any signed request object is algorithm-checked before anything else:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">&lt;PreFlow</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;PreFlow&quot;</span><span class="nt">&gt;</span>
+<span class="w">  </span><span class="nt">&lt;Request&gt;</span>
+<span class="w">    </span><span class="nt">&lt;Step&gt;&lt;Name&gt;</span>VJ-FAPI-RequestObject<span class="nt">&lt;/Name&gt;&lt;/Step&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/Request&gt;</span>
+<span class="nt">&lt;/PreFlow&gt;</span>
+</code></pre></div>
+
+<p><strong>4. Deploy:</strong></p>
+<div class="codehilite"><pre><span></span><code>apigeecli<span class="w"> </span>apis<span class="w"> </span>create<span class="w"> </span>bundle<span class="w"> </span>--name<span class="w"> </span>aisp-accounts<span class="w"> </span>--proxy-folder<span class="w"> </span>./aisp-accounts/apiproxy<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--org<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ORG</span><span class="s2">&quot;</span><span class="w"> </span>--token<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>
+apigeecli<span class="w"> </span>apis<span class="w"> </span>deploy<span class="w"> </span>--name<span class="w"> </span>aisp-accounts<span class="w"> </span>--org<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ORG</span><span class="s2">&quot;</span><span class="w"> </span>--env<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ENV</span><span class="s2">&quot;</span><span class="w"> </span>--ovr<span class="w"> </span>--wait<span class="w"> </span>--token<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>
+</code></pre></div>
+
+<p><strong>5. Mint two test JWTs and prove the allow-list bites.</strong> One with <code>alg: none</code> (forged, no signature), one with <code>PS256</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># alg:none — header {&quot;alg&quot;:&quot;none&quot;}, payload {&quot;aud&quot;:&quot;.../par&quot;}, empty signature</span>
+<span class="nv">NONE_JWT</span><span class="o">=</span><span class="s2">&quot;eyJhbGciOiJub25lIn0.eyJhdWQiOiJodHRwczovL29yZy5hcGlnZWUubmV0L3BhciJ9.&quot;</span>
+
+<span class="c1"># Disallowed alg → VerifyJWT rejects it (401), claims never trusted:</span>
+curl<span class="w"> </span>-s<span class="w"> </span>-o<span class="w"> </span>/dev/null<span class="w"> </span>-w<span class="w"> </span><span class="s2">&quot;alg=none:  %{http_code}\n&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;x-fapi-interaction-id: </span><span class="k">$(</span>uuidgen<span class="k">)</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--data-urlencode<span class="w"> </span><span class="s2">&quot;request=</span><span class="nv">$NONE_JWT</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s2">&quot;https://</span><span class="nv">$RUNTIME_HOST</span><span class="s2">/aisp-accounts/accounts&quot;</span>
+
+<span class="c1"># A properly PS256-signed request object → passes the algorithm gate (then other checks apply):</span>
+<span class="nv">PS256_JWT</span><span class="o">=</span><span class="s2">&quot;&lt;paste a PS256-signed JWT whose aud matches&gt;&quot;</span>
+curl<span class="w"> </span>-s<span class="w"> </span>-o<span class="w"> </span>/dev/null<span class="w"> </span>-w<span class="w"> </span><span class="s2">&quot;alg=PS256: %{http_code}\n&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;x-fapi-interaction-id: </span><span class="k">$(</span>uuidgen<span class="k">)</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--data-urlencode<span class="w"> </span><span class="s2">&quot;request=</span><span class="nv">$PS256_JWT</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s2">&quot;https://</span><span class="nv">$RUNTIME_HOST</span><span class="s2">/aisp-accounts/accounts&quot;</span>
+</code></pre></div>
+
+<p><strong>What success looks like:</strong> <code>alg=none: 401</code> — VerifyJWT raises <code>InvalidAlgorithm</code>/<code>InvalidToken</code> because <code>none</code> isn't in <code>&lt;Algorithms&gt;</code>, so the forged token's claims are never honoured. The <code>PS256</code> token clears the algorithm gate. You also have <code>fapi-traceability.yaml</code> committed, so every remaining FAPI clause has a named owner policy and a target session.</p>
+</div>
+<h2 id="verify-it">Verify it</h2>
+<p>In <strong>Trace</strong>, send the <code>alg=none</code> request and confirm the <code>VJ-FAPI-RequestObject</code> step shows a fault with error <code>steps.jwt.InvalidToken</code> (or <code>InvalidAlgorithm</code>) — <em>not</em> a downstream 200. The forged token must die at the algorithm gate, before any <code>verifyjwt.*</code> claim variable is populated. Then temporarily add <code>&lt;Algorithm&gt;RS256&lt;/Algorithm&gt;</code> to the policy, redeploy, and watch an <code>RS256</code> token start passing the gate: that's the exact relaxation FAPI forbids, and seeing it pass proves the allow-list is what's doing the work. Remove <code>RS256</code> again.</p>
+<p>For the table itself, treat <code>fapi-traceability.yaml</code> as the source of truth in review: every <code>mechanism</code> names a real Apigee policy type (VerifyJWT, OAuthV2, SSLInfo, GenerateJWT, AssignMessage), and every row points at the session that implements it. If a clause has no named mechanism, that's a gap to close before 4.3.</p>
+<div class="admonition failure">
+<p class="admonition-title">Common failure modes</p>
+<ul>
+<li><strong>Empty or missing <code>&lt;Algorithms&gt;</code>.</strong> Without it, VerifyJWT accepts whatever <code>alg</code> the token's header claims — including <code>none</code>. Symptom: a forged <code>alg:none</code> token sails through and its claims are trusted. This is the headline FAPI failure.</li>
+<li><strong>Allowing <code>RS256</code> "because it's signed".</strong> FAPI Advanced mandates <code>PS256</code>/<code>ES256</code>; <code>RS256</code> and <code>HS*</code> are not permitted. Symptom: an audit flags the allow-list even though signatures verify.</li>
+<li><strong>Treating FAPI as one switch.</strong> It's a dozen independent clauses. Symptom: you enforce algorithm restrictions and declare victory, but PAR, mTLS-bound tokens, and exact redirect matching are still open holes.</li>
+<li><strong>Confusing the two signing keys.</strong> The request object is signed with the TPP's <strong>OBSeal</strong> key (verified via its JWKS); the transport cert is <strong>OBWAC</strong> (4.1). Symptom: you point VerifyJWT's JWKS at the transport cert and every signature fails.</li>
+<li><strong>Verifying the algorithm but not the <code>aud</code>/<code>iss</code>.</strong> A valid signature on the wrong audience is still an attack. Symptom: a request object signed for a different ASPSP is accepted because you only checked <code>alg</code>.</li>
+</ul>
+</div>
+<div class="admonition stretch">
+<p class="admonition-title">Stretch goal</p>
+<p>Extend <code>fapi-traceability.yaml</code> into a full audit artifact: for each clause add the <em>negative</em> test that proves enforcement (the disallowed input and the fault it must raise) and the FAPI/RFC reference (RFC 9126 for PAR, RFC 8705 for mTLS-bound tokens and <code>tls_client_auth</code>, the OpenID FAPI 1.0 Advanced section number for JARM and algorithm restrictions). Then map each row back to the Spring config that <em>would</em> satisfy it in-process — the <code>NimbusJwtDecoder</code> algorithm set, the <code>private_key_jwt</code> client registration — so a reviewer can see that the edge is enforcing exactly what the Spring client assumes the server does, and nothing is left to a default.</p>
+</div>
+<h2 id="recap-next">Recap &amp; next</h2>
+<p>You can now read <strong>FAPI 1.0 Advanced</strong> as a checklist rather than a monolith, and you hold the <strong>traceability table</strong> that pins each clause — PAR, signed request objects, algorithm restrictions, client auth, mTLS-bound tokens, JARM, <code>s_hash</code>/<code>nonce</code>, exact redirect-URI matching, <code>x-fapi-interaction-id</code> — to a named Apigee mechanism (<strong>VerifyJWT</strong>, <strong>OAuthV2</strong>, <strong>SSLInfo</strong>, <strong>GenerateJWT</strong>, <strong>AssignMessage</strong>). You've committed that table as config-as-code and enforced the foundational clause: a <strong>VerifyJWT</strong> whose <code>&lt;Algorithms&gt;</code> allow-list rejects <code>none</code> and <code>RS256</code>. FAPI is hardened OAuth, not framework magic — every requirement is a setting you assert at the edge.</p>
+<p><strong>Next — 4.3:</strong> start implementing the table top-down. You'll build <strong>PAR</strong> (a <code>/par</code> endpoint that stores the pushed request and returns a one-time <code>request_uri</code>), verify the <strong>signed request object</strong> against the TPP's JWKS, and authenticate the client with <strong><code>private_key_jwt</code></strong> / <strong><code>tls_client_auth</code></strong> — the strict server-side validations a Spring FAPI client relies on, built as real Apigee policies.</p><div class="session-complete" data-session-code="4.2"><button id="markComplete" type="button" class="mark-btn"><span class="mark-box">&#10003;</span> Mark 4.2 complete</button><span class="mark-hint">Progress is saved in your browser.</span></div><div class="pager">
+<a class="prev" href="session-20.html"><span class="pager-dir">&larr; Previous</span><span class="pager-label">4.1 · The OB trust framework &amp; OBIE roles</span></a>
+<a class="next" href="session-22.html"><span class="pager-dir">Next &rarr;</span><span class="pager-label">4.3 · Implementing FAPI I: PAR, request objects &amp; client auth</span></a>
+</div>
+    </main>
+    <aside class="toc-rail" aria-label="On this page"><div class="toc-title">On this page</div><div class="toc">
+<ul>
+<li><a href="#why-this-exists">Why this exists</a></li>
+<li><a href="#the-concept">The concept</a></li>
+<li><a href="#hands-on-lab">Hands-on lab</a></li>
+<li><a href="#verify-it">Verify it</a></li>
+<li><a href="#recap-next">Recap &amp; next</a></li>
+</ul>
+</div>
+</aside>
+  </div>
+
+  <script>
+    window.__COURSE__ = { total: 33, key: "apigeex-spring.progress.v1" };
+  </script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({
+      startOnLoad: true,
+      securityLevel: 'loose',
+      theme: 'base',
+      themeVariables: {
+        background: '#1A1D24',
+        primaryColor: '#1F2530', primaryBorderColor: '#F5A524', primaryTextColor: '#ECEDEE',
+        lineColor: '#7A8290', secondaryColor: '#2A1B12', tertiaryColor: '#241a0f',
+        secondaryBorderColor: '#FF6B1A', tertiaryBorderColor: '#E03131',
+        noteBkgColor: '#241a0f', noteTextColor: '#ECEDEE', noteBorderColor: '#F5A524',
+        fontFamily: '-apple-system, Segoe UI, Roboto, sans-serif', fontSize: '14px'
+      }
+    });
+    window.__mermaidReady = true;
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script defer src="assets/widgets.js"></script>
+  <script defer src="assets/app.js"></script>
+
+</body>
+</html>
