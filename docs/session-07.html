@@ -203,6 +203,10 @@ custom        (no fixed prefix — whatever YOU name it, e.g. tpp.id, flags.isHi
 <li>Headers can be <strong>multi-valued</strong>: <code>request.header.X</code> gives the first/joined value; <code>request.header.X.values.count</code> and <code>request.header.X.N</code> (1-indexed) give the parts.</li>
 <li>A variable you reference but never set resolves to <strong>null/empty</strong>, not an error — conditions treat it as false-ish, which is usually what you want but occasionally hides a typo.</li>
 </ul>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>Because an unset variable silently resolves to null instead of failing, a typo in a dotted name (<code>request.headers.x-api-key</code> plural vs <code>request.header.x-api-key</code> singular) produces no error — just a quietly empty value. Guard conditions that read optional values with this in mind, and reach for Trace to confirm a variable actually got populated rather than trusting that the name was right.</p>
+</div>
 <h2 id="hands-on-lab">Hands-on lab</h2>
 <p>You'll set a custom flow variable as early as possible (Proxy request PreFlow, point ① from 2.1), then read it back near the end of the flow (Proxy response PreFlow, point ④), proving the value survives the whole journey. Then you'll watch both the set and the read in a Trace.</p>
 <div class="lab">
@@ -227,6 +231,10 @@ custom        (no fixed prefix — whatever YOU name it, e.g. tpp.id, flags.isHi
 </code></pre></div>
 
 <p>The <code>&lt;Value&gt;</code> is the fallback used when the <code>&lt;Ref&gt;</code> is null — so a caller that omits the header gets <code>custom.tppId = anonymous</code> rather than an empty variable.</p>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>Header names look up by <code>request.header.NAME</code> (singular), and matching can surprise you: lookups are case-insensitive on the name but a header that arrives <strong>multi-valued</strong> gives you only the first/joined value through <code>request.header.X</code> — use <code>request.header.X.N</code> (1-indexed) for the parts. Drop the <code>&lt;Value&gt;</code> fallback and a missing <code>&lt;Ref&gt;</code> leaves the variable empty rather than defaulted, which then propagates silently down the flow.</p>
+</div>
 <p><strong>2. AssignMessage to read it back</strong> on the response side and surface it to the client as a header, so you can confirm it survived. Save as <code>apiproxy/policies/AM-EchoContext.xml</code>:</p>
 <div class="codehilite"><pre><span></span><code><span class="nt">&lt;AssignMessage</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;AM-EchoContext&quot;</span><span class="nt">&gt;</span>
 <span class="w">  </span><span class="nt">&lt;Set&gt;</span>
@@ -265,6 +273,10 @@ curl<span class="w"> </span>-s<span class="w"> </span><span class="s2">&quot;htt
 </div>
 <h2 id="verify-it">Verify it</h2>
 <p>In the Apigee Trace, click <code>AM-SetContext</code> and inspect the <strong>Variables</strong> tab: you should see <code>custom.tppId</code>, <code>custom.receivedAt</code>, and <code>custom.isAccountsCall</code> listed with their assigned values — they did not exist before this policy ran. Click any later step and confirm they're still present and unchanged, which proves the <strong>lifetime</strong> spans the flow.</p>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>A custom variable set on the <strong>request</strong> side (point ①) is still readable on the <strong>response</strong> side (point ④) because scope spans all four attach points for one request — but only for that request. Don't expect it to survive into the <em>next</em> call; the instant the response leaves, the whole bag is gone. If you need persistence across requests, that's a Cache or KVM, not a flow variable.</p>
+</div>
 <p>Confirm the <strong>types</strong> behave: omit the interaction-id header and the response shows <code>x-debug-tpp-id: anonymous</code>, demonstrating the null-Ref fallback. A quick scripted check that the value round-trips:</p>
 <div class="codehilite"><pre><span></span><code><span class="nv">ID</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>uuidgen<span class="k">)</span><span class="s2">&quot;</span>
 <span class="nv">GOT</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>curl<span class="w"> </span>-s<span class="w"> </span><span class="s2">&quot;https://</span><span class="nv">$RUNTIME_HOST</span><span class="s2">/v1/hello/json&quot;</span><span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;x-fapi-interaction-id: </span><span class="nv">$ID</span><span class="s2">&quot;</span><span class="w"> </span>-D<span class="w"> </span>-<span class="w"> </span>-o<span class="w"> </span>/dev/null<span class="w"> </span><span class="se">\</span>

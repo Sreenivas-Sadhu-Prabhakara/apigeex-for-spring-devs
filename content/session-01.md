@@ -35,6 +35,9 @@ Every Apigee proxy has the same shape: a request enters, travels through configu
 
 The mental shift: in Spring you think *"what code runs for this request?"* In Apigee you think *"what is **configured** to run, and where in the flow?"* Same outcome, different unit of work — a **policy** instead of a bean.
 
+!!! pitfall "Watch out"
+    "We already have a gateway" (an nginx box, a Spring Cloud Gateway app) is **not** the same as having API management. A reverse proxy moves bytes; the *product* adds consumers, entitlements, analytics, and lifecycle. Don't let an existing proxy convince the team there's nothing here to adopt — that's how the 80% gets re-built by hand, badly.
+
 ## Hands-on lab — audit before you build
 
 You provision your free org in the next session (1.2), so this lab needs no Apigee account. It's the highest-leverage 20 minutes in the course: figure out *what you'd actually move to the edge*.
@@ -56,6 +59,9 @@ You provision your free org in the next session (1.2), so this lab needs no Apig
 ```
 
 **2. For each, write where it lives today** and whether *every other service re-implements it*. The duplicated ones are your edge candidates.
+
+!!! pitfall "Watch out"
+    Be ruthless about the line between *mediation* and *business logic*. "Response shaping for external consumers" is an edge concern; "decide whether this customer is overdrawn" is not. If a concern needs your domain model to do its job, it stays in the service — putting it at the edge couples the gateway to your data and is the single most common Apigee design mistake.
 
 **3. Read the anatomy of a proxy bundle** — this is the artifact you'll be editing for the rest of the course. A passthrough proxy is just this:
 

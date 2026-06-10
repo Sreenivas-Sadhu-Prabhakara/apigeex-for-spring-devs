@@ -70,6 +70,9 @@ Below is the analytics view you'd otherwise build in Grafana — request volume 
 
 Read it like an on-call dashboard: the Wednesday error-rate spike to ~5% with volume *unchanged* is the signature of a backend or policy problem, not a traffic surge — exactly the pattern a custom report sliced by `apiproduct` and `response.status.code` lets you attribute to one product in seconds.
 
+!!! pitfall "Watch out"
+    Analytics is a **sampled, aggregated, propagation-delayed** view — it is not a real-time, exact ledger. Don't use a report to reconcile billing call-for-call or to debug "what happened on this one request seconds ago"; the numbers are approximate and lag the traffic. For exact per-call facts reach for Cloud Logging or Trace, and for anything billing-critical use a deterministic source, not the analytics aggregate.
+
 ## Hands-on lab
 
 <div class="lab" markdown="1">
@@ -98,6 +101,9 @@ Read it like an on-call dashboard: the Wednesday error-rate spike to ~5% with vo
   </CloudLogging>
 </MessageLogging>
 ```
+
+!!! pitfall "Watch out"
+    Mask PII **before** it reaches a logging policy — log entries persist in Cloud Logging and are far harder to scrub after the fact. Never put a raw PAN, account number, token, or full payload into a `<Message>` field; log a correlation id and non-sensitive metadata instead. The fields above are deliberately identifiers and status codes, not account data, for exactly this reason.
 
 **2. Attach it where it always runs and the status is known** — the ProxyEndpoint **response** PostFlow (point ④ from 2.1), so you log the final status of every call, success or rejection:
 
@@ -179,6 +185,9 @@ Then open **Analyze → Custom reports** in the Apigee UI, run it over the last 
 In Cloud Logging, filter on `jsonPayload.status="401"` and confirm only the no-key runs appear — proof you logged edge rejections the backend never saw, which is the whole edge-observability advantage over an in-process Micrometer counter. Each entry should carry a distinct `correlationId` matching the `x-fapi-interaction-id` you can also find in the proxy's Trace, so you can pivot from a log line straight to the full request in **Cloud Trace** and read the latency split between the proxy and target legs.
 
 For the report, change its dimension from `apiproduct` to `developer` and re-run: the same error count now attributes to the *consumer* rather than the product — the slice-and-dice you'd write a new PromQL query for, done as a saved-query edit.
+
+!!! pitfall "Watch out"
+    You can only group a report by dimensions Apigee actually collects — its first-class ones (proxy, product, developer, response code, environment) plus any custom dimension a `StatisticsCollector` genuinely captured. Naming a dimension you never collected returns an empty or erroring report, not an error at create time. Add the `StatisticsCollector` first, generate traffic, *then* build the report that references it.
 
 !!! failure "Common failure modes"
     - **No logs appear in Cloud Logging.** The Apigee runtime service account lacks the `roles/logging.logWriter` role, or the `LogName` project segment is wrong. Symptom: proxy returns 200 but `gcloud logging read` is empty. Grant Logs Writer to the runtime SA and use `projects/{organization.name}/logs/<name>`.

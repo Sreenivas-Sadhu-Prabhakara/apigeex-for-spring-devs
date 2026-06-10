@@ -53,6 +53,9 @@ The PAR flow is a back-channel push followed by a front-channel reference. The c
 
 The two **VerifyJWT** policies do different jobs. One proves the *request* is authentic (JAR); the other proves the *client* is authentic (`private_key_jwt`). A FAPI `/par` needs both — or mTLS standing in for the second.
 
+!!! pitfall "Watch out"
+    Once PAR is in play, `/authorize` must trust **only** the verified signed request object you stored — never the loose query params the browser also carries. If you read `scope` or `redirect_uri` off the front-channel query string, an attacker rewrites them and your signature check bought you nothing. The `request_uri` reference is the only thing the front channel should be allowed to contribute.
+
 ## Hands-on lab
 
 <div class="lab" markdown="1">
@@ -108,6 +111,9 @@ A bad signature, a wrong `iss`, a missing/expired `exp`, or `alg:none` makes thi
 
 (If you authenticate by **mTLS** instead, this step is the SSLInfo check from step 1 plus matching the cert's subject/`org_id` to the registered client — no `client_assertion` at all. FAPI allows either; pick one per client.)
 
+!!! pitfall "Watch out"
+    For `private_key_jwt`, pin `<Audience>` to *this* token/PAR endpoint and verify against the client's **registered** key from its `jwks_uri` — not whatever `kid` the assertion advertises, or any client can impersonate any other. Allow a few seconds of clock skew on `exp` so a slightly fast client clock doesn't bounce a legitimate, just-minted assertion.
+
 **4. Mint and store the `request_uri`.** Generate an opaque handle, cache the verified params against it, and return it. Persist with a short TTL so it can't be replayed:
 
 ```xml
@@ -162,7 +168,11 @@ curl -s --cert client-transport.pem --key client-transport.key \
 
 ## Verify it
 
-Open a debug session and confirm both VerifyJWT policies executed and populated their context. After a good PAR you should see `jwt.VJWT-RequestObject.valid = true`, `jwt.VJWT-RequestObject.claim.iss` equal to your `client_id`, and a matching `jwt.VJWT-ClientAssertion.valid = true`. The minted `par.request_uri` should appear in the `201` body and as a cache entry. On the front channel, `LC-LoadPar` should report a hit; let the 90-second TTL lapse and retry to confirm a miss → rejection. In Trace, the mTLS handshake variables `tls.client.s.dn` / `client.ssl.cert.*` should carry the OB transport cert's distinguished name, proving the truststore from 4.1 accepted it.
+Open a debug session and confirm both VerifyJWT policies executed and populated their context. After a good PAR you should see `jwt.VJWT-RequestObject.valid = true`, `jwt.VJWT-RequestObject.claim.iss` equal to your `client_id`, and a matching `jwt.VJWT-ClientAssertion.valid = true`. The minted `par.request_uri` should appear in the `201` body and as a cache entry. On the front channel, `LC-LoadPar` should report a hit; let the 90-second TTL lapse and retry to confirm a miss → rejection.
+
+!!! pitfall "Watch out"
+    A `request_uri` is single-use and short-lived: a cache miss means it expired *or* was already consumed, and either way the answer is reject — never re-issue or extend it. If you forget to evict on first consumption, the same handle can drive several `/authorize` calls, which is exactly the replay PAR is meant to kill.
+ In Trace, the mTLS handshake variables `tls.client.s.dn` / `client.ssl.cert.*` should carry the OB transport cert's distinguished name, proving the truststore from 4.1 accepted it.
 
 !!! failure "Common failure modes"
     - **Accepting `alg:none` or `HS256`.** If VerifyJWT has no `<Algorithm>` pinned to `PS256`/`ES256`, a forged unsigned request object can slip through. Symptom: a request with a stripped signature is accepted and a `request_uri` is issued. Pin the algorithm explicitly.

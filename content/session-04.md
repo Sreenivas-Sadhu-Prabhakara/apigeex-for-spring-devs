@@ -50,6 +50,9 @@ flowchart LR
 
 Read it as: the three revisions on the left are fixed artifacts. The pointer on the right is the only thing that moves. **Deploy** = aim it at a higher number; **rollback** = aim it at a lower one. Both are pointer moves, both are instant, neither rebuilds. Crucially, rolling back to r1 does not *delete* r2 — it's still there, so you can roll *forward* again the moment you've fixed the real problem.
 
+!!! pitfall "Watch out"
+    Importing (`apis create bundle`) is **not** deploying — it mints a new immutable revision but moves no pointer, so live traffic is unchanged until you `apis deploy`. And because revisions are immutable, "rollback" means *deploy an older revision*, never edit a deployed one in place. Coming from Spring, the instinct to "just fix the running thing" doesn't exist here: you ship a new revision forward or re-point at an existing one.
+
 ## Hands-on lab
 
 <div class="lab" markdown="1">
@@ -116,6 +119,9 @@ apigeecli apis listdeploy --name hello-proxy --org "$ORG" --token "$TOKEN"
 # → still revision: "1"   (minting a revision changed nothing live)
 ```
 
+!!! pitfall "Watch out"
+    This is the moment the build/deploy split bites: r2 now *exists* but `eval` is still serving r1, and a `curl` will show the old behaviour. If you skip the deploy below and conclude "my change didn't work," you've confused minting with deploying. The artifact list (`apis list`) and the live pointer (`apis listdeploy`) move independently.
+
 **4. Deploy r2 — move the pointer forward.** `--ovr` lets the new revision *override* the currently-deployed one (Apigee otherwise refuses to leave two revisions deployed); `--wait` blocks until the deployment is actually live:
 
 ```bash
@@ -136,6 +142,9 @@ curl -s -D - -o /dev/null "https://$RUNTIME_HOST/v1/hello/json" | grep -i x-serv
 apigeecli apis deploy --name hello-proxy --rev 1 \
   --org "$ORG" --env "$ENV" --ovr --wait --token "$TOKEN"
 ```
+
+!!! pitfall "Watch out"
+    `--ovr` is what *replaces* the deployed r2 with r1 — Apigee refuses to leave two revisions of the same proxy deployed, so without `--ovr` this rollback is rejected with a conflict, not silently queued. Also note this re-points, it doesn't delete: r2 still exists and `undeploy` would only detach a revision, never remove the artifact.
 
 Prove the old behaviour returned — the header is gone, because r1 never had the policy:
 

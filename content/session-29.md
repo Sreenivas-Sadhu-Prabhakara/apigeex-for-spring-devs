@@ -56,6 +56,9 @@ flowchart TB
 
 Read it as: the **same** revision 7 is deployed into both `dev` and `test`. The bundle references the TargetServer `aisp-core` *by name* (3.6) — it never names a URL — so `dev` sends traffic to the sandbox backend and `test` to the integration backend, purely because each environment defines `aisp-core` differently. The **environment group** `ob-apis` owns both hostnames and routes each to its environment. Promotion = the `deploy` arrow on the right, repeated; nothing on the artifact changes.
 
+!!! pitfall "Watch out"
+    Promotion means deploying the *same immutable revision* into the next environment and changing only env config — never fork the bundle per environment. The moment you edit the XML for `test`, you've made a new revision and you're no longer promoting the artifact `dev` validated. Build once; let the environment supply the differences.
+
 ## Hands-on lab
 
 <div class="lab" markdown="1">
@@ -88,6 +91,9 @@ apigeecli targetservers create --name aisp-core \
   --host httpbin.org --port 443 --enable=true \
   --org "$ORG" --env "$TEST_ENV" --token "$TOKEN"
 ```
+
+!!! pitfall "Watch out"
+    Any env-scoped object the proxy needs — this TargetServer, but equally a KVM (2.7) or keystore (3.5) — must already exist in the *target* environment before you promote. Creating `aisp-core` in `dev` does nothing for `test`. The revision deploys cleanly and then fails *only in `test`* with a target-resolution or `502` error, because the name it references resolves to nothing there.
 
 **3. Deploy the *same* immutable revision to both environments.** Build the bundle once, deploy it into `dev`, then deploy the **identical** revision number into `test` — no rebuild between them:
 
@@ -137,6 +143,9 @@ apigeecli apis listdeploy --name aisp-accounts --org "$ORG" --token "$TOKEN" \
 ```
 
 You should see one `revision` value repeated for both `environment` entries. Then change `dev`'s `aisp-core` host with `apigeecli targetservers update --name aisp-core --host some-other-host --port 443 --org "$ORG" --env "$DEV_ENV" --token "$TOKEN"` and re-call: the backend changes with **no redeploy and no new revision**, because the address lives in the environment, not the artifact. That is promotion working — the revision is inert; the environment is the variable.
+
+!!! pitfall "Watch out"
+    A deployed revision is not a routable API. A hostname only serves traffic if it is attached to the **environment group** *and* its DNS points at the Apigee runtime. Either one missing and you get a `404`/no-route even though `listdeploy` says the proxy is live — the deploy succeeded, the routing didn't.
 
 !!! failure "Common failure modes"
     - **Hard-coded `<URL>` in the TargetEndpoint.** Then `dev` and `test` literally cannot differ without a new bundle. Symptom: both environments hit the same backend no matter what the TargetServers say. Reference a named TargetServer (3.6) instead.

@@ -67,6 +67,9 @@ A few type notes that trip people up:
 - Headers can be **multi-valued**: `request.header.X` gives the first/joined value; `request.header.X.values.count` and `request.header.X.N` (1-indexed) give the parts.
 - A variable you reference but never set resolves to **null/empty**, not an error — conditions treat it as false-ish, which is usually what you want but occasionally hides a typo.
 
+!!! pitfall "Watch out"
+    Because an unset variable silently resolves to null instead of failing, a typo in a dotted name (`request.headers.x-api-key` plural vs `request.header.x-api-key` singular) produces no error — just a quietly empty value. Guard conditions that read optional values with this in mind, and reach for Trace to confirm a variable actually got populated rather than trusting that the name was right.
+
 ## Hands-on lab
 
 You'll set a custom flow variable as early as possible (Proxy request PreFlow, point ① from 2.1), then read it back near the end of the flow (Proxy response PreFlow, point ④), proving the value survives the whole journey. Then you'll watch both the set and the read in a Trace.
@@ -97,6 +100,9 @@ You'll set a custom flow variable as early as possible (Proxy request PreFlow, p
 ```
 
 The `<Value>` is the fallback used when the `<Ref>` is null — so a caller that omits the header gets `custom.tppId = anonymous` rather than an empty variable.
+
+!!! pitfall "Watch out"
+    Header names look up by `request.header.NAME` (singular), and matching can surprise you: lookups are case-insensitive on the name but a header that arrives **multi-valued** gives you only the first/joined value through `request.header.X` — use `request.header.X.N` (1-indexed) for the parts. Drop the `<Value>` fallback and a missing `<Ref>` leaves the variable empty rather than defaulted, which then propagates silently down the flow.
 
 **2. AssignMessage to read it back** on the response side and surface it to the client as a header, so you can confirm it survived. Save as `apiproxy/policies/AM-EchoContext.xml`:
 
@@ -145,6 +151,9 @@ curl -s "https://$RUNTIME_HOST/v1/hello/json" -H "x-fapi-interaction-id: $ID" -i
 ## Verify it
 
 In the Apigee Trace, click `AM-SetContext` and inspect the **Variables** tab: you should see `custom.tppId`, `custom.receivedAt`, and `custom.isAccountsCall` listed with their assigned values — they did not exist before this policy ran. Click any later step and confirm they're still present and unchanged, which proves the **lifetime** spans the flow.
+
+!!! pitfall "Watch out"
+    A custom variable set on the **request** side (point ①) is still readable on the **response** side (point ④) because scope spans all four attach points for one request — but only for that request. Don't expect it to survive into the *next* call; the instant the response leaves, the whole bag is gone. If you need persistence across requests, that's a Cache or KVM, not a flow variable.
 
 Confirm the **types** behave: omit the interaction-id header and the response shows `x-debug-tpp-id: anonymous`, demonstrating the null-Ref fallback. A quick scripted check that the value round-trips:
 

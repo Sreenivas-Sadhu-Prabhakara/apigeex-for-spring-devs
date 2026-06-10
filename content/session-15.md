@@ -60,6 +60,9 @@ The two **OAuthV2** modes you'll write:
 - **`GenerateAccessToken`** lives on the `/oauth/token` flow. It reads `grant_type`, validates the Basic-auth client credentials, derives scopes from the App's API Product, and returns the standard token JSON. Token TTL is set with `<ExpiresIn>`.
 - **`VerifyAccessToken`** lives in the protected proxy's request PreFlow. It pulls the bearer token from the `Authorization` header, validates it, and on success populates `oauthv2accesstoken.*` flow variables (`client_id`, `scope`, `developer.email`, `api_product_list`) for downstream policies — quota, logging, routing.
 
+!!! pitfall "Watch out"
+    The `/oauth/token` endpoint must stay **unprotected**: if `VerifyAccessToken` runs in front of it you need a token to get a token — a chicken-and-egg lockout where every `POST /oauth/token` returns `401`. Always exclude the token path from the verify step. And don't try to invent scopes in the token request — `GenerateAccessToken` derives them from the granted API Product and ignores what the client asks for.
+
 ## Hands-on lab
 
 <div class="lab" markdown="1">
@@ -88,6 +91,9 @@ apigeecli apps get --name acme-budgeting --email tpp-acme@example.com \
 ```
 
 Apigee reads the `client_id`/`client_secret` from HTTP Basic by default; it validates them against the App and derives scopes from the granted **API Product** automatically.
+
+!!! pitfall "Watch out"
+    Resist the urge to echo the `consumerSecret` or the minted `access_token` into a `MessageLogging` policy or a `curl` you paste into a ticket — a logged secret is a leaked secret, and a logged bearer token is a live credential anyone reading the log can replay until it expires. If you must trace, log only the first few characters as in the `echo "token: ${ACCESS_TOKEN:0:12}..."` above.
 
 **2. The verification policy** — `VerifyAccessToken` for protected resources:
 
@@ -165,6 +171,9 @@ Inspect the token response shape and confirm the scope came from the API Product
 curl -s -u "$KEY:$SECRET" -d "grant_type=client_credentials" \
   "https://$RUNTIME_HOST/aisp-accounts/oauth/token" | jq '{token_type, expires_in, scope}'
 ```
+
+!!! pitfall "Watch out"
+    Revoking the App's grant on the product changes future authorization, but a token already minted keeps verifying until it **expires** or you explicitly revoke it — `VerifyAccessToken` re-resolves the entitlement, yet the token itself still exists in the store. If a plan change must take effect immediately, revoke the outstanding tokens too; don't assume the product edit alone closes the window.
 
 You should see `token_type: "Bearer"`, `expires_in: 3600`, and `scope: "accounts"` — the scope is product-derived, so an App on a different product gets a different scope without any proxy change. Open a debug session and replay the protected call: the Trace should show `OA-Verify` populating `oauthv2accesstoken.client_id`, `oauthv2accesstoken.scope`, and `oauthv2accesstoken.api_product_list` — the same context `VerifyAPIKey` gave you in 3.2, now derived from the bearer token. Send a deliberately mangled token and confirm a clean `401` with `RouteRule` never selecting a target.
 

@@ -161,6 +161,10 @@ response.status.code &gt;= 500                       branch on the backend&#39;s
 <span class="nt">&lt;/RouteRule&gt;</span>
 </code></pre></div>
 
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>RouteRules are evaluated top-to-bottom and the <strong>first</strong> match wins, so the unconditioned fallthrough (no <code>&lt;Condition&gt;</code>) must be <strong>last</strong> — place it first and it matches every request, shadowing every specific rule below it. This is first-match, not Spring's best-match: a broad rule listed above a narrow one wins purely because it comes first, regardless of which looks "more specific."</p>
+</div>
 <p>A <strong>null route</strong> is a RouteRule with a <code>&lt;Condition&gt;</code> but <strong>no <code>&lt;TargetEndpoint&gt;</code></strong> — it matches, selects no backend, and the proxy returns whatever the response flow produced <em>without ever calling a target</em>. Use it to short-circuit (serve a cached/synthetic response, hard-block a method, satisfy a CORS preflight):</p>
 <div class="codehilite"><pre><span></span><code><span class="nt">&lt;RouteRule</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;noroute-options&quot;</span><span class="nt">&gt;</span>
 <span class="w">  </span><span class="nt">&lt;Condition&gt;</span>request.verb<span class="w"> </span>=<span class="w"> </span>&quot;OPTIONS&quot;<span class="nt">&lt;/Condition&gt;</span>
@@ -217,6 +221,10 @@ response.status.code &gt;= 500                       branch on the backend&#39;s
 <span class="nt">&lt;/Flows&gt;</span>
 </code></pre></div>
 
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p><code>MatchesPath "/accounts"</code> matches exactly one segment, so <code>GET /accounts/123</code> will <strong>not</strong> fire this Flow — its extra segment makes the predicate false, and the request silently falls through to the no-op catch-all with nothing flagged as wrong. If a conditional Flow's condition never matches, it does nothing quietly; use <code>"/accounts/**"</code> when you mean "this and everything beneath," and confirm the match in Trace rather than assuming it fired.</p>
+</div>
 <p><strong>3. RouteRules</strong> in the same <code>proxies/default.xml</code>, <em>after</em> <code>&lt;Flows&gt;</code> — specific first, unconditioned fallthrough last. A request header chooses the backend; anything else gets <code>production</code>:</p>
 <div class="codehilite"><pre><span></span><code><span class="nt">&lt;RouteRule</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;to-sandbox&quot;</span><span class="nt">&gt;</span>
 <span class="w">  </span><span class="nt">&lt;Condition&gt;</span>request.header.x-target-env<span class="w"> </span>=<span class="w"> </span>&quot;sandbox&quot;<span class="nt">&lt;/Condition&gt;</span>
@@ -259,6 +267,10 @@ curl<span class="w"> </span>-s<span class="w"> </span>-o<span class="w"> </span>
 </code></pre></div>
 
 <p>You should see <code>exact: [get-accounts]</code> and <code>subpath: []</code> — empty for the sub-path, because <code>"/accounts"</code> matches one segment only. (Use <code>"/accounts/**"</code> if you wanted both.)</p>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>A null route (a matching RouteRule with no <code>&lt;TargetEndpoint&gt;</code>) short-circuits — the backend is never called and you return whatever the response flow produced. In Trace, the giveaway is that <strong>no Target PreFlow appears</strong>; if you expected a backend status but see none, check whether an earlier null route swallowed the request before routing reached your target.</p>
+</div>
 <div class="admonition failure">
 <p class="admonition-title">Common failure modes</p>
 <ul>

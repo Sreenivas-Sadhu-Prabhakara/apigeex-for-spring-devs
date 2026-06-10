@@ -118,6 +118,10 @@
 <h2 id="the-concept">The concept</h2>
 <p>Binding has two moments: <strong>stamp</strong> at issuance, <strong>check</strong> at use. At <code>/token</code>, over mTLS, the AS computes the cert thumbprint and writes it into the token. At every resource call, also over mTLS, the gateway recomputes the presented cert's thumbprint and compares.</p>
 <div class="widget" data-widget="sequence"><script type="application/json">{"type": "sequence", "title": "Certificate-bound token: stamp once, check every call", "actors": [{"id": "c", "label": "FAPI client (cert A)"}, {"id": "t", "label": "/token (Apigee)"}, {"id": "r", "label": "/accounts (Apigee)"}], "steps": [{"from": "c", "to": "t", "label": "POST /token  (mTLS, cert A)  grant=client_credentials", "note": "Connection is mutual-TLS; gateway captures cert A from the handshake."}, {"from": "t", "to": "t", "label": "thumbprint(cert A) \u2192 cnf.x5t#S256", "note": "SHA-256 of the DER cert, base64url. GenerateJWT stamps it into the access token's cnf claim."}, {"from": "t", "to": "c", "kind": "return", "label": "200  { access_token (cnf.x5t#S256=A), token_type: Bearer }", "note": "Token is now sender-constrained to cert A."}, {"from": "c", "to": "r", "label": "GET /accounts  (mTLS, cert A)  Authorization: Bearer \u2026", "note": "Same client, same cert A, presents the bound token."}, {"from": "r", "to": "r", "label": "thumbprint(presented cert) == token.cnf.x5t#S256 ?", "note": "VerifyJWT reads cnf; gateway recomputes the live cert thumbprint and compares."}, {"from": "r", "to": "c", "kind": "return", "label": "200 (cert A matches)  /  401 (cert B \u2192 mismatch)", "note": "A token stolen and replayed from cert B fails the binding \u2014 bearer theft neutralised."}]}</script></div>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>The binding is only real if you re-check <code>cnf.x5t#S256</code> against the <strong>presented</strong> client cert on <em>every</em> resource call — not just at issuance. Stamp <code>cnf</code> at <code>/token</code> but skip the comparison on <code>/accounts</code> and the binding is purely decorative: a stolen bearer token still works from any cert. The check must run on every protected flow, no exceptions.</p>
+</div>
 <p>Introspection exposes the same facts to other resource servers: a <code>POST /introspect</code> returns <code>active</code>, <code>scope</code>, <code>exp</code>, and the <code>cnf</code> object so a downstream enforcer can run the identical thumbprint comparison.</p>
 <h2 id="hands-on-lab">Hands-on lab</h2>
 <div class="lab">
@@ -153,6 +157,10 @@
 <span class="nt">&lt;/GenerateJWT&gt;</span>
 </code></pre></div>
 
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>The thumbprint must be a <strong>base64url-encoded SHA-256 of the DER cert</strong> on <em>both</em> sides of the comparison. Mixing base64 with base64url, comparing a colon-separated hex fingerprint, or grabbing the SHA-1 <code>x5t</code> instead of the SHA-256 <code>x5t#S256</code> all make cert A look like cert B and reject a legitimate caller. Confirm the exact variable Apigee surfaces before you trust it.</p>
+</div>
 <p><strong>3. Enforce the binding on <code>/accounts</code>.</strong> First verify the token, then compare the cert that obtained it against the cert on <em>this</em> connection:</p>
 <div class="codehilite"><pre><span></span><code><span class="nt">&lt;VerifyJWT</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;VJWT-AccessToken&quot;</span><span class="nt">&gt;</span>
 <span class="w">  </span><span class="nt">&lt;Algorithm&gt;</span>PS256<span class="nt">&lt;/Algorithm&gt;</span>
@@ -193,6 +201,10 @@
 </code></pre></div>
 
 <p>An invalid/expired token must instead return <code>{"active": false}</code> only — never leak claims for a dead token.</p>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p><code>/introspect</code> must itself require client auth (mTLS or <code>private_key_jwt</code>) — an open introspection endpoint is a validity oracle anyone can use to test stolen or guessed tokens. Protect it exactly like the other FAPI endpoints; it is a resource server caller, not a public probe.</p>
+</div>
 <p><strong>5. Deploy, mint a bound token with cert A, and use it with cert A:</strong></p>
 <div class="codehilite"><pre><span></span><code>apigeecli<span class="w"> </span>apis<span class="w"> </span>create<span class="w"> </span>bundle<span class="w"> </span>--name<span class="w"> </span>fapi-as<span class="w"> </span>--proxy-folder<span class="w"> </span>./fapi-as/apiproxy<span class="w"> </span>--org<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ORG</span><span class="s2">&quot;</span><span class="w"> </span>--token<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>
 apigeecli<span class="w"> </span>apis<span class="w"> </span>deploy<span class="w"> </span>--name<span class="w"> </span>fapi-as<span class="w"> </span>--org<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ORG</span><span class="s2">&quot;</span><span class="w"> </span>--env<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ENV</span><span class="s2">&quot;</span><span class="w"> </span>--ovr<span class="w"> </span>--wait<span class="w"> </span>--token<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>

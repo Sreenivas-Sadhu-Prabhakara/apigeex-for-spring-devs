@@ -209,6 +209,10 @@
 </tbody>
 </table>
 <p>The single most foundational of these — and the one this session's lab nails down — is <strong>#3, algorithm restrictions</strong>, because every signed artifact in FAPI (request object, client assertion, JARM, id_token) is only as safe as the algorithm allow-list verifying it. Accept <code>none</code> anywhere and an attacker forges any claim they like.</p>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>This session <strong>maps</strong> each FAPI clause to a mechanism — it does not yet stand up a callable authorize-then-call flow; PAR, mTLS-bound tokens, and JARM land in 4.3/4.4. Don't expect a working end-to-end journey out of this lab. Note too that FAPI's strictness is <strong>mandatory, not optional hardening</strong>: <code>alg: none</code> and weak algorithms are forbidden (only <code>PS256</code>/<code>ES256</code>), and mTLS-bound (<code>cnf</code>) tokens plus <em>exact</em> <code>redirect_uri</code> matching are required, never nice-to-haves.</p>
+</div>
 <div class="widget" data-widget="sequence"><script type="application/json">{"type": "sequence", "title": "Where each FAPI clause fires in one authorize-then-call journey", "actors": [{"id": "t", "label": "TPP"}, {"id": "g", "label": "Apigee (FAPI)"}, {"id": "a", "label": "Token/Authz"}], "steps": [{"from": "t", "to": "g", "label": "POST /par  (signed request object)", "note": "Clause 1 (PAR) + clause 2 (VerifyJWT on the request JWT) + clause 3 (PS256/ES256 only). Returns a one-time request_uri."}, {"from": "t", "to": "g", "label": "GET /authorize?request_uri=\u2026", "note": "Clause 8: redirect_uri must exactly match the SSA. PSU then authenticates and consents at the ASPSP."}, {"from": "g", "to": "t", "kind": "return", "label": "response as signed JWT (JARM)", "note": "Clause 6: response parameters returned signed (GenerateJWT) so the browser can't tamper with code/state."}, {"from": "t", "to": "a", "label": "POST /token  (private_key_jwt + mTLS)", "note": "Clause 4: client auth by signed client_assertion or tls_client_auth. Clause 5: token minted with cnf x5t#S256."}, {"from": "t", "to": "g", "label": "GET /aisp/accounts  (mTLS, bearer + cnf)", "note": "Clause 5 again: SSLInfo cert thumbprint must equal the token's cnf. Clause 9: echo x-fapi-interaction-id."}]}</script></div>
 <h2 id="hands-on-lab">Hands-on lab</h2>
 <div class="lab">
@@ -245,6 +249,10 @@
 <span class="nt">&lt;/VerifyJWT&gt;</span>
 </code></pre></div>
 
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>The <code>&lt;Algorithms&gt;</code> allow-list is the whole control — leave it empty or omit it and VerifyJWT accepts whatever <code>alg</code> the token's header claims, <em>including</em> <code>none</code>, which is exactly the headline FAPI failure. List only <code>PS256</code>/<code>ES256</code>; never add <code>RS256</code> or <code>HS*</code> "because it's signed," and remember that passing the algorithm gate is not enough — you must still verify <code>aud</code>/<code>iss</code>, or a token signed for a different ASPSP sails through.</p>
+</div>
 <p><strong>3. Attach it</strong> in the ProxyEndpoint request PreFlow (point ① from 2.1), so any signed request object is algorithm-checked before anything else:</p>
 <div class="codehilite"><pre><span></span><code><span class="nt">&lt;PreFlow</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;PreFlow&quot;</span><span class="nt">&gt;</span>
 <span class="w">  </span><span class="nt">&lt;Request&gt;</span>
@@ -282,6 +290,10 @@ curl<span class="w"> </span>-s<span class="w"> </span>-o<span class="w"> </span>
 <h2 id="verify-it">Verify it</h2>
 <p>In <strong>Trace</strong>, send the <code>alg=none</code> request and confirm the <code>VJ-FAPI-RequestObject</code> step shows a fault with error <code>steps.jwt.InvalidToken</code> (or <code>InvalidAlgorithm</code>) — <em>not</em> a downstream 200. The forged token must die at the algorithm gate, before any <code>verifyjwt.*</code> claim variable is populated. Then temporarily add <code>&lt;Algorithm&gt;RS256&lt;/Algorithm&gt;</code> to the policy, redeploy, and watch an <code>RS256</code> token start passing the gate: that's the exact relaxation FAPI forbids, and seeing it pass proves the allow-list is what's doing the work. Remove <code>RS256</code> again.</p>
 <p>For the table itself, treat <code>fapi-traceability.yaml</code> as the source of truth in review: every <code>mechanism</code> names a real Apigee policy type (VerifyJWT, OAuthV2, SSLInfo, GenerateJWT, AssignMessage), and every row points at the session that implements it. If a clause has no named mechanism, that's a gap to close before 4.3.</p>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>Enforcing clause #3 here is <em>not</em> "FAPI done" — it's a dozen independent clauses, and an auditor checks each one. Don't read a green algorithm test as a compliant edge: PAR, mTLS-bound (<code>cnf</code>) tokens, JARM, and exact <code>redirect_uri</code> matching are still wide open until 4.3/4.4 implement them. The traceability table exists precisely so no clause is silently skipped.</p>
+</div>
 <div class="admonition failure">
 <p class="admonition-title">Common failure modes</p>
 <ul>

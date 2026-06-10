@@ -65,6 +65,9 @@ The four OAuthV2/JWT operations you'll wire, and where each lives:
 - **GenerateJWT** — signs an `RS256` JWT with your private key so the access token is self-verifiable.
 - **VerifyJWT** — on the *protected* proxy, validates the signature against a JWKS URL and surfaces the claims as `jwt.{policy}.claim.*` variables.
 
+!!! pitfall "Watch out"
+    PKCE only protects you if the verifier actually matches: the `code_verifier` presented at `/token` must SHA-256-hash (`S256`) to the exact `code_challenge` sent at `/authorize`, or the exchange fails with `invalid_grant`. Equally unforgiving is `redirect_uri` — it must match the registered value **exactly**, down to a trailing slash, or `/authorize` rejects the request before any login. Hash and URL are both literal comparisons, not fuzzy ones.
+
 ## Hands-on lab
 
 <div class="lab" markdown="1">
@@ -143,6 +146,9 @@ apigeecli kvms entries create --map oauth-keys --key signing-private-key \
 
 On success it populates `jwt.VJ-AccessToken.claim.sub`, `.claim.scope`, `.claim.exp`, etc. — gate `/accounts` on `jwt.VJ-AccessToken.claim.scope` containing `accounts` exactly as you'd check authorities in a Spring `@PreAuthorize`.
 
+!!! pitfall "Watch out"
+    Pin `<Algorithm>RS256</Algorithm>` and never let `VerifyJWT` accept `alg: none` or a symmetric algorithm like `HS256` you didn't intend — an attacker who can pick the algorithm can forge a token the verifier "validates." The `<JWKS uri>` must also serve the public key whose `kid` signed *this* token; if signer and JWKS drift apart, verification fails even though the signature is genuine. Match the algorithm and the `kid` deliberately, don't leave them open.
+
 **6. Deploy and drive the full flow** (PKCE values precomputed for clarity):
 
 ```bash
@@ -170,6 +176,9 @@ curl -s -o /dev/null -w "with JWT: %{http_code}\n" \
 ## Verify it
 
 Confirm three things in Trace. First, in the `/token` exchange, OAuthV2 logs a PKCE check — send the request with a *wrong* `code_verifier` and you get `invalid_grant`, proving the `S256` comparison runs. Second, on the protected proxy, `VerifyJWT` runs in PreFlow *before* the `RouteRule`, so a bad token never reaches the backend. Third, inspect `jwt.VJ-AccessToken.claim.scope` in the Trace variables — it should equal the `scope` you requested at `/authorize`, carried through the code and into the JWT.
+
+!!! pitfall "Watch out"
+    A short `<ExpiresIn>` plus a small clock difference between the signing host and the verifying host produces sporadic "token expired" `401`s on tokens that were just minted. Allow a few seconds of skew leeway on the `exp` check rather than chasing intermittent failures, and keep `ExpiresIn` realistic so genuine expiry and skew never blur together.
 
 A useful negative test: strip the `<Audience>` from your `GenerateJWT` and redeploy. `VerifyJWT` now fails with an audience mismatch, exactly as a Spring `JwtDecoder` with an `OAuth2TokenValidator` audience check would reject it. That symmetry is the point — the same validations you configure on a Spring resource server are the ones `VerifyJWT` runs at the edge.
 

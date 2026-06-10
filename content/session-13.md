@@ -51,6 +51,9 @@ A few specifics that bite:
 - **RegularExpressionProtection** matches named sources (`request.header`, `request.queryparam`, `request.content`) against patterns. It's a coarse net — defence in depth, not a substitute for parameterised backend queries.
 - A **mask configuration** lives in the proxy as `policies/` data or a `resources/` mask file referencing variables and JSONPath/XPath; it redacts in Trace and the debug UI. Sensitive headers (`Authorization`) and body fields (a PAN) should both be listed.
 
+!!! pitfall "Watch out"
+    Masking only hides values in **Trace, the debug UI, and analytics** — it does *not* strip the field from the response, nor stop it reaching the backend. If a PAN must not leave the building, that's an `AssignMessage`/transform job, not a mask. Treat masking purely as "what an operator with Trace access can read," never as data removal.
+
 ## Hands-on lab
 
 <div class="lab" markdown="1">
@@ -87,6 +90,9 @@ A few specifics that bite:
 </RegularExpressionProtection>
 ```
 
+!!! pitfall "Watch out"
+    Set these limits against your *real* payloads, not guessed defaults. A genuine Open Banking consent body can be deeper or have more entries than you expect, and a too-tight `ContainerDepth`/`ObjectEntryCount` rejects legitimate large or deeply nested requests with a confusing `4xx`/`5xx`. Tighten from observed traffic, not from a round number.
+
 **3. CORS** — answer the browser preflight safely. Pin a real origin in production; the `*` shown here is for the lab only and must not be combined with credentials:
 
 ```xml
@@ -118,6 +124,9 @@ A few specifics that bite:
   <Response/>
 </PreFlow>
 ```
+
+!!! pitfall "Watch out"
+    A CORS preflight is an **unauthenticated `OPTIONS`** request — the browser sends no API key or token on it. So never put `VerifyAPIKey`/`VerifyAccessToken` ahead of the CORS step, or the preflight `401`s and the real request never fires. Gate auth on the real verb, and let `OPTIONS` short-circuit to the CORS policy. (Likewise, `Access-Control-Allow-Origin: *` together with credentials is invalid — browsers reject it outright.)
 
 **5. Mask secrets in Trace.** Add a mask configuration so the `Authorization` header and a PAN field never appear in a debug session. Create `apiproxy/resources/mask/aisp-mask.xml` (or attach via the proxy's `MaskDataConfiguration`):
 

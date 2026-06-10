@@ -186,6 +186,10 @@
 </code></pre></div>
 
 <p>Curly-brace <code>{ev.accountId}</code> is <strong>message templating</strong> — Apigee substitutes the flow variable inline. That's how the read half feeds the write half.</p>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p><code>&lt;Set&gt;</code> <strong>overwrites</strong> a header while <code>&lt;Add&gt;</code> <strong>appends</strong> — reach for <code>&lt;Add&gt;</code> on a header the client already sent (or a multi-valued one like <code>Set-Cookie</code>) and you get duplicate values, not a replacement. Likewise, <code>&lt;AssignTo createNew="true"&gt;</code> builds a brand-new message rather than editing the current one, so anything already on the in-flight message (headers, body) is <em>not</em> carried over unless you <code>&lt;Copy&gt;</code> it. Pick the verb deliberately: mutate the existing message, or start clean.</p>
+</div>
 <h2 id="hands-on-lab">Hands-on lab</h2>
 <div class="lab">
 <h4 id="lab-extract-a-path-param-a-json-field-then-reshape-the-response">Lab — extract a path param + a JSON field, then reshape the response</h4>
@@ -206,6 +210,10 @@
 <span class="nt">&lt;/ExtractVariables&gt;</span>
 </code></pre></div>
 
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>A JSONPath or URIPath pattern that doesn't match sets <strong>no variable</strong> — ExtractVariables silently produces nothing rather than erroring, so <code>ev.consentId</code> ends up empty and the gap only shows up as a blank value in a downstream template. The <code>&lt;IgnoreUnresolvedVariables&gt;true&lt;/IgnoreUnresolvedVariables&gt;</code> flag controls whether an <em>unresolved input</em> throws or is tolerated; set it only when an empty result is genuinely acceptable, otherwise you'll mask a broken path. Confirm <code>ev.accountId</code> and <code>ev.consentId</code> actually populated in Trace before trusting them.</p>
+</div>
 <p><strong>2. AssignMessage — stamp a request header</strong> from what you extracted. <code>apiproxy/policies/AM-StampHeader.xml</code>:</p>
 <div class="codehilite"><pre><span></span><code><span class="nt">&lt;AssignMessage</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;AM-StampHeader&quot;</span><span class="nt">&gt;</span>
 <span class="w">  </span><span class="nt">&lt;AssignTo</span><span class="w"> </span><span class="na">type=</span><span class="s">&quot;request&quot;</span><span class="nt">/&gt;</span>
@@ -276,6 +284,10 @@ curl<span class="w"> </span>-s<span class="w"> </span><span class="s2">&quot;htt
 </code></pre></div>
 
 <p>A different account id in the path changes <code>Meta.AccountId</code> with no redeploy — proof the value came from extraction, not a constant.</p>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>Policy order is load-bearing: ExtractVariables must run <strong>before</strong> the AssignMessage that templates its output, or <code>{ev.accountId}</code> resolves against an empty bag and renders blank. Templates resolve against the variable values at the moment each policy executes, so an extract step placed after the assign step won't retroactively fill in the header — re-check the Step order in <code>default.xml</code>, not just the policy XML.</p>
+</div>
 <div class="admonition failure">
 <p class="admonition-title">Common failure modes</p>
 <ul>

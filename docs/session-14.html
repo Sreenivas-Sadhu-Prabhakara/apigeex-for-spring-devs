@@ -108,6 +108,10 @@
 </code></pre></div>
 
 <p>When a request arrives with a key, <strong>VerifyAPIKey</strong> walks this chain backwards: key → app → products → <em>is the called operation in any granted product, in this environment?</em> If yes, it loads a pile of context variables you'll use downstream.</p>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>Stop looking for "the app's permissions" — there's no such field. An app's reachable surface is computed entirely from the <strong>product(s)</strong> it holds. Two apps with identically-shaped credentials can reach completely different endpoints because they were granted different products. Debug entitlement at the product, never at the app.</p>
+</div>
 <div class="widget" data-widget="sequence"><script type="application/json">{"type": "sequence", "title": "A keyed request through the chain", "actors": [{"id": "c", "label": "Client app"}, {"id": "p", "label": "Apigee proxy"}, {"id": "r", "label": "Product registry"}], "steps": [{"from": "c", "to": "p", "label": "GET /accounts  x-api-key: ABC", "note": "The app sends its consumerKey as the API key."}, {"from": "p", "to": "r", "label": "VerifyAPIKey(ABC)", "note": "Proxy looks up the key \u2192 app \u2192 granted products."}, {"from": "r", "to": "p", "kind": "return", "label": "app, product, quota, scopes", "note": "Is /accounts GET allowed by a granted product in this env? Yes \u2192 return entitlement context."}, {"from": "p", "to": "p", "label": "populate verifyapikey.* vars", "note": "client_id, apiproduct.name, developer.email, quota.limit \u2026 now available to later policies."}, {"from": "p", "to": "c", "kind": "return", "label": "200 (or 401 if key invalid)", "note": "Identity established; quota and routing can now key off the product."}]}</script></div>
 <h2 id="hands-on-lab-gate-a-proxy-on-app-identity">Hands-on lab — gate a proxy on app identity</h2>
 <div class="lab">
@@ -122,6 +126,10 @@
 <span class="w">  </span>--org<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ORG</span><span class="s2">&quot;</span><span class="w"> </span>--token<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>
 </code></pre></div>
 
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>A product created <strong>without</strong> an operation group grants the <em>entire</em> proxy — every path and method it serves. The <code>--opgrp</code> above is what scopes this key to <code>GET /accounts</code> only. Skip it and a key meant for account reads can also reach <code>/admin</code> or <code>POST</code> anything the proxy exposes. Always scope products to explicit paths <em>and</em> methods.</p>
+</div>
 <p><strong>2. A Developer</strong> (the owning person/org):</p>
 <div class="codehilite"><pre><span></span><code>apigeecli<span class="w"> </span>developers<span class="w"> </span>create<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--email<span class="w"> </span>tpp-acme@example.com<span class="w"> </span>--first<span class="w"> </span>Acme<span class="w"> </span>--last<span class="w"> </span>Fintech<span class="w"> </span>--user<span class="w"> </span>acme<span class="w"> </span><span class="se">\</span>

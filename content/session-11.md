@@ -38,6 +38,9 @@ Concurrent    → in-flight calls to a target at once (ConcurrentRateLimit). Nic
                 use when the backend caps simultaneous connections.
 ```
 
+!!! pitfall "Watch out"
+    SpikeArrest is a **smoother, not a counter**. `30pm` means roughly one request every 2 seconds, so two requests landing in the same instant get a `429` even when the caller is nowhere near their quota. There is no "remaining budget" — if you want a per-window total, that's Quota's job, not this.
+
 The interactive simulator below makes the SpikeArrest *smoothing* behaviour tangible — note how it rejects a second request that arrives too soon after the first, even though you're nowhere near any "per minute" total:
 
 ```widget
@@ -73,6 +76,9 @@ flowchart LR
 
 `UseEffectiveCount` divides the rate fairly across runtime instances so the *aggregate* edge rate matches what you configured.
 
+!!! pitfall "Watch out"
+    The `<Rate>` suffix is `ps` (per second) or `pm` (per minute) — and it's the spacing that bites, not the total. `30pm` is *not* "30 allowed up front then blocked"; it's one-every-2s, so a legitimate client that retries twice quickly trips it. Write the suffix deliberately and reason in "one request every N", not in totals.
+
 **2. A product-driven Quota** — the distributed counter. Drive `count`, `interval`, and `timeUnit` from the product fields that `VK-Key` populated (see 3.2), and identify the count per app so each consumer gets its own budget. Put this in `apiproxy/policies/Q-PerApp.xml`:
 
 ```xml
@@ -87,6 +93,9 @@ flowchart LR
 ```
 
 `<Distributed>true</Distributed>` is what makes the count shared across instances; `<Synchronous>true</Synchronous>` makes every instance read the live count before allowing (slightly slower, strictly correct — the right default for FAPI plans).
+
+!!! pitfall "Watch out"
+    Even distributed Quota is **eventually consistent** — instances sync the shared count, so a brief over-count across the fleet right at the boundary is normal, not a bug. Don't design as if the limit is enforced to the exact request. And prefer driving the budget from the product via `countRef` over a hard-coded `count`: a plan change should be a product edit, never a proxy redeploy.
 
 **3. Attach both in the ProxyEndpoint request PreFlow** — ordering matters: verify identity, smooth the burst, then count against the budget. In `proxies/default.xml`:
 

@@ -121,6 +121,10 @@
 <h2 id="the-concept">The concept</h2>
 <p>Registration is a validate-then-provision pipeline. The proxy never reaches a backend — it <em>is</em> the backend. It verifies the inner SSA against the Directory's published JWKS, extracts the claims, calls the Apigee management API to create the Developer and App bound to the role-appropriate product, and returns the RFC 7591 client information response.</p>
 <div class="widget" data-widget="sequence"><script type="application/json">{"type": "sequence", "title": "DCR: a signed SSA becomes a developer app", "actors": [{"id": "t", "label": "TPP"}, {"id": "p", "label": "/register (Apigee)"}, {"id": "d", "label": "OB Directory JWKS"}, {"id": "m", "label": "apigee.googleapis.com"}], "steps": [{"from": "t", "to": "p", "label": "POST /register  (signed reg request \u2192 software_statement: SSA)", "note": "Body is a JWS registration request object signed with the TPP's OBSeal key, embedding the Directory-signed SSA."}, {"from": "p", "to": "p", "label": "VerifyJWT(request object, OBSeal)", "note": "Prove the caller holds the key the SSA was issued for \u2014 the outer signature."}, {"from": "p", "to": "d", "label": "fetch Directory signing keys", "note": "VerifyJWT pulls the OB Directory JWKS to validate the inner SSA."}, {"from": "d", "to": "p", "kind": "return", "label": "JWKS (Directory public keys)", "note": "Cached; the trust anchor for every TPP's SSA."}, {"from": "p", "to": "p", "label": "VerifyJWT(SSA) \u2192 extract software_roles, redirect_uris, org_id", "note": "Inner signature valid \u2192 lift the vetted facts out of the assertion."}, {"from": "p", "to": "m", "label": "create Developer + App, bind aisp-read product", "note": "ServiceCallout (or apigeecli in the lab) provisions the 3.2 chain from inside the proxy."}, {"from": "m", "to": "p", "kind": "return", "label": "App created (consumerKey = client_id)", "note": "The management API returns the new app's credentials."}, {"from": "p", "to": "t", "kind": "return", "label": "201  { client_id, redirect_uris, software_roles, scope }", "note": "RFC 7591 client information response \u2014 the TPP can now request tokens."}]}</script></div>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>The entire trust model rests on verifying the SSA's JWS signature against the <strong>OB Directory's JWKS</strong> — an unsigned, self-signed, or untrusted-issuer SSA must be rejected outright, before any app is created. If you provision first and verify later (or skip the inner signature because the outer request object already verified), you let any TPP forge their own entitlements. Verification gates provisioning, always.</p>
+</div>
 <p>The Developer → App → API Product chain you built by hand in 3.2 is exactly what this produces; DCR just provisions it from a signed assertion instead of a console session. The same entitlement chain, automated:</p>
 <figure class="svg-figure">
 <img src="assets/svg/entitlement-chain.svg" alt="A Developer owns an App; the App is granted an API Product exposing specific proxy operations; the App's credentials become the client_id.">
@@ -150,6 +154,10 @@ jwt.VJWT-SSA.claim.software_redirect_uris    → callback URLs (exact-match late
 jwt.VJWT-SSA.claim.software_roles            → [&quot;AISP&quot;] → bind aisp-read; [&quot;PISP&quot;] → pisp-payments
 </code></pre></div>
 
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>Any <code>redirect_uris</code> in the registration request must be a <strong>subset</strong> of <code>software_redirect_uris</code> in the SSA — reject the call if it asks for a callback the Directory never vouched for. Storing a redirect URI the SSA doesn't list quietly hands a TPP an open redirect and breaks the exact-match check 4.3 relies on.</p>
+</div>
 <p><strong>3. Select the API Product from the role.</strong> A condition maps <code>software_roles</code> onto a product — the App's reachable surface is the role, not your choice. In the request flow:</p>
 <div class="codehilite"><pre><span></span><code><span class="nt">&lt;AssignMessage</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;AM-SelectProduct&quot;</span><span class="nt">&gt;</span>
 <span class="w">  </span><span class="nt">&lt;AssignVariable&gt;</span>
@@ -176,6 +184,10 @@ apigeecli<span class="w"> </span>apps<span class="w"> </span>create<span class="
 <span class="w">  </span>--org<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ORG</span><span class="s2">&quot;</span><span class="w"> </span>--token<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>
 </code></pre></div>
 
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>Creating the app is a call to the Apigee <strong>management API</strong>, so the in-proxy <code>ServiceCallout</code> needs a service-account token with permission to create developers and apps — a missing or under-scoped credential fails here, not at verification. Make the operation <strong>idempotent</strong> on <code>software_client_id</code> too: a retried <code>POST</code> must update or no-op, never spawn a duplicate app, or transient timeouts leave orphan registrations behind.</p>
+</div>
 <p><strong>5. Return the RFC 7591 client information response.</strong> The App's <code>consumerKey</code> <em>is</em> the <code>client_id</code>. Shape the response from the created app plus the SSA facts:</p>
 <div class="codehilite"><pre><span></span><code><span class="nt">&lt;AssignMessage</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;AM-RegResponse&quot;</span><span class="nt">&gt;</span>
 <span class="w">  </span><span class="nt">&lt;Set&gt;</span>

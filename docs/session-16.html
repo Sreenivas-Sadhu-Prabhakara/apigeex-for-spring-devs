@@ -134,6 +134,10 @@
 <li><strong>GenerateJWT</strong> — signs an <code>RS256</code> JWT with your private key so the access token is self-verifiable.</li>
 <li><strong>VerifyJWT</strong> — on the <em>protected</em> proxy, validates the signature against a JWKS URL and surfaces the claims as <code>jwt.{policy}.claim.*</code> variables.</li>
 </ul>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>PKCE only protects you if the verifier actually matches: the <code>code_verifier</code> presented at <code>/token</code> must SHA-256-hash (<code>S256</code>) to the exact <code>code_challenge</code> sent at <code>/authorize</code>, or the exchange fails with <code>invalid_grant</code>. Equally unforgiving is <code>redirect_uri</code> — it must match the registered value <strong>exactly</strong>, down to a trailing slash, or <code>/authorize</code> rejects the request before any login. Hash and URL are both literal comparisons, not fuzzy ones.</p>
+</div>
 <h2 id="hands-on-lab">Hands-on lab</h2>
 <div class="lab">
 <h4 id="lab-stand-up-authorize-token-then-verify-the-jwt">Lab — stand up /authorize + /token, then verify the JWT</h4>
@@ -197,6 +201,10 @@ apigeecli<span class="w"> </span>kvms<span class="w"> </span>entries<span class=
 </code></pre></div>
 
 <p>On success it populates <code>jwt.VJ-AccessToken.claim.sub</code>, <code>.claim.scope</code>, <code>.claim.exp</code>, etc. — gate <code>/accounts</code> on <code>jwt.VJ-AccessToken.claim.scope</code> containing <code>accounts</code> exactly as you'd check authorities in a Spring <code>@PreAuthorize</code>.</p>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>Pin <code>&lt;Algorithm&gt;RS256&lt;/Algorithm&gt;</code> and never let <code>VerifyJWT</code> accept <code>alg: none</code> or a symmetric algorithm like <code>HS256</code> you didn't intend — an attacker who can pick the algorithm can forge a token the verifier "validates." The <code>&lt;JWKS uri&gt;</code> must also serve the public key whose <code>kid</code> signed <em>this</em> token; if signer and JWKS drift apart, verification fails even though the signature is genuine. Match the algorithm and the <code>kid</code> deliberately, don't leave them open.</p>
+</div>
 <p><strong>6. Deploy and drive the full flow</strong> (PKCE values precomputed for clarity):</p>
 <div class="codehilite"><pre><span></span><code>apigeecli<span class="w"> </span>apis<span class="w"> </span>create<span class="w"> </span>bundle<span class="w"> </span>--name<span class="w"> </span>aisp-oauth<span class="w"> </span>--proxy-folder<span class="w"> </span>./aisp-oauth/apiproxy<span class="w"> </span>--org<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ORG</span><span class="s2">&quot;</span><span class="w"> </span>--token<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>
 apigeecli<span class="w"> </span>apis<span class="w"> </span>deploy<span class="w"> </span>--name<span class="w"> </span>aisp-oauth<span class="w"> </span>--org<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ORG</span><span class="s2">&quot;</span><span class="w"> </span>--env<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ENV</span><span class="s2">&quot;</span><span class="w"> </span>--ovr<span class="w"> </span>--wait<span class="w"> </span>--token<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>
@@ -220,6 +228,10 @@ curl<span class="w"> </span>-s<span class="w"> </span>-o<span class="w"> </span>
 </div>
 <h2 id="verify-it">Verify it</h2>
 <p>Confirm three things in Trace. First, in the <code>/token</code> exchange, OAuthV2 logs a PKCE check — send the request with a <em>wrong</em> <code>code_verifier</code> and you get <code>invalid_grant</code>, proving the <code>S256</code> comparison runs. Second, on the protected proxy, <code>VerifyJWT</code> runs in PreFlow <em>before</em> the <code>RouteRule</code>, so a bad token never reaches the backend. Third, inspect <code>jwt.VJ-AccessToken.claim.scope</code> in the Trace variables — it should equal the <code>scope</code> you requested at <code>/authorize</code>, carried through the code and into the JWT.</p>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>A short <code>&lt;ExpiresIn&gt;</code> plus a small clock difference between the signing host and the verifying host produces sporadic "token expired" <code>401</code>s on tokens that were just minted. Allow a few seconds of skew leeway on the <code>exp</code> check rather than chasing intermittent failures, and keep <code>ExpiresIn</code> realistic so genuine expiry and skew never blur together.</p>
+</div>
 <p>A useful negative test: strip the <code>&lt;Audience&gt;</code> from your <code>GenerateJWT</code> and redeploy. <code>VerifyJWT</code> now fails with an audience mismatch, exactly as a Spring <code>JwtDecoder</code> with an <code>OAuth2TokenValidator</code> audience check would reject it. That symmetry is the point — the same validations you configure on a Spring resource server are the ones <code>VerifyJWT</code> runs at the edge.</p>
 <div class="admonition failure">
 <p class="admonition-title">Common failure modes</p>

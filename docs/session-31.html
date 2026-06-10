@@ -129,6 +129,10 @@
 <p>Below is the analytics view you'd otherwise build in Grafana — request volume against the error rate it implies, the single most useful FAPI operations panel:</p>
 <div class="widget" data-widget="chart"><script type="application/json">{"type": "chart", "title": "AISP traffic \u2014 volume vs error rate (7 days)", "chartType": "line", "height": 320, "data": {"labels": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"], "datasets": [{"label": "Requests (thousands)", "data": [42, 47, 51, 49, 58, 31, 28], "borderColor": "#2563eb", "backgroundColor": "rgba(37,99,235,0.12)", "yAxisID": "y", "tension": 0.3, "fill": true}, {"label": "Error rate %", "data": [1.2, 1.1, 4.8, 1.4, 1.3, 0.9, 1.0], "borderColor": "#dc2626", "backgroundColor": "rgba(220,38,38,0.0)", "yAxisID": "y1", "tension": 0.3}]}, "options": {"scales": {"y": {"position": "left", "title": {"display": true, "text": "requests (k)"}}, "y1": {"position": "right", "grid": {"drawOnChartArea": false}, "title": {"display": true, "text": "error %"}}}}}</script></div>
 <p>Read it like an on-call dashboard: the Wednesday error-rate spike to ~5% with volume <em>unchanged</em> is the signature of a backend or policy problem, not a traffic surge — exactly the pattern a custom report sliced by <code>apiproduct</code> and <code>response.status.code</code> lets you attribute to one product in seconds.</p>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>Analytics is a <strong>sampled, aggregated, propagation-delayed</strong> view — it is not a real-time, exact ledger. Don't use a report to reconcile billing call-for-call or to debug "what happened on this one request seconds ago"; the numbers are approximate and lag the traffic. For exact per-call facts reach for Cloud Logging or Trace, and for anything billing-critical use a deterministic source, not the analytics aggregate.</p>
+</div>
 <h2 id="hands-on-lab">Hands-on lab</h2>
 <div class="lab">
 <h4 id="lab-structured-cloud-logging-an-error-rate-by-product-report">Lab — structured Cloud Logging + an error-rate-by-product report</h4>
@@ -153,6 +157,10 @@
 <span class="nt">&lt;/MessageLogging&gt;</span>
 </code></pre></div>
 
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>Mask PII <strong>before</strong> it reaches a logging policy — log entries persist in Cloud Logging and are far harder to scrub after the fact. Never put a raw PAN, account number, token, or full payload into a <code>&lt;Message&gt;</code> field; log a correlation id and non-sensitive metadata instead. The fields above are deliberately identifiers and status codes, not account data, for exactly this reason.</p>
+</div>
 <p><strong>2. Attach it where it always runs and the status is known</strong> — the ProxyEndpoint <strong>response</strong> PostFlow (point ④ from 2.1), so you log the final status of every call, success or rejection:</p>
 <div class="codehilite"><pre><span></span><code><span class="nt">&lt;PostFlow</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;PostFlow&quot;</span><span class="nt">&gt;</span>
 <span class="w">  </span><span class="nt">&lt;Response&gt;</span>
@@ -219,6 +227,10 @@ curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>
 <h2 id="verify-it">Verify it</h2>
 <p>In Cloud Logging, filter on <code>jsonPayload.status="401"</code> and confirm only the no-key runs appear — proof you logged edge rejections the backend never saw, which is the whole edge-observability advantage over an in-process Micrometer counter. Each entry should carry a distinct <code>correlationId</code> matching the <code>x-fapi-interaction-id</code> you can also find in the proxy's Trace, so you can pivot from a log line straight to the full request in <strong>Cloud Trace</strong> and read the latency split between the proxy and target legs.</p>
 <p>For the report, change its dimension from <code>apiproduct</code> to <code>developer</code> and re-run: the same error count now attributes to the <em>consumer</em> rather than the product — the slice-and-dice you'd write a new PromQL query for, done as a saved-query edit.</p>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>You can only group a report by dimensions Apigee actually collects — its first-class ones (proxy, product, developer, response code, environment) plus any custom dimension a <code>StatisticsCollector</code> genuinely captured. Naming a dimension you never collected returns an empty or erroring report, not an error at create time. Add the <code>StatisticsCollector</code> first, generate traffic, <em>then</em> build the report that references it.</p>
+</div>
 <div class="admonition failure">
 <p class="admonition-title">Common failure modes</p>
 <ul>

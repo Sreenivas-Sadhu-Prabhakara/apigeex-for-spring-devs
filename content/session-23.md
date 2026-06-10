@@ -50,6 +50,9 @@ Binding has two moments: **stamp** at issuance, **check** at use. At `/token`, o
 }
 ```
 
+!!! pitfall "Watch out"
+    The binding is only real if you re-check `cnf.x5t#S256` against the **presented** client cert on *every* resource call — not just at issuance. Stamp `cnf` at `/token` but skip the comparison on `/accounts` and the binding is purely decorative: a stolen bearer token still works from any cert. The check must run on every protected flow, no exceptions.
+
 Introspection exposes the same facts to other resource servers: a `POST /introspect` returns `active`, `scope`, `exp`, and the `cnf` object so a downstream enforcer can run the identical thumbprint comparison.
 
 ## Hands-on lab
@@ -92,6 +95,9 @@ Introspection exposes the same facts to other resource servers: a `POST /introsp
   </AdditionalClaims>
 </GenerateJWT>
 ```
+
+!!! pitfall "Watch out"
+    The thumbprint must be a **base64url-encoded SHA-256 of the DER cert** on *both* sides of the comparison. Mixing base64 with base64url, comparing a colon-separated hex fingerprint, or grabbing the SHA-1 `x5t` instead of the SHA-256 `x5t#S256` all make cert A look like cert B and reject a legitimate caller. Confirm the exact variable Apigee surfaces before you trust it.
 
 **3. Enforce the binding on `/accounts`.** First verify the token, then compare the cert that obtained it against the cert on *this* connection:
 
@@ -138,6 +144,9 @@ Introspection exposes the same facts to other resource servers: a `POST /introsp
 ```
 
 An invalid/expired token must instead return `{"active": false}` only — never leak claims for a dead token.
+
+!!! pitfall "Watch out"
+    `/introspect` must itself require client auth (mTLS or `private_key_jwt`) — an open introspection endpoint is a validity oracle anyone can use to test stolen or guessed tokens. Protect it exactly like the other FAPI endpoints; it is a resource server caller, not a public probe.
 
 **5. Deploy, mint a bound token with cert A, and use it with cert A:**
 

@@ -139,6 +139,10 @@
 <li><strong>RegularExpressionProtection</strong> matches named sources (<code>request.header</code>, <code>request.queryparam</code>, <code>request.content</code>) against patterns. It's a coarse net — defence in depth, not a substitute for parameterised backend queries.</li>
 <li>A <strong>mask configuration</strong> lives in the proxy as <code>policies/</code> data or a <code>resources/</code> mask file referencing variables and JSONPath/XPath; it redacts in Trace and the debug UI. Sensitive headers (<code>Authorization</code>) and body fields (a PAN) should both be listed.</li>
 </ul>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>Masking only hides values in <strong>Trace, the debug UI, and analytics</strong> — it does <em>not</em> strip the field from the response, nor stop it reaching the backend. If a PAN must not leave the building, that's an <code>AssignMessage</code>/transform job, not a mask. Treat masking purely as "what an operator with Trace access can read," never as data removal.</p>
+</div>
 <h2 id="hands-on-lab">Hands-on lab</h2>
 <div class="lab">
 <h4 id="lab-harden-an-inbound-proxy-threat-limits-cors-preflight-and-a-trace-mask">Lab — harden an inbound proxy: threat limits, CORS preflight, and a Trace mask</h4>
@@ -168,6 +172,10 @@
 <span class="nt">&lt;/RegularExpressionProtection&gt;</span>
 </code></pre></div>
 
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>Set these limits against your <em>real</em> payloads, not guessed defaults. A genuine Open Banking consent body can be deeper or have more entries than you expect, and a too-tight <code>ContainerDepth</code>/<code>ObjectEntryCount</code> rejects legitimate large or deeply nested requests with a confusing <code>4xx</code>/<code>5xx</code>. Tighten from observed traffic, not from a round number.</p>
+</div>
 <p><strong>3. CORS</strong> — answer the browser preflight safely. Pin a real origin in production; the <code>*</code> shown here is for the lab only and must not be combined with credentials:</p>
 <div class="codehilite"><pre><span></span><code><span class="cm">&lt;!-- CORS-AISP.xml --&gt;</span>
 <span class="nt">&lt;CORS</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;CORS-AISP&quot;</span><span class="nt">&gt;</span>
@@ -196,6 +204,10 @@
 <span class="nt">&lt;/PreFlow&gt;</span>
 </code></pre></div>
 
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>A CORS preflight is an <strong>unauthenticated <code>OPTIONS</code></strong> request — the browser sends no API key or token on it. So never put <code>VerifyAPIKey</code>/<code>VerifyAccessToken</code> ahead of the CORS step, or the preflight <code>401</code>s and the real request never fires. Gate auth on the real verb, and let <code>OPTIONS</code> short-circuit to the CORS policy. (Likewise, <code>Access-Control-Allow-Origin: *</code> together with credentials is invalid — browsers reject it outright.)</p>
+</div>
 <p><strong>5. Mask secrets in Trace.</strong> Add a mask configuration so the <code>Authorization</code> header and a PAN field never appear in a debug session. Create <code>apiproxy/resources/mask/aisp-mask.xml</code> (or attach via the proxy's <code>MaskDataConfiguration</code>):</p>
 <div class="codehilite"><pre><span></span><code><span class="nt">&lt;MaskDataConfiguration</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;aisp-mask&quot;</span><span class="nt">&gt;</span>
 <span class="w">  </span><span class="nt">&lt;Namespaces/&gt;</span>

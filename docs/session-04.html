@@ -136,6 +136,10 @@
     class r1,r2,r3 rev;
     class ptr live;</pre>
 <p>Read it as: the three revisions on the left are fixed artifacts. The pointer on the right is the only thing that moves. <strong>Deploy</strong> = aim it at a higher number; <strong>rollback</strong> = aim it at a lower one. Both are pointer moves, both are instant, neither rebuilds. Crucially, rolling back to r1 does not <em>delete</em> r2 — it's still there, so you can roll <em>forward</em> again the moment you've fixed the real problem.</p>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>Importing (<code>apis create bundle</code>) is <strong>not</strong> deploying — it mints a new immutable revision but moves no pointer, so live traffic is unchanged until you <code>apis deploy</code>. And because revisions are immutable, "rollback" means <em>deploy an older revision</em>, never edit a deployed one in place. Coming from Spring, the instinct to "just fix the running thing" doesn't exist here: you ship a new revision forward or re-point at an existing one.</p>
+</div>
 <h2 id="hands-on-lab">Hands-on lab</h2>
 <div class="lab">
 <h4 id="lab-promote-to-r2-then-roll-back-to-r1">Lab — promote to r2, then roll back to r1</h4>
@@ -187,6 +191,10 @@ apigeecli<span class="w"> </span>apis<span class="w"> </span>listdeploy<span cla
 <span class="c1"># → still revision: &quot;1&quot;   (minting a revision changed nothing live)</span>
 </code></pre></div>
 
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>This is the moment the build/deploy split bites: r2 now <em>exists</em> but <code>eval</code> is still serving r1, and a <code>curl</code> will show the old behaviour. If you skip the deploy below and conclude "my change didn't work," you've confused minting with deploying. The artifact list (<code>apis list</code>) and the live pointer (<code>apis listdeploy</code>) move independently.</p>
+</div>
 <p><strong>4. Deploy r2 — move the pointer forward.</strong> <code>--ovr</code> lets the new revision <em>override</em> the currently-deployed one (Apigee otherwise refuses to leave two revisions deployed); <code>--wait</code> blocks until the deployment is actually live:</p>
 <div class="codehilite"><pre><span></span><code>apigeecli<span class="w"> </span>apis<span class="w"> </span>deploy<span class="w"> </span>--name<span class="w"> </span>hello-proxy<span class="w"> </span>--rev<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--org<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ORG</span><span class="s2">&quot;</span><span class="w"> </span>--env<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ENV</span><span class="s2">&quot;</span><span class="w"> </span>--ovr<span class="w"> </span>--wait<span class="w"> </span>--token<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>
@@ -202,6 +210,10 @@ apigeecli<span class="w"> </span>apis<span class="w"> </span>listdeploy<span cla
 <span class="w">  </span>--org<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ORG</span><span class="s2">&quot;</span><span class="w"> </span>--env<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ENV</span><span class="s2">&quot;</span><span class="w"> </span>--ovr<span class="w"> </span>--wait<span class="w"> </span>--token<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>
 </code></pre></div>
 
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p><code>--ovr</code> is what <em>replaces</em> the deployed r2 with r1 — Apigee refuses to leave two revisions of the same proxy deployed, so without <code>--ovr</code> this rollback is rejected with a conflict, not silently queued. Also note this re-points, it doesn't delete: r2 still exists and <code>undeploy</code> would only detach a revision, never remove the artifact.</p>
+</div>
 <p>Prove the old behaviour returned — the header is gone, because r1 never had the policy:</p>
 <div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-s<span class="w"> </span>-D<span class="w"> </span>-<span class="w"> </span>-o<span class="w"> </span>/dev/null<span class="w"> </span><span class="s2">&quot;https://</span><span class="nv">$RUNTIME_HOST</span><span class="s2">/v1/hello/json&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span>x-served-by
 <span class="c1"># → (no output — r1 doesn&#39;t set the header)</span>

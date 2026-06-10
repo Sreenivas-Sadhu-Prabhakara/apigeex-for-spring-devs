@@ -138,6 +138,10 @@ PropertySet        READ-ONLY properties packaged in the bundle at deploy time. R
 </code></pre></div>
 
 <p>Decision rule: <strong>Does it expire?</strong> → cache. <strong>Must a running proxy change it (a rotating token, a flag you flip without shipping)?</strong> → KVM. <strong>Is it fixed config that travels with the code (a backend base URL per environment, a feature constant)?</strong> → PropertySet. <strong>Is it real relational/document data (balances, transactions)?</strong> → none of these; call the backend.</p>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>Two limits people hit hard: a <strong>KVM is not a database</strong> — it's eventually consistent, capped in size and throughput, and key-lookup only, so high-volume or relational data belongs behind a backend. And a <strong>PropertySet is read-only</strong>, bundled at deploy time — there is no runtime write API, so anything you need to flip without shipping must be a KVM instead.</p>
+</div>
 <pre class="mermaid">flowchart TB
   Q{&quot;What kind of data?&quot;}
   Q --&gt;|&quot;expires / TTL&quot;| CACHE[&quot;ResponseCache · PopulateCache/LookupCache&quot;]
@@ -167,6 +171,10 @@ apigeecli<span class="w"> </span>kvms<span class="w"> </span>entries<span class=
 </code></pre></div>
 
 <p><code>ExpiryTimeInSecs</code> caches the read in-memory so you're not hitting the KVM store every request — the <code>private.</code> prefix keeps the value out of Trace.</p>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>Don't reach for a KVM as a general data store. It's eventually consistent (a freshly written value can take seconds to propagate to every instance), key-lookup only, and tuned for dozens to hundreds of small config entries — not thousands of records or read-your-writes. Bulk-loading customer rows here is the classic "KVM is not a database" mistake.</p>
+</div>
 <p><strong>3. Add a PropertySet for read-only, deploy-time config.</strong> Drop a properties file into the bundle at <code>apiproxy/resources/properties/backend.properties</code>:</p>
 <div class="codehilite"><pre><span></span><code>base.url=https://mocktarget.apigee.net
 accounts.path=/json
@@ -186,6 +194,10 @@ feature.masking.enabled=true
 <span class="nt">&lt;/ResponseCache&gt;</span>
 </code></pre></div>
 
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>This <code>CacheKey</code> is keyed only on <code>request.uri</code>, so watch two things. First, ResponseCache will happily cache a <code>404</code>/<code>500</code> and serve that error for the full TTL unless you exclude error responses (e.g. a <code>SkipCachePopulation</code> condition on the status). Second, a key that's too broad collides — drop a query param or the caller identity and one consumer can be served another's cached body. Key on exactly what makes the response unique.</p>
+</div>
 <p>Attach <code>RC-Accounts</code> in the ProxyEndpoint: a ResponseCache policy is referenced <em>once</em> but acts on both the request (lookup) and response (populate) flows automatically. Attach <code>KVM-Get-Token</code> in the request PreFlow so the token is available before the backend call. In <code>proxies/default.xml</code>:</p>
 <div class="codehilite"><pre><span></span><code><span class="nt">&lt;PreFlow</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;PreFlow&quot;</span><span class="nt">&gt;</span>
 <span class="w">  </span><span class="nt">&lt;Request&gt;</span>

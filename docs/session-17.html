@@ -153,6 +153,10 @@
 <li><code>&lt;TrustStore&gt;</code> — the store of CA/server certs Apigee trusts to verify the <em>backend's</em> server certificate.</li>
 <li><code>&lt;ClientAuthEnabled&gt;true&lt;/ClientAuthEnabled&gt;</code> + <code>&lt;KeyStore&gt;</code> + <code>&lt;KeyAlias&gt;</code> — present <em>our</em> client cert for <strong>mTLS</strong>.</li>
 </ul>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>Keep the two stores straight: a <strong>keystore</strong> holds <em>your</em> private key and cert (what you present), a <strong>truststore</strong> holds the <em>peer's</em> CA certs (whom you trust to verify) — swapping them is the single most common mTLS mistake. Put your client cert in a truststore and Apigee presents nothing; put the backend CA in a keystore and Apigee can't verify the backend. The <code>&lt;KeyStore&gt;</code>/<code>&lt;KeyAlias&gt;</code> slot is always "me," <code>&lt;TrustStore&gt;</code> is always "them."</p>
+</div>
 <h2 id="hands-on-lab">Hands-on lab</h2>
 <div class="lab">
 <h4 id="lab-south-bound-mtls-to-a-backend-via-references">Lab — south-bound mTLS to a backend, via references</h4>
@@ -186,6 +190,10 @@ apigeecli<span class="w"> </span>keyaliases<span class="w"> </span>create<span c
 <span class="w">  </span>--env<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ENV</span><span class="s2">&quot;</span><span class="w"> </span>--org<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ORG</span><span class="s2">&quot;</span><span class="w"> </span>--token<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>
 </code></pre></div>
 
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>For south-bound mTLS to actually present your cert you need all three: <code>&lt;ClientAuthEnabled&gt;true&lt;/ClientAuthEnabled&gt;</code>, the <code>&lt;KeyStore&gt;</code> pointing at the keystore, and a <code>&lt;KeyAlias&gt;</code> that matches the alias name <em>exactly</em> (<code>aisp-client</code> here). A typo'd or omitted alias means no cert is presented and the backend resets the connection as if you'd brought nothing — confirm the alias with <code>keyaliases get</code>. And set <code>&lt;Enforce&gt;true&lt;/Enforce&gt;</code> so a bad or missing cert fails the handshake closed instead of silently downgrading.</p>
+</div>
 <p><strong>5. Configure south-bound mTLS in the TargetEndpoint</strong> (<code>targets/default.xml</code>). Note <code>ref://</code> for the keystore (rotatable) and <code>&lt;Enforce&gt;</code> so a bad handshake fails loudly:</p>
 <div class="codehilite"><pre><span></span><code><span class="nt">&lt;TargetEndpoint</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;default&quot;</span><span class="nt">&gt;</span>
 <span class="w">  </span><span class="nt">&lt;HTTPTargetConnection&gt;</span>
@@ -211,6 +219,10 @@ curl<span class="w"> </span>-s<span class="w"> </span>-o<span class="w"> </span>
 <span class="w">  </span><span class="s2">&quot;https://</span><span class="nv">$RUNTIME_HOST</span><span class="s2">/aisp-accounts/accounts&quot;</span>
 </code></pre></div>
 
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>Point <code>&lt;SSLInfo&gt;</code> at the <strong>reference</strong> (<code>ref://aisp-south-ks-ref</code>), never at the keystore name directly — that indirection is the only thing that lets you rotate a cert by repointing the reference instead of redeploying the proxy. Also watch the clock: an <strong>expired</strong> cert in the keystore breaks the handshake, but from the client's side it just looks like a generic connection failure with no HTTP status, so a cert that quietly lapsed can masquerade as a backend outage. Track expiry dates and rotate before they hit.</p>
+</div>
 <p><strong>What success looks like:</strong> the <strong>backend mTLS handshake succeeds in Trace</strong> — the TargetEndpoint shows the request reaching the backend with a <code>200</code>, and the handshake step records the client certificate <code>aisp-client</code> being presented. Then prove rotation: create <code>aisp-south-ks-v2</code> with a fresh cert, repoint the reference with <code>apigeecli references update --name aisp-south-ks-ref --refers aisp-south-ks-v2 …</code>, and call again — it keeps working with <strong>no redeploy</strong>, because the proxy pointed at the reference, not the keystore.</p>
 </div>
 <h2 id="verify-it">Verify it</h2>

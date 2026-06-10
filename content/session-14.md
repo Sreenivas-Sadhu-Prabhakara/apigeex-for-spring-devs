@@ -40,6 +40,9 @@ Developer (a person/org: tpp-acme@example.com)
 
 When a request arrives with a key, **VerifyAPIKey** walks this chain backwards: key → app → products → *is the called operation in any granted product, in this environment?* If yes, it loads a pile of context variables you'll use downstream.
 
+!!! pitfall "Watch out"
+    Stop looking for "the app's permissions" — there's no such field. An app's reachable surface is computed entirely from the **product(s)** it holds. Two apps with identically-shaped credentials can reach completely different endpoints because they were granted different products. Debug entitlement at the product, never at the app.
+
 ```widget
 {
   "type": "sequence",
@@ -76,6 +79,9 @@ apigeecli products create \
   --opgrp '{"operationConfigs":[{"apiSource":"aisp-accounts","operations":[{"resource":"/accounts","methods":["GET"]},{"resource":"/accounts/**","methods":["GET"]}]}]}' \
   --org "$ORG" --token "$TOKEN"
 ```
+
+!!! pitfall "Watch out"
+    A product created **without** an operation group grants the *entire* proxy — every path and method it serves. The `--opgrp` above is what scopes this key to `GET /accounts` only. Skip it and a key meant for account reads can also reach `/admin` or `POST` anything the proxy exposes. Always scope products to explicit paths *and* methods.
 
 **2. A Developer** (the owning person/org):
 

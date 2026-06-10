@@ -47,6 +47,9 @@ flowchart LR
 
 Read it left to right: a merge triggers the workflow, the runner exchanges its GitHub OIDC token for a short-lived GCP token via **WIF** (no stored key), **apigeelint** must pass before anything is built, `apigeecli` creates **one** immutable revision and deploys it to `dev` automatically, and promotion to `test` is the *same* revision behind a **manual-approval gate**. The build happens once; the gate controls where that single revision goes — the config-as-code expression of everything in 6.1.
 
+!!! pitfall "Watch out"
+    Never commit a downloaded service-account key JSON to authenticate CI — it is a long-lived credential anyone with repo access can exfiltrate. Use **Workload Identity Federation** so the runner mints a short-lived token from its OIDC identity and there is no static secret to leak or rotate. A key in a secret store is a fallback, not the target.
+
 Here is the real GitHub Actions workflow this diagram describes. You'll write it in the lab; read it first as the concept made concrete:
 
 ```yaml
@@ -134,6 +137,9 @@ npx apigeelint -s ./apiproxy -f table.js
 # clean output, or a table of findings to fix before you push
 ```
 
+!!! pitfall "Watch out"
+    Lint **before** you deploy, not after — apigeelint is the gate that catches unattached policies and anti-patterns while they're still cheap to fix. A pipeline that builds and deploys first and lints "for information" has no gate at all. Make the workflow fail the `apigeelint` step before any `apis deploy` runs.
+
 **2. Set up Workload Identity Federation** so the runner authenticates with no stored key. Create a pool + provider that trusts your repo, a service account with Apigee deploy rights, and let the provider impersonate it:
 
 ```bash
@@ -173,6 +179,9 @@ git add .github/workflows/apigee-deploy.yml apiproxy
 git commit -m "ci: lint and deploy aisp-accounts via apigeecli + WIF"
 git push -u origin ci/apigee-deploy
 ```
+
+!!! pitfall "Watch out"
+    `--ovr` overwrites whatever revision is currently deployed in that environment — so an unattended pipeline can replace running *prod* config the instant a job runs. That is exactly why promotion to higher environments sits behind the GitHub Environment's required-reviewer gate. Auto-deploy to `dev` is fine; never let an `--ovr` deploy to prod fire without a human approval in front of it.
 
 **5. Merge to main and watch it run.** On merge, the `lint-and-deploy-dev` job lints, builds a new revision, and deploys it to `dev` automatically. The `promote-to-test` job then **pauses** for your approval; approve it and the *same* revision is promoted to `test`.
 

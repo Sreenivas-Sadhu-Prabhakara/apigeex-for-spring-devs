@@ -33,6 +33,9 @@ A shared flow is its own bundle (a `sharedflowbundle/` directory) with policies 
 
 On the fault side: any policy failure, or an explicit **RaiseFault**, sets `error.state` and populates `fault.name` and the `error.*` variables. Apigee then walks **FaultRules** (each a `<Condition>` over those variables) in order, runs the first match, and if none match runs the **DefaultFaultRule** — your catch-all that builds the consistent error body. That's how every failure, from a 401 to a backend 503, leaves through the same shaped response.
 
+!!! pitfall "Watch out"
+    A FlowHook attaches at the **environment** level, so it runs for *every* proxy in that env — the blast radius is the whole environment, not one API. Anything heavy, slow, or wrong in a pre-proxy shared flow degrades or breaks every proxy at once, including ones whose authors never knew the hook existed. Test the shared flow in a non-prod env before you attach the hook in prod.
+
 ```mermaid
 flowchart TB
   REQ["Incoming request"] --> FH["pre-proxy FlowHook"]
@@ -130,6 +133,9 @@ apigeecli flowhooks list --env "$ENV" --org "$ORG" --token "$TOKEN"
 </DefaultFaultRule>
 ```
 
+!!! pitfall "Watch out"
+    FaultRules evaluate top-down and the **first** matching one wins — so order them specific → general. Put the broad catch-all `<FaultRule>` above your `SpikeArrestViolation` rule and the catch-all shadows it: your custom 429 body never renders because a more general rule matched first.
+
 For a *targeted* rule — say, a custom 429 body only when SpikeArrest trips — add a `<FaultRule>` with a condition before the default:
 
 ```xml
@@ -159,6 +165,9 @@ curl -s "https://$RUNTIME_HOST/aisp-accounts/accounts" \
 Open a debug session on the proxy and send a keyless request. In the Trace you'll see the **shared flow execute before the proxy's own PreFlow** — `SA-Edge` and `VK-Key` appear as a `FlowHook` segment that no policy in the proxy bundle references. That's the FlowHook running invisibly, exactly as designed. When `VK-Key` fails, `error.state` flips and the trace jumps to the fault path, landing on your `DefaultFaultRule` and `FC-ErrorEnvelope`.
 
 Confirm the taxonomy is discriminating, not just catching everything the same way. Send a burst that trips SpikeArrest and check the response: with the `rate-limited` FaultRule in place, `fault.name = "SpikeArrestViolation"` matches *before* the DefaultFaultRule, so the 429 path is the one that ran. Inspect `fault.name`, `error.status.code`, and `error.message` in the Trace at the moment the fault raised — those three variables are the whole basis on which your FaultRule conditions decide.
+
+!!! pitfall "Watch out"
+    Once you're in a fault, the normal request/response flow is abandoned — a **RaiseFault** stops the current flow immediately, and the policies you scheduled in PreFlow or PostFlow simply don't run. Anything that *must* happen on the error path (your envelope, an audit log) has to live inside a FaultRule or the DefaultFaultRule, not in the normal flow steps.
 
 !!! failure "Common failure modes"
     - **Looking in the proxy for FlowHook logic.** A pre-proxy FlowHook rejects a request before the proxy's PreFlow, and nothing in the proxy XML references it. Symptom: "my proxy has no VerifyAPIKey but keyless calls still 401" — that's the FlowHook, found via `flowhooks list`, not the bundle.

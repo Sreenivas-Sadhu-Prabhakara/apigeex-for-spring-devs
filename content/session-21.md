@@ -46,6 +46,9 @@ FAPI 1.0 Advanced is a set of independent clauses. Here is the centrepiece — t
 
 The single most foundational of these — and the one this session's lab nails down — is **#3, algorithm restrictions**, because every signed artifact in FAPI (request object, client assertion, JARM, id_token) is only as safe as the algorithm allow-list verifying it. Accept `none` anywhere and an attacker forges any claim they like.
 
+!!! pitfall "Watch out"
+    This session **maps** each FAPI clause to a mechanism — it does not yet stand up a callable authorize-then-call flow; PAR, mTLS-bound tokens, and JARM land in 4.3/4.4. Don't expect a working end-to-end journey out of this lab. Note too that FAPI's strictness is **mandatory, not optional hardening**: `alg: none` and weak algorithms are forbidden (only `PS256`/`ES256`), and mTLS-bound (`cnf`) tokens plus *exact* `redirect_uri` matching are required, never nice-to-haves.
+
 ```widget
 {
   "type": "sequence",
@@ -108,6 +111,9 @@ requirements:
 </VerifyJWT>
 ```
 
+!!! pitfall "Watch out"
+    The `<Algorithms>` allow-list is the whole control — leave it empty or omit it and VerifyJWT accepts whatever `alg` the token's header claims, *including* `none`, which is exactly the headline FAPI failure. List only `PS256`/`ES256`; never add `RS256` or `HS*` "because it's signed," and remember that passing the algorithm gate is not enough — you must still verify `aud`/`iss`, or a token signed for a different ASPSP sails through.
+
 **3. Attach it** in the ProxyEndpoint request PreFlow (point ① from 2.1), so any signed request object is algorithm-checked before anything else:
 
 ```xml
@@ -154,6 +160,9 @@ curl -s -o /dev/null -w "alg=PS256: %{http_code}\n" \
 In **Trace**, send the `alg=none` request and confirm the `VJ-FAPI-RequestObject` step shows a fault with error `steps.jwt.InvalidToken` (or `InvalidAlgorithm`) — *not* a downstream 200. The forged token must die at the algorithm gate, before any `verifyjwt.*` claim variable is populated. Then temporarily add `<Algorithm>RS256</Algorithm>` to the policy, redeploy, and watch an `RS256` token start passing the gate: that's the exact relaxation FAPI forbids, and seeing it pass proves the allow-list is what's doing the work. Remove `RS256` again.
 
 For the table itself, treat `fapi-traceability.yaml` as the source of truth in review: every `mechanism` names a real Apigee policy type (VerifyJWT, OAuthV2, SSLInfo, GenerateJWT, AssignMessage), and every row points at the session that implements it. If a clause has no named mechanism, that's a gap to close before 4.3.
+
+!!! pitfall "Watch out"
+    Enforcing clause #3 here is *not* "FAPI done" — it's a dozen independent clauses, and an auditor checks each one. Don't read a green algorithm test as a compliant edge: PAR, mTLS-bound (`cnf`) tokens, JARM, and exact `redirect_uri` matching are still wide open until 4.3/4.4 implement them. The traceability table exists precisely so no clause is silently skipped.
 
 !!! failure "Common failure modes"
     - **Empty or missing `<Algorithms>`.** Without it, VerifyJWT accepts whatever `alg` the token's header claims — including `none`. Symptom: a forged `alg:none` token sails through and its claims are trusted. This is the headline FAPI failure.

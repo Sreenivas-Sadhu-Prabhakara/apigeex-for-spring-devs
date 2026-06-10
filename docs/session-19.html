@@ -122,6 +122,10 @@
 <h2 id="the-concept">The concept</h2>
 <p>A shared flow is its own bundle (a <code>sharedflowbundle/</code> directory) with policies and a single flow definition. Proxies reach it two ways: explicitly, via a <code>&lt;FlowCallout&gt;</code> step inside the proxy; or implicitly, via a <strong>FlowHook</strong> that binds the shared flow to an environment position so it runs for every proxy. The four FlowHook positions mirror the four attach points from 2.1: <strong>pre-proxy</strong> (before any proxy PreFlow), <strong>pre-target</strong>, <strong>post-target</strong>, <strong>post-proxy</strong> (after every proxy PostFlow).</p>
 <p>On the fault side: any policy failure, or an explicit <strong>RaiseFault</strong>, sets <code>error.state</code> and populates <code>fault.name</code> and the <code>error.*</code> variables. Apigee then walks <strong>FaultRules</strong> (each a <code>&lt;Condition&gt;</code> over those variables) in order, runs the first match, and if none match runs the <strong>DefaultFaultRule</strong> — your catch-all that builds the consistent error body. That's how every failure, from a 401 to a backend 503, leaves through the same shaped response.</p>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>A FlowHook attaches at the <strong>environment</strong> level, so it runs for <em>every</em> proxy in that env — the blast radius is the whole environment, not one API. Anything heavy, slow, or wrong in a pre-proxy shared flow degrades or breaks every proxy at once, including ones whose authors never knew the hook existed. Test the shared flow in a non-prod env before you attach the hook in prod.</p>
+</div>
 <pre class="mermaid">flowchart TB
   REQ[&quot;Incoming request&quot;] --&gt; FH[&quot;pre-proxy FlowHook&quot;]
   FH --&gt; SF[&quot;Shared flow: sf-edge-common&lt;br/&gt;VerifyAPIKey · SpikeArrest&quot;]
@@ -200,6 +204,10 @@ apigeecli<span class="w"> </span>flowhooks<span class="w"> </span>list<span clas
 <span class="nt">&lt;/DefaultFaultRule&gt;</span>
 </code></pre></div>
 
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>FaultRules evaluate top-down and the <strong>first</strong> matching one wins — so order them specific → general. Put the broad catch-all <code>&lt;FaultRule&gt;</code> above your <code>SpikeArrestViolation</code> rule and the catch-all shadows it: your custom 429 body never renders because a more general rule matched first.</p>
+</div>
 <p>For a <em>targeted</em> rule — say, a custom 429 body only when SpikeArrest trips — add a <code>&lt;FaultRule&gt;</code> with a condition before the default:</p>
 <div class="codehilite"><pre><span></span><code><span class="nt">&lt;FaultRule</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;rate-limited&quot;</span><span class="nt">&gt;</span>
 <span class="w">  </span><span class="nt">&lt;Condition&gt;</span>fault.name<span class="w"> </span>=<span class="w"> </span>&quot;SpikeArrestViolation&quot;<span class="nt">&lt;/Condition&gt;</span>
@@ -222,6 +230,10 @@ curl<span class="w"> </span>-s<span class="w"> </span><span class="s2">&quot;htt
 <h2 id="verify-it">Verify it</h2>
 <p>Open a debug session on the proxy and send a keyless request. In the Trace you'll see the <strong>shared flow execute before the proxy's own PreFlow</strong> — <code>SA-Edge</code> and <code>VK-Key</code> appear as a <code>FlowHook</code> segment that no policy in the proxy bundle references. That's the FlowHook running invisibly, exactly as designed. When <code>VK-Key</code> fails, <code>error.state</code> flips and the trace jumps to the fault path, landing on your <code>DefaultFaultRule</code> and <code>FC-ErrorEnvelope</code>.</p>
 <p>Confirm the taxonomy is discriminating, not just catching everything the same way. Send a burst that trips SpikeArrest and check the response: with the <code>rate-limited</code> FaultRule in place, <code>fault.name = "SpikeArrestViolation"</code> matches <em>before</em> the DefaultFaultRule, so the 429 path is the one that ran. Inspect <code>fault.name</code>, <code>error.status.code</code>, and <code>error.message</code> in the Trace at the moment the fault raised — those three variables are the whole basis on which your FaultRule conditions decide.</p>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>Once you're in a fault, the normal request/response flow is abandoned — a <strong>RaiseFault</strong> stops the current flow immediately, and the policies you scheduled in PreFlow or PostFlow simply don't run. Anything that <em>must</em> happen on the error path (your envelope, an audit log) has to live inside a FaultRule or the DefaultFaultRule, not in the normal flow steps.</p>
+</div>
 <div class="admonition failure">
 <p class="admonition-title">Common failure modes</p>
 <ul>

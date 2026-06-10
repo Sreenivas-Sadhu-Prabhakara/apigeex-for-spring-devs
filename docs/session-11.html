@@ -130,6 +130,10 @@ Concurrent    → in-flight calls to a target at once (ConcurrentRateLimit). Nic
                 use when the backend caps simultaneous connections.
 </code></pre></div>
 
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>SpikeArrest is a <strong>smoother, not a counter</strong>. <code>30pm</code> means roughly one request every 2 seconds, so two requests landing in the same instant get a <code>429</code> even when the caller is nowhere near their quota. There is no "remaining budget" — if you want a per-window total, that's Quota's job, not this.</p>
+</div>
 <p>The interactive simulator below makes the SpikeArrest <em>smoothing</em> behaviour tangible — note how it rejects a second request that arrives too soon after the first, even though you're nowhere near any "per minute" total:</p>
 <div class="widget" data-widget="ratelimit"><script type="application/json">{"type": "ratelimit", "title": "SpikeArrest simulator", "ratePerMin": 30}</script></div>
 <p>Quota is the opposite shape. It doesn't care about spacing — it cares about the <strong>total</strong> within a window. The crucial property is <em>distributed</em>: instance A and instance B increment the same logical counter, so the developer's 1000/day can't be multiplied by your replica count. And the limit itself should come from the <strong>product</strong>, via <code>countRef</code>, so changing a customer's plan is a product edit, not a proxy redeploy — exactly the indirection established in 3.2.</p>
@@ -151,6 +155,10 @@ Concurrent    → in-flight calls to a target at once (ConcurrentRateLimit). Nic
 </code></pre></div>
 
 <p><code>UseEffectiveCount</code> divides the rate fairly across runtime instances so the <em>aggregate</em> edge rate matches what you configured.</p>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>The <code>&lt;Rate&gt;</code> suffix is <code>ps</code> (per second) or <code>pm</code> (per minute) — and it's the spacing that bites, not the total. <code>30pm</code> is <em>not</em> "30 allowed up front then blocked"; it's one-every-2s, so a legitimate client that retries twice quickly trips it. Write the suffix deliberately and reason in "one request every N", not in totals.</p>
+</div>
 <p><strong>2. A product-driven Quota</strong> — the distributed counter. Drive <code>count</code>, <code>interval</code>, and <code>timeUnit</code> from the product fields that <code>VK-Key</code> populated (see 3.2), and identify the count per app so each consumer gets its own budget. Put this in <code>apiproxy/policies/Q-PerApp.xml</code>:</p>
 <div class="codehilite"><pre><span></span><code><span class="nt">&lt;Quota</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;Q-PerApp&quot;</span><span class="w"> </span><span class="na">type=</span><span class="s">&quot;calendar&quot;</span><span class="nt">&gt;</span>
 <span class="w">  </span><span class="nt">&lt;Allow</span><span class="w"> </span><span class="na">countRef=</span><span class="s">&quot;verifyapikey.VK-Key.apiproduct.developer.quota.limit&quot;</span><span class="w"> </span><span class="na">count=</span><span class="s">&quot;1000&quot;</span><span class="nt">/&gt;</span>
@@ -163,6 +171,10 @@ Concurrent    → in-flight calls to a target at once (ConcurrentRateLimit). Nic
 </code></pre></div>
 
 <p><code>&lt;Distributed&gt;true&lt;/Distributed&gt;</code> is what makes the count shared across instances; <code>&lt;Synchronous&gt;true&lt;/Synchronous&gt;</code> makes every instance read the live count before allowing (slightly slower, strictly correct — the right default for FAPI plans).</p>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>Even distributed Quota is <strong>eventually consistent</strong> — instances sync the shared count, so a brief over-count across the fleet right at the boundary is normal, not a bug. Don't design as if the limit is enforced to the exact request. And prefer driving the budget from the product via <code>countRef</code> over a hard-coded <code>count</code>: a plan change should be a product edit, never a proxy redeploy.</p>
+</div>
 <p><strong>3. Attach both in the ProxyEndpoint request PreFlow</strong> — ordering matters: verify identity, smooth the burst, then count against the budget. In <code>proxies/default.xml</code>:</p>
 <div class="codehilite"><pre><span></span><code><span class="nt">&lt;PreFlow</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;PreFlow&quot;</span><span class="nt">&gt;</span>
 <span class="w">  </span><span class="nt">&lt;Request&gt;</span>

@@ -65,6 +65,12 @@ Drive the lifecycle — fire events and watch which transitions the gateway allo
 }
 ```
 
+!!! pitfall "Watch out"
+    A replay with the same `x-idempotency-key` must return the **original** cached response — the same `DomesticPaymentId`, byte-for-byte — and must **never** call the backend a second time. The moment a replay reaches the target, you've moved money twice. The cache hit is not an optimisation you can skip under load; it's the whole guarantee.
+
+!!! pitfall "Watch out"
+    Never submit a payment from a consent that isn't yet `Authorised`. The consent must move `AwaitingAuthorisation → Authorised` (via the PSU's out-of-band approval) *before* the `/domestic-payments` POST — submitting against an unauthorised consent is an invalid transition the gateway must reject, not a "pay now, authorise later".
+
 Notice the self-loop on `inprocess` for `replay`: a repeated submission with the same key is a no-op that returns the original result. That loop *is* idempotency. Trying to `submit` from `awaiting` is correctly disallowed — you cannot pay from an unauthorised consent. (Awareness note: real FAPI payment POSTs also carry an `x-jws-signature` — a detached JWS over the body for non-repudiation; verifying it is its own session, but the header travels with every call here.)
 
 ## Hands-on lab
@@ -133,6 +139,9 @@ After the PSU authorises (out of band, as in 5.2), the consent flips to `Authori
 </Step>
 ```
 
+!!! pitfall "Watch out"
+    The same `x-idempotency-key` arriving with a **different** request body is a misuse, not a replay — reject it (`400`/`403`), don't silently serve the cached `201`. Returning the old result for a changed payload hides a client bug and can mask a fraudulent edit to the amount; a strict implementation keys on the header *and* verifies the body matches before replaying.
+
 **5. On a cache miss, after the backend creates the payment, populate the cache** with the response body — so the *next* identical POST hits step 3. Attach PopulateCache in the **response** flow:
 
 ```xml
@@ -173,6 +182,9 @@ curl -s -X POST "https://$RUNTIME_HOST/pisp/domestic-payments" \
 ## Verify it
 
 Compare the two `DomesticPaymentId` values from the run above: they must be byte-identical. Because the mock backend mints a *fresh* id per call, an equal id on the replay can only mean the backend was never hit — the cache served it. Confirm directly in Trace: the first call shows the TargetEndpoint request flow executing and `PC-Idempotency` populating; the replay stops at `RF-ReplayCached` with no target step at all.
+
+!!! pitfall "Watch out"
+    The cache key has a **TTL** — the `TimeoutInSec` of `86400` (24h) above. A replay that arrives after the entry expires is no longer recognised as a duplicate, so the same key can mint a *second* payment. Set the window to match the contract's idempotency guarantee, and remember the backend's own idempotency must outlast the cache for the gap between expiry and the client's last legitimate retry.
 
 Now change one byte of the request body but keep the same `x-idempotency-key` and POST again. Per the OBIE contract this is a *misuse* — the same key with a different payload — and a strict implementation should reject it (`400`/`403`) rather than silently replay or silently create a second payment; verify your proxy does not quietly mint `dp-7741`. Finally, POST with **no** `x-idempotency-key` and confirm you get the rejection from `RF-RequireIdemKey`, proving the header is mandatory, not optional.
 

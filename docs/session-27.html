@@ -123,6 +123,14 @@
 <p>Two coupled state machines drive a payment. The <strong>consent</strong> moves <code>AwaitingAuthorisation → Authorised → Consumed</code> (or <code>→ Rejected</code> if the PSU declines); the <strong>payment</strong>, created only from an <code>Authorised</code> consent, moves through <code>AcceptedSettlementInProcess → AcceptedSettlementCompleted</code>, or lands in <code>Rejected</code>. The idempotency layer wraps the <em>creation</em> of the payment so that re-submitting the same key can never start a second one.</p>
 <p>Drive the lifecycle — fire events and watch which transitions the gateway allows:</p>
 <div class="widget" data-widget="statemachine"><script type="application/json">{"type": "statemachine", "title": "Domestic payment: consent + payment lifecycle", "start": "awaiting", "states": [{"id": "awaiting", "label": "Consent: AwaitingAuthorisation"}, {"id": "authorised", "label": "Consent: Authorised"}, {"id": "rejected_c", "label": "Consent: Rejected", "terminal": true}, {"id": "inprocess", "label": "Payment: AcceptedSettlementInProcess"}, {"id": "completed", "label": "Payment: AcceptedSettlementCompleted", "terminal": true}, {"id": "rejected_p", "label": "Payment: Rejected", "terminal": true}], "events": [{"id": "psu_approve", "label": "PSU authorises"}, {"id": "psu_decline", "label": "PSU declines"}, {"id": "submit", "label": "POST /domestic-payments (new key)"}, {"id": "replay", "label": "POST replay (same x-idempotency-key)"}, {"id": "settle", "label": "Settlement clears"}, {"id": "fail", "label": "Settlement fails"}], "transitions": [{"from": "awaiting", "to": "authorised", "event": "psu_approve", "desc": "PSU authenticates and approves; consent now usable for a payment."}, {"from": "awaiting", "to": "rejected_c", "event": "psu_decline", "desc": "PSU declines \u2014 no payment can ever be created from this consent."}, {"from": "authorised", "to": "inprocess", "event": "submit", "desc": "First submission with a fresh x-idempotency-key. Backend creates the payment; proxy caches the 201."}, {"from": "inprocess", "to": "inprocess", "event": "replay", "desc": "Replay with the SAME key \u2192 cache hit \u2192 original 201 + same DomesticPaymentId returned, backend NOT called. No second payment."}, {"from": "inprocess", "to": "completed", "event": "settle", "desc": "Funds clear; terminal success."}, {"from": "inprocess", "to": "rejected_p", "event": "fail", "desc": "Settlement fails; terminal rejection."}]}</script></div>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>A replay with the same <code>x-idempotency-key</code> must return the <strong>original</strong> cached response — the same <code>DomesticPaymentId</code>, byte-for-byte — and must <strong>never</strong> call the backend a second time. The moment a replay reaches the target, you've moved money twice. The cache hit is not an optimisation you can skip under load; it's the whole guarantee.</p>
+</div>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>Never submit a payment from a consent that isn't yet <code>Authorised</code>. The consent must move <code>AwaitingAuthorisation → Authorised</code> (via the PSU's out-of-band approval) <em>before</em> the <code>/domestic-payments</code> POST — submitting against an unauthorised consent is an invalid transition the gateway must reject, not a "pay now, authorise later".</p>
+</div>
 <p>Notice the self-loop on <code>inprocess</code> for <code>replay</code>: a repeated submission with the same key is a no-op that returns the original result. That loop <em>is</em> idempotency. Trying to <code>submit</code> from <code>awaiting</code> is correctly disallowed — you cannot pay from an unauthorised consent. (Awareness note: real FAPI payment POSTs also carry an <code>x-jws-signature</code> — a detached JWS over the body for non-repudiation; verifying it is its own session, but the header travels with every call here.)</p>
 <h2 id="hands-on-lab">Hands-on lab</h2>
 <div class="lab">
@@ -177,6 +185,10 @@
 <span class="nt">&lt;/Step&gt;</span>
 </code></pre></div>
 
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>The same <code>x-idempotency-key</code> arriving with a <strong>different</strong> request body is a misuse, not a replay — reject it (<code>400</code>/<code>403</code>), don't silently serve the cached <code>201</code>. Returning the old result for a changed payload hides a client bug and can mask a fraudulent edit to the amount; a strict implementation keys on the header <em>and</em> verifies the body matches before replaying.</p>
+</div>
 <p><strong>5. On a cache miss, after the backend creates the payment, populate the cache</strong> with the response body — so the <em>next</em> identical POST hits step 3. Attach PopulateCache in the <strong>response</strong> flow:</p>
 <div class="codehilite"><pre><span></span><code><span class="nt">&lt;PopulateCache</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;PC-Idempotency&quot;</span><span class="nt">&gt;</span>
 <span class="w">  </span><span class="nt">&lt;CacheKey&gt;&lt;KeyFragment</span><span class="w"> </span><span class="na">ref=</span><span class="s">&quot;request.header.x-idempotency-key&quot;</span><span class="nt">/&gt;&lt;/CacheKey&gt;</span>
@@ -211,6 +223,10 @@ curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>
 </div>
 <h2 id="verify-it">Verify it</h2>
 <p>Compare the two <code>DomesticPaymentId</code> values from the run above: they must be byte-identical. Because the mock backend mints a <em>fresh</em> id per call, an equal id on the replay can only mean the backend was never hit — the cache served it. Confirm directly in Trace: the first call shows the TargetEndpoint request flow executing and <code>PC-Idempotency</code> populating; the replay stops at <code>RF-ReplayCached</code> with no target step at all.</p>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>The cache key has a <strong>TTL</strong> — the <code>TimeoutInSec</code> of <code>86400</code> (24h) above. A replay that arrives after the entry expires is no longer recognised as a duplicate, so the same key can mint a <em>second</em> payment. Set the window to match the contract's idempotency guarantee, and remember the backend's own idempotency must outlast the cache for the gap between expiry and the client's last legitimate retry.</p>
+</div>
 <p>Now change one byte of the request body but keep the same <code>x-idempotency-key</code> and POST again. Per the OBIE contract this is a <em>misuse</em> — the same key with a different payload — and a strict implementation should reject it (<code>400</code>/<code>403</code>) rather than silently replay or silently create a second payment; verify your proxy does not quietly mint <code>dp-7741</code>. Finally, POST with <strong>no</strong> <code>x-idempotency-key</code> and confirm you get the rejection from <code>RF-RequireIdemKey</code>, proving the header is mandatory, not optional.</p>
 <div class="admonition failure">
 <p class="admonition-title">Common failure modes</p>

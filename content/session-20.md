@@ -43,6 +43,9 @@ The four roles, precisely:
 
 Collectively AISP/PISP/CBPII are **TPPs** (Third-Party Providers). The **OB Directory** is the registry and trust anchor: it vets each TPP, issues its **OBWAC** (transport, used in mTLS) and **OBSeal** (signing, used for JWS) certificates from the **OB issuing CA**, and publishes a signed **SSA** carrying the TPP's `software_client_id`, `software_redirect_uris`, `org_id`, and `software_roles`. Your gateway trusts the **OB root + issuing CA**, so it can validate any TPP's transport cert without ever pre-registering that individual TPP.
 
+!!! pitfall "Watch out"
+    OBWAC and OBSeal are **two different certs for two different jobs** — OBWAC terminates the mTLS transport, OBSeal verifies JWS signatures on request objects and payloads. Never use one where the other belongs: validating a signed request object against the transport cert (or vice versa) makes every check fail. And don't *infer* a TPP's roles — they come from the SSA's `software_roles` and the cert's policy OIDs, and a single TPP can legitimately hold several at once.
+
 The trust handshake your gateway runs on every call looks like this:
 
 ```widget
@@ -100,6 +103,9 @@ apigeecli keyaliases create cert \
   --env "$ENV" --org "$ORG" --token "$TOKEN"
 ```
 
+!!! pitfall "Watch out"
+    Load the **issuing/root CA** here, not a leaf TPP cert — a truststore holds the anchor that validates *any* cert the Directory issued. Load one TPP's leaf by mistake and only that single TPP ever validates while every other legitimate TPP fails the chain check later. Equally, this is the *production* OB chain in real life: a sandbox/Directory-test CA is a separate chain, so loading the wrong one silently rejects every TPP cert in that environment.
+
 **4. Confirm the alias landed** — this proves the trust anchor exists in the runtime:
 
 ```bash
@@ -132,6 +138,9 @@ Note `software_roles` — this TPP is an AISP and a CBPII, but **not** a PISP. T
 List the keystore's aliases and confirm the OB CA is present: `apigeecli keyaliases list --keystore ob-truststore --env "$ENV" --org "$ORG" --token "$TOKEN"` should include `ob-issuing-ca`. Re-fetch the alias and check its `type` is `trusted` and the cert subject is `CN=OB Issuing CA G1` — that's the anchor a later **SSLInfo**-based check will chain TPP certs against.
 
 To prove you understand the *roles*, take the sample SSA and answer out loud: which of `/aisp/accounts`, `/pisp/domestic-payments`, `/cbpii/funds-confirmations` may this TPP call? With `software_roles: ["AISP","CBPII"]` the answer is the first and third, never the second — and your gateway must enforce exactly that.
+
+!!! pitfall "Watch out"
+    A TPP can hold **several roles at once**, so gate the *path*, not the TPP — check the called role against `software_roles` per request rather than stamping "this is an AISP" once and assuming a single role. Assume one-role-per-TPP and you'll wrongly refuse a multi-role caller, or worse, let an AISP-only TPP reach a payment path because you read the role from the wrong place.
 
 !!! failure "Common failure modes"
     - **Treating the TPP like a client you onboard.** You don't issue OB identities — the Directory does. Symptom: you build a local "TPP registration" table as your source of truth; it drifts from the Directory and you keep trusting a TPP whose authorisation was withdrawn.

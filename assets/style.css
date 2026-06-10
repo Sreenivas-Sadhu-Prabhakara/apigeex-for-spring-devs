@@ -320,6 +320,18 @@ body {
           mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 19V5l13 7z' stroke='black' stroke-width='2' fill='none' stroke-linejoin='round'/%3E%3C/svg%3E");
 }
 
+.admonition.pitfall {
+  border-left-color: var(--ember);
+  background: rgba(255,107,26,.07); border-color: rgba(255,107,26,.3);
+}
+.admonition.pitfall .admonition-title { color: var(--ember-soft); }
+.admonition.pitfall .admonition-title::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 3 2 20h20z' stroke='black' stroke-width='2' fill='none' stroke-linejoin='round'/%3E%3Cpath d='M12 10v4M12 17v.5' stroke='black' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+          mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 3 2 20h20z' stroke='black' stroke-width='2' fill='none' stroke-linejoin='round'/%3E%3Cpath d='M12 10v4M12 17v.5' stroke='black' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+/* inline watch-out inside a lab box: tighten margins so it reads as a step aside */
+.lab .admonition.pitfall { margin: .9em 0; }
+
 /* ---- Lab box (md_in_html div — holds fenced code, which admonitions cannot) */
 .lab {
   margin: 1.5em 0; padding: 4px 18px 16px; border-radius: 10px;

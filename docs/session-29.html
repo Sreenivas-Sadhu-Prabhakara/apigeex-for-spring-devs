@@ -148,6 +148,10 @@
   DEV --&gt; DTS
   TEST --&gt; TTS</pre>
 <p>Read it as: the <strong>same</strong> revision 7 is deployed into both <code>dev</code> and <code>test</code>. The bundle references the TargetServer <code>aisp-core</code> <em>by name</em> (3.6) — it never names a URL — so <code>dev</code> sends traffic to the sandbox backend and <code>test</code> to the integration backend, purely because each environment defines <code>aisp-core</code> differently. The <strong>environment group</strong> <code>ob-apis</code> owns both hostnames and routes each to its environment. Promotion = the <code>deploy</code> arrow on the right, repeated; nothing on the artifact changes.</p>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>Promotion means deploying the <em>same immutable revision</em> into the next environment and changing only env config — never fork the bundle per environment. The moment you edit the XML for <code>test</code>, you've made a new revision and you're no longer promoting the artifact <code>dev</code> validated. Build once; let the environment supply the differences.</p>
+</div>
 <h2 id="hands-on-lab">Hands-on lab</h2>
 <div class="lab">
 <h4 id="lab-one-revision-two-environments-two-backends">Lab — one revision, two environments, two backends</h4>
@@ -173,6 +177,10 @@ apigeecli<span class="w"> </span>targetservers<span class="w"> </span>create<spa
 <span class="w">  </span>--org<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ORG</span><span class="s2">&quot;</span><span class="w"> </span>--env<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TEST_ENV</span><span class="s2">&quot;</span><span class="w"> </span>--token<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>
 </code></pre></div>
 
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>Any env-scoped object the proxy needs — this TargetServer, but equally a KVM (2.7) or keystore (3.5) — must already exist in the <em>target</em> environment before you promote. Creating <code>aisp-core</code> in <code>dev</code> does nothing for <code>test</code>. The revision deploys cleanly and then fails <em>only in <code>test</code></em> with a target-resolution or <code>502</code> error, because the name it references resolves to nothing there.</p>
+</div>
 <p><strong>3. Deploy the <em>same</em> immutable revision to both environments.</strong> Build the bundle once, deploy it into <code>dev</code>, then deploy the <strong>identical</strong> revision number into <code>test</code> — no rebuild between them:</p>
 <div class="codehilite"><pre><span></span><code>apigeecli<span class="w"> </span>apis<span class="w"> </span>create<span class="w"> </span>bundle<span class="w"> </span>--name<span class="w"> </span>aisp-accounts<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--proxy-folder<span class="w"> </span>./aisp-accounts/apiproxy<span class="w"> </span>--org<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ORG</span><span class="s2">&quot;</span><span class="w"> </span>--token<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>
@@ -213,6 +221,10 @@ apigeecli<span class="w"> </span>apis<span class="w"> </span>listdeploy<span cla
 </code></pre></div>
 
 <p>You should see one <code>revision</code> value repeated for both <code>environment</code> entries. Then change <code>dev</code>'s <code>aisp-core</code> host with <code>apigeecli targetservers update --name aisp-core --host some-other-host --port 443 --org "$ORG" --env "$DEV_ENV" --token "$TOKEN"</code> and re-call: the backend changes with <strong>no redeploy and no new revision</strong>, because the address lives in the environment, not the artifact. That is promotion working — the revision is inert; the environment is the variable.</p>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>A deployed revision is not a routable API. A hostname only serves traffic if it is attached to the <strong>environment group</strong> <em>and</em> its DNS points at the Apigee runtime. Either one missing and you get a <code>404</code>/no-route even though <code>listdeploy</code> says the proxy is live — the deploy succeeded, the routing didn't.</p>
+</div>
 <div class="admonition failure">
 <p class="admonition-title">Common failure modes</p>
 <ul>

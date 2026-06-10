@@ -45,6 +45,9 @@ flowchart LR
 
 Read it as: the LoadBalancer fans the request across `ts-core-1` and `ts-core-2`; the HealthMonitor independently probes both; when `ts-core-2`'s probe fails it's pulled from rotation, so every live request lands on `ts-core-1` until `ts-core-2`'s probe recovers. The proxy bundle names only `ts-core-1` / `ts-core-2` — what host each resolves to is environment config.
 
+!!! pitfall "Watch out"
+    Because a TargetServer is **environment-scoped**, the same bundle that deploys cleanly to `eval` will fail in `prod` if you never created `ts-core-1` there — the names resolve to nothing. Recreate every TargetServer your `<LoadBalancer>` references in *each* environment you promote to, or the proxy 502s only in the new env.
+
 ## Hands-on lab
 
 <div class="lab" markdown="1">
@@ -100,6 +103,9 @@ apigeecli targetservers list --org "$ORG" --env "$ENV" --token "$TOKEN"
 
 Note there is **no `<SSLInfo>` here** — TLS for a `<LoadBalancer>` is configured per TargetServer (the `SSLInfo` on the TargetServer object), not on the connection. For HTTPS to the mock target, add TLS to each TargetServer when you create it; for this self-contained lab the mock target accepts the probe on 443.
 
+!!! pitfall "Watch out"
+    Switching to a `<LoadBalancer>` means deleting the old hard `<URL>` — a TargetEndpoint can carry one or the other, never both. If you leave the `<URL>` in, deploy validation fails or the URL silently wins and your named servers are never consulted, so failover quietly does nothing.
+
 **3. Bundle and deploy:**
 
 ```bash
@@ -136,6 +142,9 @@ done
 Open a debug session (`apigeecli apis debug create --name aisp-accounts --env "$ENV" --org "$ORG" --token "$TOKEN"`) and send a request while both servers are up. In the Trace, the target execution shows which `<Server>` was selected — alternate calls flip between `ts-core-1` and `ts-core-2`, proving `RoundRobin` is live. Disable `ts-core-2` and trace again: every selection now reads `ts-core-1`, and the disabled server simply never appears.
 
 You can also confirm the HealthMonitor is doing work independently of real traffic: with `<IntervalInSec>5` and a server whose `<HealthMonitor>` probe path returns non-200, that server is marked down within a probe cycle *before* any client request would have hit it — failover happens proactively, not on the first failed user call.
+
+!!! pitfall "Watch out"
+    Without a `<HealthMonitor>`, a dead server stays in rotation until `<MaxFailures>` consecutive real requests fail — every one of those failures is a user request you served a 5xx. Note too that a *disabled* TargetServer still counts as part of the LoadBalancer's config; don't read "I disabled it" as "the LoadBalancer no longer knows about it."
 
 !!! failure "Common failure modes"
     - **Leaving the `<URL>` in.** A TargetEndpoint can have a `<URL>` *or* a `<LoadBalancer>`, not both. Symptom: deploy fails validation, or the URL silently wins and your servers are never consulted.

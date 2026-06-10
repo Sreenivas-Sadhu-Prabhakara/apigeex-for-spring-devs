@@ -122,6 +122,10 @@
 <p>A consent moves through a small, strict set of states. Click the events below to walk it — and notice which transitions the machine refuses. The illegal ones (reading before authorisation, re-authorising a revoked consent) are exactly what the gateway must reject.</p>
 <div class="widget" data-widget="statemachine"><script type="application/json">{"type": "statemachine", "title": "Account-access consent lifecycle", "start": "awaiting", "states": [{"id": "awaiting", "label": "AwaitingAuthorisation"}, {"id": "authorised", "label": "Authorised"}, {"id": "rejected", "label": "Rejected", "terminal": true}, {"id": "revoked", "label": "Revoked", "terminal": true}, {"id": "expired", "label": "Expired", "terminal": true}], "events": [{"id": "authorise", "label": "PSU authorises"}, {"id": "reject", "label": "PSU rejects"}, {"id": "revoke", "label": "Revoke"}, {"id": "expire", "label": "ExpirationDateTime passes"}], "transitions": [{"from": "awaiting", "event": "authorise", "to": "authorised", "desc": "PSU completes the FAPI authorisation journey \u2014 reads now permitted."}, {"from": "awaiting", "event": "reject", "to": "rejected", "desc": "PSU declines at the consent screen \u2014 terminal, no reads ever."}, {"from": "awaiting", "event": "expire", "to": "expired", "desc": "Never authorised before ExpirationDateTime \u2014 terminal."}, {"from": "authorised", "event": "revoke", "to": "revoked", "desc": "PSU or TPP withdraws consent \u2014 reads stop immediately."}, {"from": "authorised", "event": "expire", "to": "expired", "desc": "ExpirationDateTime passes \u2014 reads stop."}]}</script></div>
 <p>Reading is gated on exactly one fact: <strong>is the stored consent <code>Authorised</code>?</strong> The read APIs in 5.3 don't re-derive permission from the token; they look the consent up by <code>ConsentId</code> in the KVM and check its <code>Status</code>. Everything in this session exists to make that one lookup trustworthy.</p>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>Enforce only the <strong>legal</strong> transitions — a freshly created consent sits in <code>AwaitingAuthorisation</code> and is <em>not</em> usable for reads, and you can never authorise a <code>Revoked</code> or <code>Expired</code> one back to life. The trap is treating <code>Status</code> as a free-text field you overwrite: always read the current stored state first and refuse any move the state machine doesn't allow.</p>
+</div>
 <h2 id="hands-on-lab">Hands-on lab</h2>
 <div class="lab">
 <h4 id="lab-create-a-consent-authorise-it-store-it-in-a-kvm-and-enforce-status-on-use">Lab — create a consent, authorise it, store it in a KVM, and enforce status on use</h4>
@@ -150,6 +154,10 @@
 </code></pre></div>
 
 <p>Return <code>201</code> with the consent body so the TPP gets its <code>ConsentId</code>.</p>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>The <code>ConsentId</code> and its <code>Status</code> must live server-side in the KVM as the single source of truth — never trust a status the client sends back. Remember a KVM is <strong>eventually consistent</strong>: a value you <code>Put</code> may not be readable from another runtime instance for a moment, so don't immediately read-after-write and assume the new state, and serialise updates rather than assuming <code>@Transactional</code> semantics.</p>
+</div>
 <p><strong>3. Authorise it — but only from a legal source state.</strong> When the PSU finishes the authorisation journey, your AS calls a status update. Read the <em>current</em> stored consent first, then refuse the transition unless it is <code>AwaitingAuthorisation</code>:</p>
 <div class="codehilite"><pre><span></span><code><span class="nt">&lt;KeyValueMapOperations</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;KVM-Get-Consent&quot;</span><span class="w"> </span><span class="na">mapIdentifier=</span><span class="s">&quot;account-consents&quot;</span><span class="nt">&gt;</span>
 <span class="w">  </span><span class="nt">&lt;Scope&gt;</span>environment<span class="nt">&lt;/Scope&gt;</span>
@@ -187,6 +195,10 @@
 <span class="nt">&lt;/RaiseFault&gt;</span>
 </code></pre></div>
 
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>A <code>Status</code> of <code>Authorised</code> is necessary but not sufficient — you must also honour <code>ExpirationDateTime</code> on every read, because a consent can lapse without anyone flipping its stored status. Compare <code>ExpirationDateTime</code> to now at the gate (or sweep expired consents to <code>Expired</code>), or a long-dead consent keeps returning data.</p>
+</div>
 <p><strong>5. Deploy and walk the lifecycle:</strong></p>
 <div class="codehilite"><pre><span></span><code>apigeecli<span class="w"> </span>apis<span class="w"> </span>create<span class="w"> </span>bundle<span class="w"> </span>--name<span class="w"> </span>consent<span class="w"> </span>--proxy-folder<span class="w"> </span>./consent/apiproxy<span class="w"> </span>--org<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ORG</span><span class="s2">&quot;</span><span class="w"> </span>--token<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>
 apigeecli<span class="w"> </span>apis<span class="w"> </span>deploy<span class="w"> </span>--name<span class="w"> </span>consent<span class="w"> </span>--org<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ORG</span><span class="s2">&quot;</span><span class="w"> </span>--env<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ENV</span><span class="s2">&quot;</span><span class="w"> </span>--ovr<span class="w"> </span>--wait<span class="w"> </span>--token<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>

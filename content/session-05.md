@@ -38,11 +38,17 @@ Trace records one journey through the same pipeline you'll dissect in 2.1. For n
 
 Mechanically: you **start a debug session** on a specific revision in a specific environment. That opens a short recording window. Any request that hits that revision while the window is open is captured as a **transaction** — an ordered timeline of every policy that executed, each step carrying the flow variables as they stood at that moment. You then **read** the session: walk the timeline, click a step, and compare the variable state before and after to see precisely what that policy mutated.
 
+!!! pitfall "Watch out"
+    A debug session is **time-boxed and samples traffic**, not a permanent tap — it captures a fixed number of transactions over a short window, then closes itself. A request can be perfectly valid and still never appear in the trace because it landed after the window closed, or hit a different instance/environment than the one you're recording. "Nothing captured" usually means a session problem, not a proxy bug.
+
 Three reading moves cover almost everything:
 
 - **Step** — walk the timeline top to bottom. The order *is* the execution order, so a policy you expected that isn't in the list simply never ran (usually a condition that didn't match).
 - **Watch** — pick a variable (say `request.header.x-fapi-interaction-id` or your own `extracted.account`) and follow its value down the timeline to find the step where it first appears or goes wrong.
 - **Inspect** — open a single step and read the full variable set and the policy's own status, including any fault it raised.
+
+!!! pitfall "Watch out"
+    Trace records *everything*, so an unmasked recording captures tokens, PANs, and consent data in plaintext — treat `trace.json` as sensitive as a heap dump, and don't paste it into a ticket. Masking is its own concern, covered in **3.1**. Trace also adds per-request overhead, so it's a diagnostic you open and close — never something you leave running in production.
 
 ## Hands-on lab
 
@@ -66,6 +72,9 @@ SESSION=$(apigeecli apis debug create --name hello-proxy --rev "$REV" \
   --env "$ENV" --org "$ORG" --token "$TOKEN" | jq -r '.name')
 echo "session: $SESSION"
 ```
+
+!!! pitfall "Watch out"
+    Open the session and fire the request **promptly, in this order** — the recording window starts closing the moment you create it. If you pause too long (or send the request first), the window can lapse and `debug list` comes back empty even though the `curl` succeeded. Derive `$REV` from `listdeploy` too: trace the *deployed* revision, or your requests hit a revision the session isn't watching.
 
 **2. Send a request into the open window** so there's a transaction to capture. The interaction id gives you something distinctive to watch later:
 

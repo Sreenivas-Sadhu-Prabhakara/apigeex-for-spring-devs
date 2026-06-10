@@ -139,6 +139,10 @@
   GATE --&gt;|approved| PROMOTE[&quot;deploy SAME revision --env test&lt;br/&gt;(6.1 promotion)&quot;]
   GATE --&gt;|rejected| HOLD[&quot;stays in dev&quot;]</pre>
 <p>Read it left to right: a merge triggers the workflow, the runner exchanges its GitHub OIDC token for a short-lived GCP token via <strong>WIF</strong> (no stored key), <strong>apigeelint</strong> must pass before anything is built, <code>apigeecli</code> creates <strong>one</strong> immutable revision and deploys it to <code>dev</code> automatically, and promotion to <code>test</code> is the <em>same</em> revision behind a <strong>manual-approval gate</strong>. The build happens once; the gate controls where that single revision goes — the config-as-code expression of everything in 6.1.</p>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>Never commit a downloaded service-account key JSON to authenticate CI — it is a long-lived credential anyone with repo access can exfiltrate. Use <strong>Workload Identity Federation</strong> so the runner mints a short-lived token from its OIDC identity and there is no static secret to leak or rotate. A key in a secret store is a fallback, not the target.</p>
+</div>
 <p>Here is the real GitHub Actions workflow this diagram describes. You'll write it in the lab; read it first as the concept made concrete:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># .github/workflows/apigee-deploy.yml</span>
 <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apigee-deploy</span>
@@ -218,6 +222,10 @@
 <span class="c1"># clean output, or a table of findings to fix before you push</span>
 </code></pre></div>
 
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>Lint <strong>before</strong> you deploy, not after — apigeelint is the gate that catches unattached policies and anti-patterns while they're still cheap to fix. A pipeline that builds and deploys first and lints "for information" has no gate at all. Make the workflow fail the <code>apigeelint</code> step before any <code>apis deploy</code> runs.</p>
+</div>
 <p><strong>2. Set up Workload Identity Federation</strong> so the runner authenticates with no stored key. Create a pool + provider that trusts your repo, a service account with Apigee deploy rights, and let the provider impersonate it:</p>
 <div class="codehilite"><pre><span></span><code>gcloud<span class="w"> </span>iam<span class="w"> </span>workload-identity-pools<span class="w"> </span>create<span class="w"> </span>gh-pool<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--location<span class="o">=</span>global<span class="w"> </span>--project<span class="o">=</span><span class="s2">&quot;</span><span class="nv">$PROJECT_ID</span><span class="s2">&quot;</span>
@@ -253,6 +261,10 @@ git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </sp
 git<span class="w"> </span>push<span class="w"> </span>-u<span class="w"> </span>origin<span class="w"> </span>ci/apigee-deploy
 </code></pre></div>
 
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p><code>--ovr</code> overwrites whatever revision is currently deployed in that environment — so an unattended pipeline can replace running <em>prod</em> config the instant a job runs. That is exactly why promotion to higher environments sits behind the GitHub Environment's required-reviewer gate. Auto-deploy to <code>dev</code> is fine; never let an <code>--ovr</code> deploy to prod fire without a human approval in front of it.</p>
+</div>
 <p><strong>5. Merge to main and watch it run.</strong> On merge, the <code>lint-and-deploy-dev</code> job lints, builds a new revision, and deploys it to <code>dev</code> automatically. The <code>promote-to-test</code> job then <strong>pauses</strong> for your approval; approve it and the <em>same</em> revision is promoted to <code>test</code>.</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># follow the run from your terminal</span>
 gh<span class="w"> </span>run<span class="w"> </span>watch<span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>gh<span class="w"> </span>run<span class="w"> </span>list<span class="w"> </span>--workflow<span class="w"> </span>apigee-deploy.yml<span class="w"> </span>-L1<span class="w"> </span>--json<span class="w"> </span>databaseId<span class="w"> </span>-q<span class="w"> </span><span class="s1">&#39;.[0].databaseId&#39;</span><span class="k">)</span><span class="s2">&quot;</span>

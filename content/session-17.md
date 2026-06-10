@@ -62,6 +62,9 @@ The south-bound `<SSLInfo>` block is the one that lives in your proxy bundle. It
 - `<TrustStore>` — the store of CA/server certs Apigee trusts to verify the *backend's* server certificate.
 - `<ClientAuthEnabled>true</ClientAuthEnabled>` + `<KeyStore>` + `<KeyAlias>` — present *our* client cert for **mTLS**.
 
+!!! pitfall "Watch out"
+    Keep the two stores straight: a **keystore** holds *your* private key and cert (what you present), a **truststore** holds the *peer's* CA certs (whom you trust to verify) — swapping them is the single most common mTLS mistake. Put your client cert in a truststore and Apigee presents nothing; put the backend CA in a keystore and Apigee can't verify the backend. The `<KeyStore>`/`<KeyAlias>` slot is always "me," `<TrustStore>` is always "them."
+
 ## Hands-on lab
 
 <div class="lab" markdown="1">
@@ -106,6 +109,9 @@ apigeecli references create --name aisp-south-ks-ref \
   --env "$ENV" --org "$ORG" --token "$TOKEN"
 ```
 
+!!! pitfall "Watch out"
+    For south-bound mTLS to actually present your cert you need all three: `<ClientAuthEnabled>true</ClientAuthEnabled>`, the `<KeyStore>` pointing at the keystore, and a `<KeyAlias>` that matches the alias name *exactly* (`aisp-client` here). A typo'd or omitted alias means no cert is presented and the backend resets the connection as if you'd brought nothing — confirm the alias with `keyaliases get`. And set `<Enforce>true</Enforce>` so a bad or missing cert fails the handshake closed instead of silently downgrading.
+
 **5. Configure south-bound mTLS in the TargetEndpoint** (`targets/default.xml`). Note `ref://` for the keystore (rotatable) and `<Enforce>` so a bad handshake fails loudly:
 
 ```xml
@@ -134,6 +140,9 @@ apigeecli apis debug create --name aisp-accounts --env "$ENV" --org "$ORG" --tok
 curl -s -o /dev/null -w "backend mTLS call: %{http_code}\n" \
   "https://$RUNTIME_HOST/aisp-accounts/accounts"
 ```
+
+!!! pitfall "Watch out"
+    Point `<SSLInfo>` at the **reference** (`ref://aisp-south-ks-ref`), never at the keystore name directly — that indirection is the only thing that lets you rotate a cert by repointing the reference instead of redeploying the proxy. Also watch the clock: an **expired** cert in the keystore breaks the handshake, but from the client's side it just looks like a generic connection failure with no HTTP status, so a cert that quietly lapsed can masquerade as a backend outage. Track expiry dates and rotate before they hit.
 
 **What success looks like:** the **backend mTLS handshake succeeds in Trace** — the TargetEndpoint shows the request reaching the backend with a `200`, and the handshake step records the client certificate `aisp-client` being presented. Then prove rotation: create `aisp-south-ks-v2` with a fresh cert, repoint the reference with `apigeecli references update --name aisp-south-ks-ref --refers aisp-south-ks-v2 …`, and call again — it keeps working with **no redeploy**, because the proxy pointed at the reference, not the keystore.
 </div>

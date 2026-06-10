@@ -59,6 +59,9 @@ A consent moves through a small, strict set of states. Click the events below to
 
 Reading is gated on exactly one fact: **is the stored consent `Authorised`?** The read APIs in 5.3 don't re-derive permission from the token; they look the consent up by `ConsentId` in the KVM and check its `Status`. Everything in this session exists to make that one lookup trustworthy.
 
+!!! pitfall "Watch out"
+    Enforce only the **legal** transitions — a freshly created consent sits in `AwaitingAuthorisation` and is *not* usable for reads, and you can never authorise a `Revoked` or `Expired` one back to life. The trap is treating `Status` as a free-text field you overwrite: always read the current stored state first and refuse any move the state machine doesn't allow.
+
 ## Hands-on lab
 
 <div class="lab" markdown="1">
@@ -94,6 +97,9 @@ Reading is gated on exactly one fact: **is the stored consent `Authorised`?** Th
 ```
 
 Return `201` with the consent body so the TPP gets its `ConsentId`.
+
+!!! pitfall "Watch out"
+    The `ConsentId` and its `Status` must live server-side in the KVM as the single source of truth — never trust a status the client sends back. Remember a KVM is **eventually consistent**: a value you `Put` may not be readable from another runtime instance for a moment, so don't immediately read-after-write and assume the new state, and serialise updates rather than assuming `@Transactional` semantics.
 
 **3. Authorise it — but only from a legal source state.** When the PSU finishes the authorisation journey, your AS calls a status update. Read the *current* stored consent first, then refuse the transition unless it is `AwaitingAuthorisation`:
 
@@ -137,6 +143,9 @@ If the guard passes, write the consent back with `Status: "Authorised"` via anot
   </FaultResponse>
 </RaiseFault>
 ```
+
+!!! pitfall "Watch out"
+    A `Status` of `Authorised` is necessary but not sufficient — you must also honour `ExpirationDateTime` on every read, because a consent can lapse without anyone flipping its stored status. Compare `ExpirationDateTime` to now at the gate (or sweep expired consents to `Expired`), or a long-dead consent keeps returning data.
 
 **5. Deploy and walk the lifecycle:**
 

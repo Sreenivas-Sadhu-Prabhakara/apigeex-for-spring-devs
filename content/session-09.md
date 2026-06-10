@@ -95,6 +95,9 @@ A realistic example: at the TargetEndpoint request (point ②) reshape what the 
 
 Curly-brace `{ev.accountId}` is **message templating** — Apigee substitutes the flow variable inline. That's how the read half feeds the write half.
 
+!!! pitfall "Watch out"
+    `<Set>` **overwrites** a header while `<Add>` **appends** — reach for `<Add>` on a header the client already sent (or a multi-valued one like `Set-Cookie`) and you get duplicate values, not a replacement. Likewise, `<AssignTo createNew="true">` builds a brand-new message rather than editing the current one, so anything already on the in-flight message (headers, body) is *not* carried over unless you `<Copy>` it. Pick the verb deliberately: mutate the existing message, or start clean.
+
 ## Hands-on lab
 
 <div class="lab" markdown="1">
@@ -119,6 +122,9 @@ You'll take an inbound `POST /accounts/{accountId}/transactions` carrying a smal
   <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
 </ExtractVariables>
 ```
+
+!!! pitfall "Watch out"
+    A JSONPath or URIPath pattern that doesn't match sets **no variable** — ExtractVariables silently produces nothing rather than erroring, so `ev.consentId` ends up empty and the gap only shows up as a blank value in a downstream template. The `<IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>` flag controls whether an *unresolved input* throws or is tolerated; set it only when an empty result is genuinely acceptable, otherwise you'll mask a broken path. Confirm `ev.accountId` and `ev.consentId` actually populated in Trace before trusting them.
 
 **2. AssignMessage — stamp a request header** from what you extracted. `apiproxy/policies/AM-StampHeader.xml`:
 
@@ -205,6 +211,9 @@ curl -s "https://$RUNTIME_HOST/aisp-accounts/accounts/A-99999/transactions" \
 ```
 
 A different account id in the path changes `Meta.AccountId` with no redeploy — proof the value came from extraction, not a constant.
+
+!!! pitfall "Watch out"
+    Policy order is load-bearing: ExtractVariables must run **before** the AssignMessage that templates its output, or `{ev.accountId}` resolves against an empty bag and renders blank. Templates resolve against the variable values at the moment each policy executes, so an extract step placed after the assign step won't retroactively fill in the header — re-check the Step order in `default.xml`, not just the policy XML.
 
 !!! failure "Common failure modes"
     - **ExtractVariables silently did nothing.** A JSONPath that doesn't match sets no variable, and by default the policy can raise on unresolved input. Symptom: a downstream template renders empty, or a `Failed to resolve variable` fault. Fix the path, and set `<IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>` only when an empty result is acceptable.

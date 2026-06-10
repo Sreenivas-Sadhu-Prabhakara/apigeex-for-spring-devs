@@ -50,6 +50,12 @@ Read it top to bottom as a ladder you climb only as far as you must:
 
 In Open Banking terms: normalising a header or building an envelope is **declarative** (2.4); deriving an idempotency key or a request hash is **JavaScript**; verifying a detached JWS signature with a full JOSE library, or doing bulk crypto, is where a **Java callout** finally earns its weight.
 
+!!! pitfall "Watch out"
+    The JS `httpClient` is **asynchronous** — `httpClient.get(...)` returns immediately and the response isn't ready yet. Call `waitForComplete()` on the exchange (or handle the callback) before you read it, or you'll parse an empty response and never know why. This is the most common JS-fan-out bug.
+
+!!! pitfall "Watch out"
+    Don't climb the ladder just because you can. If a declarative policy already does the job, a JS or Java callout only adds latency and a second thing to maintain — re-implementing `ExtractVariables` in script is slower *and* harder to read. Reach for code only when config genuinely can't express the logic.
+
 ## Hands-on lab
 
 <div class="lab" markdown="1">
@@ -88,6 +94,9 @@ print('derived idempotency key: ' + key);       // surfaces in Trace
 ```
 
 `timeLimit` (ms) is the sandbox guardrail — exceed it and the policy faults instead of hanging the request.
+
+!!! pitfall "Watch out"
+    The engine is **sandboxed**: no `require()` of npm modules, no filesystem, no raw sockets. This djb2 hash is dependency-free on purpose. The moment you find yourself wanting a library, that's the signal to step up to a Java callout — and accept that a callout means building, bundling every dependency, and redeploying a JAR for each change. Don't fight the sandbox.
 
 **3. Surface the derived key on the request** with an AssignMessage (from 2.4) so the backend receives it. `apiproxy/policies/AM-IdempotencyHeader.xml`:
 

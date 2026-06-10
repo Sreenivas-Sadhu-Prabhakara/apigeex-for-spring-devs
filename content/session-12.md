@@ -42,6 +42,9 @@ PropertySet        READ-ONLY properties packaged in the bundle at deploy time. R
 
 Decision rule: **Does it expire?** → cache. **Must a running proxy change it (a rotating token, a flag you flip without shipping)?** → KVM. **Is it fixed config that travels with the code (a backend base URL per environment, a feature constant)?** → PropertySet. **Is it real relational/document data (balances, transactions)?** → none of these; call the backend.
 
+!!! pitfall "Watch out"
+    Two limits people hit hard: a **KVM is not a database** — it's eventually consistent, capped in size and throughput, and key-lookup only, so high-volume or relational data belongs behind a backend. And a **PropertySet is read-only**, bundled at deploy time — there is no runtime write API, so anything you need to flip without shipping must be a KVM instead.
+
 ```mermaid
 flowchart TB
   Q{"What kind of data?"}
@@ -115,6 +118,9 @@ apigeecli kvms entries create --map backend-secrets --key downstream-token \
 
 `ExpiryTimeInSecs` caches the read in-memory so you're not hitting the KVM store every request — the `private.` prefix keeps the value out of Trace.
 
+!!! pitfall "Watch out"
+    Don't reach for a KVM as a general data store. It's eventually consistent (a freshly written value can take seconds to propagate to every instance), key-lookup only, and tuned for dozens to hundreds of small config entries — not thousands of records or read-your-writes. Bulk-loading customer rows here is the classic "KVM is not a database" mistake.
+
 **3. Add a PropertySet for read-only, deploy-time config.** Drop a properties file into the bundle at `apiproxy/resources/properties/backend.properties`:
 
 ```text
@@ -138,6 +144,9 @@ Reference it anywhere a variable is allowed as `propertyset.backend.base.url`, `
   <Scope>Exclusive</Scope>
 </ResponseCache>
 ```
+
+!!! pitfall "Watch out"
+    This `CacheKey` is keyed only on `request.uri`, so watch two things. First, ResponseCache will happily cache a `404`/`500` and serve that error for the full TTL unless you exclude error responses (e.g. a `SkipCachePopulation` condition on the status). Second, a key that's too broad collides — drop a query param or the caller identity and one consumer can be served another's cached body. Key on exactly what makes the response unique.
 
 Attach `RC-Accounts` in the ProxyEndpoint: a ResponseCache policy is referenced *once* but acts on both the request (lookup) and response (populate) flows automatically. Attach `KVM-Get-Token` in the request PreFlow so the token is available before the backend call. In `proxies/default.xml`:
 

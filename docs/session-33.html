@@ -174,6 +174,10 @@
   OB --&gt; OBS
   OB --&gt; PROD</pre>
 <p>Read it top to bottom: a TPP arrives over mTLS, the <strong>edge</strong> (a stack of shared flows attached by FlowHooks) enforces FAPI, entitlement, faults and masking <em>before any OB resource runs</em>, and only then does the request reach the DCR/consent/AIS/PIS/CoF resource it asked for. CI/CD promotes the identical bundle through environments; analytics and products wrap the whole surface. The go-live review walks this picture and checks every box is actually ticked <strong>in <code>prod</code></strong>, not just in <code>eval</code>.</p>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>A green <code>golive.sh</code> proves your own assertions pass — it is <strong>not</strong> proof of FAPI conformance. Your smoke test only probes the cases you thought to write; the OBIE/FAPI conformance suite is an external, adversarial harness that probes the ones you didn't. Treat the smoke run as a fast pre-check and run the actual conformance suite before you claim the platform is a regulated participant.</p>
+</div>
 <h2 id="hands-on-lab">Hands-on lab</h2>
 <div class="lab">
 <h4 id="lab-run-a-go-live-readiness-review">Lab — run a go-live readiness review</h4>
@@ -254,6 +258,10 @@ apigeecli<span class="w"> </span>apis<span class="w"> </span>deploy<span class="
 ./golive.sh<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;rollback verified — platform healthy on rev </span><span class="nv">$PREV</span><span class="s2">&quot;</span>
 </code></pre></div>
 
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>Rehearse this rollback <em>before</em> go-live — an untested rollback is not a rollback. If the first time anyone runs <code>apis deploy --rev "$PREV"</code> is during a real prod incident, you're improvising recovery under pressure on a regulated surface. Prove the one-command revert restores a healthy platform now, while it's a drill and not an outage.</p>
+</div>
 <p><strong>4. Run it against prod</strong> with a freshly minted, consent-bound token and the AIS-only token for the entitlement check:</p>
 <div class="codehilite"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">AT</span><span class="o">=</span><span class="s2">&quot;&lt;consent-bound mTLS token&gt;&quot;</span>
 <span class="nb">export</span><span class="w"> </span><span class="nv">AIS_ONLY</span><span class="o">=</span><span class="s2">&quot;&lt;AIS-scope-only token&gt;&quot;</span>
@@ -265,6 +273,10 @@ apigeecli<span class="w"> </span>apis<span class="w"> </span>deploy<span class="
 <h2 id="verify-it">Verify it</h2>
 <p>Run <code>golive.sh</code> against <strong>two</strong> environments — your <code>test</code> and your <code>prod</code> env groups (6.1) — and confirm it passes in both with no bundle change between them. A check that's green in <code>test</code> but red in <code>prod</code> almost always means a seam: a FlowHook that was never attached in <code>prod</code>, a truststore that didn't rotate, or a product that doesn't include the <code>prod</code> environment (the entitlement-chain trap from 3.2). That divergence is the single most valuable thing the review surfaces.</p>
 <p>Then verify the review is <strong>repeatable and observable</strong>: a failing item should both fail the script <em>and</em> show up in your 6.3 analytics as a spike in the relevant FAPI fault, and trigger the alert you built. If a check can fail silently — green script, but the dashboard shows nothing — your observability has a gap, and go-live is not actually ready. Readiness means a regression announces itself.</p>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>Two readiness items silently decay if you only check them once. Rotate certs and keys on a schedule <strong>before</strong> expiry — a cert that lapses takes the token endpoint down weeks after a clean launch, and rotating mid-outage is the worst time to discover the runbook is missing. And size rate limits to your <em>real</em> expected TPP traffic, not the eval defaults — a quota left at demo values trips <code>429</code> on legitimate go-live load.</p>
+</div>
 <div class="admonition failure">
 <p class="admonition-title">Common failure modes</p>
 <ul>

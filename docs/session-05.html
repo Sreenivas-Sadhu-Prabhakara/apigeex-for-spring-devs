@@ -127,12 +127,20 @@
 </figure>
 
 <p>Mechanically: you <strong>start a debug session</strong> on a specific revision in a specific environment. That opens a short recording window. Any request that hits that revision while the window is open is captured as a <strong>transaction</strong> — an ordered timeline of every policy that executed, each step carrying the flow variables as they stood at that moment. You then <strong>read</strong> the session: walk the timeline, click a step, and compare the variable state before and after to see precisely what that policy mutated.</p>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>A debug session is <strong>time-boxed and samples traffic</strong>, not a permanent tap — it captures a fixed number of transactions over a short window, then closes itself. A request can be perfectly valid and still never appear in the trace because it landed after the window closed, or hit a different instance/environment than the one you're recording. "Nothing captured" usually means a session problem, not a proxy bug.</p>
+</div>
 <p>Three reading moves cover almost everything:</p>
 <ul>
 <li><strong>Step</strong> — walk the timeline top to bottom. The order <em>is</em> the execution order, so a policy you expected that isn't in the list simply never ran (usually a condition that didn't match).</li>
 <li><strong>Watch</strong> — pick a variable (say <code>request.header.x-fapi-interaction-id</code> or your own <code>extracted.account</code>) and follow its value down the timeline to find the step where it first appears or goes wrong.</li>
 <li><strong>Inspect</strong> — open a single step and read the full variable set and the policy's own status, including any fault it raised.</li>
 </ul>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>Trace records <em>everything</em>, so an unmasked recording captures tokens, PANs, and consent data in plaintext — treat <code>trace.json</code> as sensitive as a heap dump, and don't paste it into a ticket. Masking is its own concern, covered in <strong>3.1</strong>. Trace also adds per-request overhead, so it's a diagnostic you open and close — never something you leave running in production.</p>
+</div>
 <h2 id="hands-on-lab">Hands-on lab</h2>
 <div class="lab">
 <h4 id="lab-open-a-trace-and-read-what-each-policy-did">Lab — open a Trace and read what each policy did</h4>
@@ -149,6 +157,10 @@
 <span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;session: </span><span class="nv">$SESSION</span><span class="s2">&quot;</span>
 </code></pre></div>
 
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>Open the session and fire the request <strong>promptly, in this order</strong> — the recording window starts closing the moment you create it. If you pause too long (or send the request first), the window can lapse and <code>debug list</code> comes back empty even though the <code>curl</code> succeeded. Derive <code>$REV</code> from <code>listdeploy</code> too: trace the <em>deployed</em> revision, or your requests hit a revision the session isn't watching.</p>
+</div>
 <p><strong>2. Send a request into the open window</strong> so there's a transaction to capture. The interaction id gives you something distinctive to watch later:</p>
 <div class="codehilite"><pre><span></span><code><span class="nv">IID</span><span class="o">=</span><span class="k">$(</span>uuidgen<span class="k">)</span>
 curl<span class="w"> </span>-s<span class="w"> </span>-o<span class="w"> </span>/dev/null<span class="w"> </span><span class="s2">&quot;https://</span><span class="nv">$RUNTIME_HOST</span><span class="s2">/v1/hello/json&quot;</span><span class="w"> </span><span class="se">\</span>

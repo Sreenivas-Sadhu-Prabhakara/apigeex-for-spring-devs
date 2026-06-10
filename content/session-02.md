@@ -54,6 +54,9 @@ flowchart TB
 
 Read it as: you `deploy` a proxy revision into an **environment** via the control plane; a **client** hits the **environment group's** hostname (`$RUNTIME_HOST`), which routes to that environment running on an **instance**. The org is the top-level container — one per GCP project — and for the eval tier you get a single environment and a single environment group out of the box. The names you choose here become `$ORG`, `$ENV`, and (via the env group) `$RUNTIME_HOST`.
 
+!!! pitfall "Watch out"
+    These are two different hostnames and mixing them up is the most common early stumble. `apigee.googleapis.com` is the **control plane** — where you author and deploy config — while `$RUNTIME_HOST` (the env-group hostname) is the only place your proxies actually serve traffic. Curling the management API expecting your proxy's response gets you a `404`, not your backend.
+
 ## Hands-on lab
 
 <div class="lab" markdown="1">
@@ -82,6 +85,9 @@ gcloud config set project "$PROJECT_ID"
 export ORG="$PROJECT_ID"                     # the Apigee org name == the project id
 ```
 
+!!! pitfall "Watch out"
+    The Apigee org name **is** the GCP project id — not a friendly display name you invent. Set `ORG="$PROJECT_ID"` and don't second-guess it; a made-up org name makes every later `apigeecli` call return `404 organization not found`, and the error won't point you back to this line.
+
 **3. Enable the Apigee APIs** on the project (the control plane and the services it needs):
 
 ```bash
@@ -91,6 +97,9 @@ gcloud services enable apigee.googleapis.com \
 ```
 
 **4. Provision the evaluation org.** The simplest, least error-prone path is the **UI wizard**: open `https://apigee.google.com/`, choose your project, and select **"Evaluation"** when prompted for the provisioning type. It stands up the org, one environment, one environment group, and a runtime instance for you (provisioning takes ~30–45 minutes — let it finish). The wizard lets you name the environment and env group; note both names.
+
+!!! pitfall "Watch out"
+    Provisioning takes **30–45 minutes** and the runtime **instance comes up last**, so the org can look "ready" while `$RUNTIME_HOST` is still empty. Don't read back the hostname in step 5 until the UI shows the instance as active — a curl against an empty `$RUNTIME_HOST` just times out and looks like a broken bootstrap when nothing is actually wrong.
 
 If you prefer the CLI, eval provisioning is a single `apigeecli` call that wires up org + env + env group + instance:
 

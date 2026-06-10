@@ -55,7 +55,13 @@ Step through a single consented `GET /accounts/{AccountId}/balances` — click *
 }
 ```
 
+!!! pitfall "Watch out"
+    A valid `accounts`-scoped token is **stage one only** — it never authorises a specific account. The token scope and the consent's `Permissions` are two independent gates, and **both** must pass: the scope says "this caller may use AIS", the consent says "*these* accounts, *these* permissions, while Authorised". Treat the token alone as sufficient and you ship a proxy that serves any account to any valid token.
+
 The mandatory headers are non-negotiable in FAPI: `x-fapi-interaction-id` is a client-supplied UUID you **echo back unchanged** so a call can be correlated across the four-party chain, and `x-fapi-auth-date` records when the PSU last authenticated. Their absence is a contract violation, not a soft warning.
+
+!!! pitfall "Watch out"
+    Echo `x-fapi-interaction-id` back **byte-for-byte** — it's client-supplied, not yours to mint. Generating a fresh UUID for the response (or dropping it) silently breaks end-to-end correlation and fails conformance, even though the call otherwise "works". The id you return must equal the id you received, unchanged.
 
 ## Hands-on lab
 
@@ -127,6 +133,9 @@ context.setVariable("consent.hasPermission",
 context.setVariable("consent.coversAccount",
     (c.accounts || []).indexOf(accountId) !== -1);
 ```
+
+!!! pitfall "Watch out"
+    All three flags — `consent.authorised`, `consent.hasPermission`, `consent.coversAccount` — must be checked together; passing any one is not enough. A token for consent `C-AAC-77` can legitimately verify, hold `ReadBalances`, and still be asking for account `99999` that lives in someone else's consent. The `coversAccount` membership test on the path's `AccountId` is the gate most implementations forget, and it's the one that prevents cross-consent account leakage.
 
 **4. Reject anything that fails any check** with an OBIE-shaped `403`:
 

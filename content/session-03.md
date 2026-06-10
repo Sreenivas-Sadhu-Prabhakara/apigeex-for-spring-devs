@@ -46,6 +46,9 @@ apiproxy/
     └── default.xml            # TargetEndpoint: the single backend URL it forwards to
 ```
 
+!!! pitfall "Watch out"
+    "Passthrough" does not mean "no routing." A proxy with no `RouteRule` pointing at a `TargetEndpoint` forwards nowhere — you'll get an Apigee error, not your backend. The two endpoints are separate objects and the RouteRule is the mandatory seam between them; omitting it is a different failure from omitting policies.
+
 There's no `policies/` folder yet — a passthrough has no policies to store. The two files that actually define behaviour are the endpoints. The **ProxyEndpoint** declares the basepath clients call and which target to route to:
 
 ```xml
@@ -82,6 +85,9 @@ The proxy manifest ties them together and names the bundle:
 ```
 
 That's the entire passthrough: a basepath, a route, a backend URL, and zero policies. Apigee forwards `/v1/hello/...` to `https://mocktarget.apigee.net/...` and returns whatever the backend says.
+
+!!! pitfall "Watch out"
+    The proxy `BasePath` and the path your backend sees are not the same thing. Apigee strips the basepath and **appends the remainder** to the target `URL` — so `/v1/hello/json` reaches `https://mocktarget.apigee.net/json`, not `/v1/hello/json`. If you expect the backend to receive the full client path, you'll chase phantom `404`s coming from the backend, not from Apigee.
 
 ## Hands-on lab
 
@@ -142,6 +148,9 @@ apigeecli apis create bundle --name hello-proxy \
 apigeecli apis deploy --name hello-proxy \
   --org "$ORG" --env "$ENV" --ovr --wait --token "$TOKEN"
 ```
+
+!!! pitfall "Watch out"
+    `--ovr` silently **overwrites the revision currently deployed** to this environment. On your first deploy that's harmless, but reuse this same command later and it will replace whatever was serving — there's no prompt and no diff. Once a real backend sits behind the proxy, know which revision you're overwriting before you run this.
 
 **7. Call it through Apigee.** The basepath is `/v1/hello`; `mocktarget` exposes `/json`, so the full path forwards to `https://mocktarget.apigee.net/json`:
 

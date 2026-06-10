@@ -131,6 +131,10 @@
   TS1 --&gt; BE1[&quot;Backend A&quot;]
   TS2 -. &quot;no traffic while down&quot; .-&gt; BE2[&quot;Backend B&quot;]</pre>
 <p>Read it as: the LoadBalancer fans the request across <code>ts-core-1</code> and <code>ts-core-2</code>; the HealthMonitor independently probes both; when <code>ts-core-2</code>'s probe fails it's pulled from rotation, so every live request lands on <code>ts-core-1</code> until <code>ts-core-2</code>'s probe recovers. The proxy bundle names only <code>ts-core-1</code> / <code>ts-core-2</code> — what host each resolves to is environment config.</p>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>Because a TargetServer is <strong>environment-scoped</strong>, the same bundle that deploys cleanly to <code>eval</code> will fail in <code>prod</code> if you never created <code>ts-core-1</code> there — the names resolve to nothing. Recreate every TargetServer your <code>&lt;LoadBalancer&gt;</code> references in <em>each</em> environment you promote to, or the proxy 502s only in the new env.</p>
+</div>
 <h2 id="hands-on-lab">Hands-on lab</h2>
 <div class="lab">
 <h4 id="lab-two-targetservers-a-loadbalancer-and-active-health-checks">Lab — two TargetServers, a LoadBalancer, and active health checks</h4>
@@ -178,6 +182,10 @@ apigeecli<span class="w"> </span>targetservers<span class="w"> </span>list<span 
 </code></pre></div>
 
 <p>Note there is <strong>no <code>&lt;SSLInfo&gt;</code> here</strong> — TLS for a <code>&lt;LoadBalancer&gt;</code> is configured per TargetServer (the <code>SSLInfo</code> on the TargetServer object), not on the connection. For HTTPS to the mock target, add TLS to each TargetServer when you create it; for this self-contained lab the mock target accepts the probe on 443.</p>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>Switching to a <code>&lt;LoadBalancer&gt;</code> means deleting the old hard <code>&lt;URL&gt;</code> — a TargetEndpoint can carry one or the other, never both. If you leave the <code>&lt;URL&gt;</code> in, deploy validation fails or the URL silently wins and your named servers are never consulted, so failover quietly does nothing.</p>
+</div>
 <p><strong>3. Bundle and deploy:</strong></p>
 <div class="codehilite"><pre><span></span><code>apigeecli<span class="w"> </span>apis<span class="w"> </span>create<span class="w"> </span>bundle<span class="w"> </span>--name<span class="w"> </span>aisp-accounts<span class="w"> </span>--proxy-folder<span class="w"> </span>./aisp-accounts/apiproxy<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--org<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ORG</span><span class="s2">&quot;</span><span class="w"> </span>--token<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>
@@ -205,6 +213,10 @@ apigeecli<span class="w"> </span>apis<span class="w"> </span>deploy<span class="
 <h2 id="verify-it">Verify it</h2>
 <p>Open a debug session (<code>apigeecli apis debug create --name aisp-accounts --env "$ENV" --org "$ORG" --token "$TOKEN"</code>) and send a request while both servers are up. In the Trace, the target execution shows which <code>&lt;Server&gt;</code> was selected — alternate calls flip between <code>ts-core-1</code> and <code>ts-core-2</code>, proving <code>RoundRobin</code> is live. Disable <code>ts-core-2</code> and trace again: every selection now reads <code>ts-core-1</code>, and the disabled server simply never appears.</p>
 <p>You can also confirm the HealthMonitor is doing work independently of real traffic: with <code>&lt;IntervalInSec&gt;5</code> and a server whose <code>&lt;HealthMonitor&gt;</code> probe path returns non-200, that server is marked down within a probe cycle <em>before</em> any client request would have hit it — failover happens proactively, not on the first failed user call.</p>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>Without a <code>&lt;HealthMonitor&gt;</code>, a dead server stays in rotation until <code>&lt;MaxFailures&gt;</code> consecutive real requests fail — every one of those failures is a user request you served a 5xx. Note too that a <em>disabled</em> TargetServer still counts as part of the LoadBalancer's config; don't read "I disabled it" as "the LoadBalancer no longer knows about it."</p>
+</div>
 <div class="admonition failure">
 <p class="admonition-title">Common failure modes</p>
 <ul>

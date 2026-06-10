@@ -52,6 +52,9 @@ Registration is a validate-then-provision pipeline. The proxy never reaches a ba
 }
 ```
 
+!!! pitfall "Watch out"
+    The entire trust model rests on verifying the SSA's JWS signature against the **OB Directory's JWKS** — an unsigned, self-signed, or untrusted-issuer SSA must be rejected outright, before any app is created. If you provision first and verify later (or skip the inner signature because the outer request object already verified), you let any TPP forge their own entitlements. Verification gates provisioning, always.
+
 The Developer → App → API Product chain you built by hand in 3.2 is exactly what this produces; DCR just provisions it from a signed assertion instead of a console session. The same entitlement chain, automated:
 
 <figure class="svg-figure">
@@ -89,6 +92,9 @@ jwt.VJWT-SSA.claim.software_redirect_uris    → callback URLs (exact-match late
 jwt.VJWT-SSA.claim.software_roles            → ["AISP"] → bind aisp-read; ["PISP"] → pisp-payments
 ```
 
+!!! pitfall "Watch out"
+    Any `redirect_uris` in the registration request must be a **subset** of `software_redirect_uris` in the SSA — reject the call if it asks for a callback the Directory never vouched for. Storing a redirect URI the SSA doesn't list quietly hands a TPP an open redirect and breaks the exact-match check 4.3 relies on.
+
 **3. Select the API Product from the role.** A condition maps `software_roles` onto a product — the App's reachable surface is the role, not your choice. In the request flow:
 
 ```xml
@@ -118,6 +124,9 @@ apigeecli apps create \
   --name "$SW_CLIENT_ID" --email "$ORG_ID@tpp.openbanking" --prods aisp-read \
   --org "$ORG" --token "$TOKEN"
 ```
+
+!!! pitfall "Watch out"
+    Creating the app is a call to the Apigee **management API**, so the in-proxy `ServiceCallout` needs a service-account token with permission to create developers and apps — a missing or under-scoped credential fails here, not at verification. Make the operation **idempotent** on `software_client_id` too: a retried `POST` must update or no-op, never spawn a duplicate app, or transient timeouts leave orphan registrations behind.
 
 **5. Return the RFC 7591 client information response.** The App's `consumerKey` *is* the `client_id`. Shape the response from the created app plus the SSA facts:
 

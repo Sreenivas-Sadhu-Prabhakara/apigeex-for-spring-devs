@@ -74,6 +74,9 @@ A **RouteRule** lives in the ProxyEndpoint and selects a TargetEndpoint after th
 </RouteRule>
 ```
 
+!!! pitfall "Watch out"
+    RouteRules are evaluated top-to-bottom and the **first** match wins, so the unconditioned fallthrough (no `<Condition>`) must be **last** — place it first and it matches every request, shadowing every specific rule below it. This is first-match, not Spring's best-match: a broad rule listed above a narrow one wins purely because it comes first, regardless of which looks "more specific."
+
 A **null route** is a RouteRule with a `<Condition>` but **no `<TargetEndpoint>`** — it matches, selects no backend, and the proxy returns whatever the response flow produced *without ever calling a target*. Use it to short-circuit (serve a cached/synthetic response, hard-block a method, satisfy a CORS preflight):
 
 ```xml
@@ -145,6 +148,9 @@ You'll add a **conditional Flow** that fires only for `GET /accounts` (attaching
 </Flows>
 ```
 
+!!! pitfall "Watch out"
+    `MatchesPath "/accounts"` matches exactly one segment, so `GET /accounts/123` will **not** fire this Flow — its extra segment makes the predicate false, and the request silently falls through to the no-op catch-all with nothing flagged as wrong. If a conditional Flow's condition never matches, it does nothing quietly; use `"/accounts/**"` when you mean "this and everything beneath," and confirm the match in Trace rather than assuming it fired.
+
 **3. RouteRules** in the same `proxies/default.xml`, *after* `<Flows>` — specific first, unconditioned fallthrough last. A request header chooses the backend; anything else gets `production`:
 
 ```xml
@@ -198,6 +204,9 @@ echo "subpath: [$(hdr "https://$RUNTIME_HOST/v1/aisp/accounts/123")]"
 ```
 
 You should see `exact: [get-accounts]` and `subpath: []` — empty for the sub-path, because `"/accounts"` matches one segment only. (Use `"/accounts/**"` if you wanted both.)
+
+!!! pitfall "Watch out"
+    A null route (a matching RouteRule with no `<TargetEndpoint>`) short-circuits — the backend is never called and you return whatever the response flow produced. In Trace, the giveaway is that **no Target PreFlow appears**; if you expected a backend status but see none, check whether an earlier null route swallowed the request before routing reached your target.
 
 !!! failure "Common failure modes"
     - **Fallthrough RouteRule placed first.** An unconditioned RouteRule at the top wins for *every* request, so no specific rule below it ever fires. Symptom: traffic always hits the default target regardless of headers. Move the no-Condition rule to the **bottom**.

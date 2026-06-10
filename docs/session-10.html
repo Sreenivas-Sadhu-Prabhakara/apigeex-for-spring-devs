@@ -173,6 +173,14 @@
 </code></pre></div>
 
 <p>In Open Banking terms: normalising a header or building an envelope is <strong>declarative</strong> (2.4); deriving an idempotency key or a request hash is <strong>JavaScript</strong>; verifying a detached JWS signature with a full JOSE library, or doing bulk crypto, is where a <strong>Java callout</strong> finally earns its weight.</p>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>The JS <code>httpClient</code> is <strong>asynchronous</strong> — <code>httpClient.get(...)</code> returns immediately and the response isn't ready yet. Call <code>waitForComplete()</code> on the exchange (or handle the callback) before you read it, or you'll parse an empty response and never know why. This is the most common JS-fan-out bug.</p>
+</div>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>Don't climb the ladder just because you can. If a declarative policy already does the job, a JS or Java callout only adds latency and a second thing to maintain — re-implementing <code>ExtractVariables</code> in script is slower <em>and</em> harder to read. Reach for code only when config genuinely can't express the logic.</p>
+</div>
 <h2 id="hands-on-lab">Hands-on lab</h2>
 <div class="lab">
 <h4 id="lab-derive-an-idempotency-key-in-javascript-and-time-it-in-trace">Lab — derive an idempotency key in JavaScript and time it in Trace</h4>
@@ -204,6 +212,10 @@
 </code></pre></div>
 
 <p><code>timeLimit</code> (ms) is the sandbox guardrail — exceed it and the policy faults instead of hanging the request.</p>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>The engine is <strong>sandboxed</strong>: no <code>require()</code> of npm modules, no filesystem, no raw sockets. This djb2 hash is dependency-free on purpose. The moment you find yourself wanting a library, that's the signal to step up to a Java callout — and accept that a callout means building, bundling every dependency, and redeploying a JAR for each change. Don't fight the sandbox.</p>
+</div>
 <p><strong>3. Surface the derived key on the request</strong> with an AssignMessage (from 2.4) so the backend receives it. <code>apiproxy/policies/AM-IdempotencyHeader.xml</code>:</p>
 <div class="codehilite"><pre><span></span><code><span class="nt">&lt;AssignMessage</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;AM-IdempotencyHeader&quot;</span><span class="nt">&gt;</span>
 <span class="w">  </span><span class="nt">&lt;AssignTo</span><span class="w"> </span><span class="na">type=</span><span class="s">&quot;request&quot;</span><span class="nt">/&gt;</span>

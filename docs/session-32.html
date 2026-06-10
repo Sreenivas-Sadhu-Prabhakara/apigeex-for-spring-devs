@@ -163,6 +163,10 @@
 </tbody>
 </table>
 <p>Those tiers map straight onto the <code>Quota</code> you already drive from the product (3.2) — monetization adds the <em>pricing and billing</em> on top of the <em>limit</em> you can already enforce. The portal, meanwhile, takes the product plus its OpenAPI spec and renders the developer-facing front door.</p>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>Because the product is also the <em>billing and access</em> unit, editing a <strong>live</strong> product takes effect immediately for every key already bound to it — tighten an operation group or drop the quota and you can break or re-price existing customers mid-flight. Treat changes to a published product as a release, not a quick edit: version or split the product instead of mutating one that real apps already hold.</p>
+</div>
 <h2 id="hands-on-lab">Hands-on lab</h2>
 <div class="lab">
 <h4 id="lab-productise-the-aisp-api-and-publish-it-to-a-portal">Lab — productise the AISP API and publish it to a portal</h4>
@@ -201,6 +205,10 @@
 <span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">x-api-key</span>
 </code></pre></div>
 
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>The portal <strong>publishes this spec to the outside world</strong>, so it must describe only your public surface — never paste internal backend hostnames, admin paths, or undocumented operations into it. Point <code>servers.url</code> at the env-group hostname plus base path, not the backend, and list only the operations the product actually exposes. Anything in the spec is a hint to a stranger about how to reach you.</p>
+</div>
 <p><strong>3. Create a developer portal</strong> and register the spec. Apigee provides an <em>integrated</em> portal per org; create one and attach an API documentation entry sourced from your spec:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># create the portal (sites) for this org</span>
 apigeecli<span class="w"> </span>sites<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span>aisp-portal<span class="w"> </span><span class="se">\</span>
@@ -225,6 +233,10 @@ curl<span class="w"> </span>-s<span class="w"> </span>-o<span class="w"> </span>
 <h2 id="verify-it">Verify it</h2>
 <p>The decisive test is the self-service loop with <em>you not involved</em>: a key minted through the portal must be a fully-fledged credential, not a placeholder. Confirm it by inspecting the app the portal created — <code>apigeecli apps list --org "$ORG" --token "$TOKEN"</code> should show the developer's app bound to <code>aisp-read</code>, and the key it issued is the same one that returned <code>200</code> above. That round-trip — portal signup to a live, product-scoped, quota-bound call — is the productisation layer working end to end.</p>
 <p>For governance, register the API in <strong>API hub</strong> (Apigee's catalogue) and set its lifecycle stage and owner. Then confirm the rate plan is anchored to the product, not the proxy: the Free tier's 1,000/day cap is the <em>same</em> <code>Quota</code> your proxy already enforces from the product, so a customer's plan and a customer's access are one edit in one place — exactly the single-source-of-truth that makes the product the centre of gravity.</p>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>Monetization here is <strong>awareness-level, not a full lab</strong> — you can <em>draft</em> a rate plan for free, but <em>publishing</em> a monetized plan needs a billing account configured, and only a published plan is purchasable. Don't expect a drafted plan to start charging or capping by itself. Draft now to see the shape; wire billing before you rely on it in production.</p>
+</div>
 <div class="admonition failure">
 <p class="admonition-title">Common failure modes</p>
 <ul>

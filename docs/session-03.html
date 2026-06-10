@@ -131,6 +131,10 @@
     └── default.xml            # TargetEndpoint: the single backend URL it forwards to
 </code></pre></div>
 
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>"Passthrough" does not mean "no routing." A proxy with no <code>RouteRule</code> pointing at a <code>TargetEndpoint</code> forwards nowhere — you'll get an Apigee error, not your backend. The two endpoints are separate objects and the RouteRule is the mandatory seam between them; omitting it is a different failure from omitting policies.</p>
+</div>
 <p>There's no <code>policies/</code> folder yet — a passthrough has no policies to store. The two files that actually define behaviour are the endpoints. The <strong>ProxyEndpoint</strong> declares the basepath clients call and which target to route to:</p>
 <div class="codehilite"><pre><span></span><code><span class="cm">&lt;!-- proxies/default.xml --&gt;</span>
 <span class="nt">&lt;ProxyEndpoint</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;default&quot;</span><span class="nt">&gt;</span>
@@ -161,6 +165,10 @@
 </code></pre></div>
 
 <p>That's the entire passthrough: a basepath, a route, a backend URL, and zero policies. Apigee forwards <code>/v1/hello/...</code> to <code>https://mocktarget.apigee.net/...</code> and returns whatever the backend says.</p>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>The proxy <code>BasePath</code> and the path your backend sees are not the same thing. Apigee strips the basepath and <strong>appends the remainder</strong> to the target <code>URL</code> — so <code>/v1/hello/json</code> reaches <code>https://mocktarget.apigee.net/json</code>, not <code>/v1/hello/json</code>. If you expect the backend to receive the full client path, you'll chase phantom <code>404</code>s coming from the backend, not from Apigee.</p>
+</div>
 <h2 id="hands-on-lab">Hands-on lab</h2>
 <div class="lab">
 <h4 id="lab-author-deploy-and-call-a-passthrough-proxy">Lab — author, deploy, and call a passthrough proxy</h4>
@@ -206,6 +214,10 @@
 <span class="w">  </span>--org<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ORG</span><span class="s2">&quot;</span><span class="w"> </span>--env<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ENV</span><span class="s2">&quot;</span><span class="w"> </span>--ovr<span class="w"> </span>--wait<span class="w"> </span>--token<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>
 </code></pre></div>
 
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p><code>--ovr</code> silently <strong>overwrites the revision currently deployed</strong> to this environment. On your first deploy that's harmless, but reuse this same command later and it will replace whatever was serving — there's no prompt and no diff. Once a real backend sits behind the proxy, know which revision you're overwriting before you run this.</p>
+</div>
 <p><strong>7. Call it through Apigee.</strong> The basepath is <code>/v1/hello</code>; <code>mocktarget</code> exposes <code>/json</code>, so the full path forwards to <code>https://mocktarget.apigee.net/json</code>:</p>
 <div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-s<span class="w"> </span>-i<span class="w"> </span><span class="s2">&quot;https://</span><span class="nv">$RUNTIME_HOST</span><span class="s2">/v1/hello/json&quot;</span>
 </code></pre></div>

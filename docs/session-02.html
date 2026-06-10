@@ -146,6 +146,10 @@
   MGMT -- &quot;deploy revision&quot; --&gt; ENV
   CLIENT[&quot;Client / curl&quot;] -- &quot;calls the host&quot; --&gt; EG</pre>
 <p>Read it as: you <code>deploy</code> a proxy revision into an <strong>environment</strong> via the control plane; a <strong>client</strong> hits the <strong>environment group's</strong> hostname (<code>$RUNTIME_HOST</code>), which routes to that environment running on an <strong>instance</strong>. The org is the top-level container — one per GCP project — and for the eval tier you get a single environment and a single environment group out of the box. The names you choose here become <code>$ORG</code>, <code>$ENV</code>, and (via the env group) <code>$RUNTIME_HOST</code>.</p>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>These are two different hostnames and mixing them up is the most common early stumble. <code>apigee.googleapis.com</code> is the <strong>control plane</strong> — where you author and deploy config — while <code>$RUNTIME_HOST</code> (the env-group hostname) is the only place your proxies actually serve traffic. Curling the management API expecting your proxy's response gets you a <code>404</code>, not your backend.</p>
+</div>
 <h2 id="hands-on-lab">Hands-on lab</h2>
 <div class="lab">
 <h4 id="lab-provision-your-free-eval-org-and-export-the-four-variables">Lab — provision your free eval org and export the four variables</h4>
@@ -167,6 +171,10 @@ gcloud<span class="w"> </span>config<span class="w"> </span><span class="nb">set
 <span class="nb">export</span><span class="w"> </span><span class="nv">ORG</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$PROJECT_ID</span><span class="s2">&quot;</span><span class="w">                     </span><span class="c1"># the Apigee org name == the project id</span>
 </code></pre></div>
 
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>The Apigee org name <strong>is</strong> the GCP project id — not a friendly display name you invent. Set <code>ORG="$PROJECT_ID"</code> and don't second-guess it; a made-up org name makes every later <code>apigeecli</code> call return <code>404 organization not found</code>, and the error won't point you back to this line.</p>
+</div>
 <p><strong>3. Enable the Apigee APIs</strong> on the project (the control plane and the services it needs):</p>
 <div class="codehilite"><pre><span></span><code>gcloud<span class="w"> </span>services<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>apigee.googleapis.com<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>compute.googleapis.com<span class="w"> </span>servicenetworking.googleapis.com<span class="w"> </span><span class="se">\</span>
@@ -174,6 +182,10 @@ gcloud<span class="w"> </span>config<span class="w"> </span><span class="nb">set
 </code></pre></div>
 
 <p><strong>4. Provision the evaluation org.</strong> The simplest, least error-prone path is the <strong>UI wizard</strong>: open <code>https://apigee.google.com/</code>, choose your project, and select <strong>"Evaluation"</strong> when prompted for the provisioning type. It stands up the org, one environment, one environment group, and a runtime instance for you (provisioning takes ~30–45 minutes — let it finish). The wizard lets you name the environment and env group; note both names.</p>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>Provisioning takes <strong>30–45 minutes</strong> and the runtime <strong>instance comes up last</strong>, so the org can look "ready" while <code>$RUNTIME_HOST</code> is still empty. Don't read back the hostname in step 5 until the UI shows the instance as active — a curl against an empty <code>$RUNTIME_HOST</code> just times out and looks like a broken bootstrap when nothing is actually wrong.</p>
+</div>
 <p>If you prefer the CLI, eval provisioning is a single <code>apigeecli</code> call that wires up org + env + env group + instance:</p>
 <div class="codehilite"><pre><span></span><code>apigeecli<span class="w"> </span>orgs<span class="w"> </span>create<span class="w"> </span>--org<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ORG</span><span class="s2">&quot;</span><span class="w"> </span>--reg<span class="w"> </span>us-central1<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--net<span class="w"> </span>default<span class="w"> </span>--runtimetype<span class="w"> </span>CLOUD<span class="w"> </span><span class="se">\</span>

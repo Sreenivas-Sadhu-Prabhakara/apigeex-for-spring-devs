@@ -92,6 +92,10 @@
 <li><strong>PostFlow</strong> — always runs last. Final touches: add a header, shape the body.</li>
 </ul>
 <p>So the <em>full</em> journey of a request is: <code>ProxyEndpoint PreFlow → ProxyEndpoint Flows → ProxyEndpoint PostFlow → [RouteRule picks a target] → TargetEndpoint PreFlow → TargetEndpoint Flows → TargetEndpoint PostFlow → backend</code>. The response retraces it in reverse, target side first.</p>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p><strong>PostFlow always runs — even when a conditional Flow matched.</strong> It is not "the else branch." If you do work in a matched Flow <em>and</em> in PostFlow, both happen; people double-set headers this way. And there is no automatic mirror: a header you set on the request side is still there on the response unless a response-side policy removes it.</p>
+</div>
 <p>Step a request through it — click <strong>Send a request</strong>, then click any stage:</p>
 <div class="widget" data-widget="pipeline"><script type="application/json">{"type": "pipeline", "title": "One request, four attach points", "stages": [{"name": "Proxy PreFlow", "phase": "req", "desc": "ProxyEndpoint request. Cross-cutting inbound policies: VerifyAPIKey, SpikeArrest, CORS. The earliest you can reject a bad request \u2014 reject here and the backend is never touched."}, {"name": "Proxy Flows", "phase": "req", "desc": "ProxyEndpoint request, conditional. The flow whose condition matches the path+verb runs \u2014 like dispatching to a @GetMapping method."}, {"name": "Proxy PostFlow", "phase": "req", "desc": "ProxyEndpoint request, last. Final inbound shaping before routing."}, {"name": "RouteRule", "phase": "route", "desc": "Choose the TargetEndpoint (or none). This is where the client-facing side hands off to the backend-facing side."}, {"name": "Target PreFlow", "phase": "req", "desc": "TargetEndpoint request. Backend-facing concerns: add the backend auth header, rewrite the path the backend expects."}, {"name": "Target Flows + send", "phase": "req", "desc": "TargetEndpoint request flows run, then Apigee calls the backend."}, {"name": "Target PostFlow", "phase": "res", "desc": "TargetEndpoint response. First chance to act on the backend's reply \u2014 normalise its errors before the client side ever sees them."}, {"name": "Proxy PostFlow", "phase": "res", "desc": "ProxyEndpoint response, last. The client-facing contract: hide internal headers, shape the final body, add correlation IDs."}]}</script></div>
 <div class="admonition bridge">
@@ -180,6 +184,10 @@
 <span class="nt">&lt;/TargetEndpoint&gt;</span>
 </code></pre></div>
 
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>The endpoint matters as much as the request/response side. <code>AM-Point2</code> belongs on the <strong>TargetEndpoint</strong> request — put it on the ProxyEndpoint request and the header still appears, but the <em>backend</em> sees it set a step too early and your "which message carried the change" reasoning silently breaks. A policy in the wrong file is the most common reason a header "is right there but the backend 401s."</p>
+</div>
 <p><strong>3. Deploy a new revision and start a debug session:</strong></p>
 <div class="codehilite"><pre><span></span><code>apigeecli<span class="w"> </span>apis<span class="w"> </span>create<span class="w"> </span>bundle<span class="w"> </span>--name<span class="w"> </span>hello-proxy<span class="w"> </span>--proxy-folder<span class="w"> </span>./hello-proxy/apiproxy<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--org<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ORG</span><span class="s2">&quot;</span><span class="w"> </span>--token<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>

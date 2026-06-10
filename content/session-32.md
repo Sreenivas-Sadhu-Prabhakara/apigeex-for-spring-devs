@@ -45,6 +45,9 @@ A rate plan attaches tiers to a product. A typical AISP shape:
 
 Those tiers map straight onto the `Quota` you already drive from the product (3.2) — monetization adds the *pricing and billing* on top of the *limit* you can already enforce. The portal, meanwhile, takes the product plus its OpenAPI spec and renders the developer-facing front door.
 
+!!! pitfall "Watch out"
+    Because the product is also the *billing and access* unit, editing a **live** product takes effect immediately for every key already bound to it — tighten an operation group or drop the quota and you can break or re-price existing customers mid-flight. Treat changes to a published product as a release, not a quick edit: version or split the product instead of mutating one that real apps already hold.
+
 ## Hands-on lab
 
 <div class="lab" markdown="1">
@@ -90,6 +93,9 @@ components:
       name: x-api-key
 ```
 
+!!! pitfall "Watch out"
+    The portal **publishes this spec to the outside world**, so it must describe only your public surface — never paste internal backend hostnames, admin paths, or undocumented operations into it. Point `servers.url` at the env-group hostname plus base path, not the backend, and list only the operations the product actually exposes. Anything in the spec is a hint to a stranger about how to reach you.
+
 **3. Create a developer portal** and register the spec. Apigee provides an *integrated* portal per org; create one and attach an API documentation entry sourced from your spec:
 
 ```bash
@@ -123,6 +129,9 @@ curl -s -o /dev/null -w "portal key: %{http_code}\n" \
 The decisive test is the self-service loop with *you not involved*: a key minted through the portal must be a fully-fledged credential, not a placeholder. Confirm it by inspecting the app the portal created — `apigeecli apps list --org "$ORG" --token "$TOKEN"` should show the developer's app bound to `aisp-read`, and the key it issued is the same one that returned `200` above. That round-trip — portal signup to a live, product-scoped, quota-bound call — is the productisation layer working end to end.
 
 For governance, register the API in **API hub** (Apigee's catalogue) and set its lifecycle stage and owner. Then confirm the rate plan is anchored to the product, not the proxy: the Free tier's 1,000/day cap is the *same* `Quota` your proxy already enforces from the product, so a customer's plan and a customer's access are one edit in one place — exactly the single-source-of-truth that makes the product the centre of gravity.
+
+!!! pitfall "Watch out"
+    Monetization here is **awareness-level, not a full lab** — you can *draft* a rate plan for free, but *publishing* a monetized plan needs a billing account configured, and only a published plan is purchasable. Don't expect a drafted plan to start charging or capping by itself. Draft now to see the shape; wire billing before you rely on it in production.
 
 !!! failure "Common failure modes"
     - **Treating the portal as hosted Swagger.** You publish docs but never enable self-service registration, so a developer can read but not get a key. Symptom: "great docs, how do I actually call it?" Enable key registration on the catalog item.

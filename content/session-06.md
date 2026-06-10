@@ -24,6 +24,9 @@ Within **each** of those four flows, policies run in a fixed sub-order:
 
 So the *full* journey of a request is: `ProxyEndpoint PreFlow → ProxyEndpoint Flows → ProxyEndpoint PostFlow → [RouteRule picks a target] → TargetEndpoint PreFlow → TargetEndpoint Flows → TargetEndpoint PostFlow → backend`. The response retraces it in reverse, target side first.
 
+!!! pitfall "Watch out"
+    **PostFlow always runs — even when a conditional Flow matched.** It is not "the else branch." If you do work in a matched Flow *and* in PostFlow, both happen; people double-set headers this way. And there is no automatic mirror: a header you set on the request side is still there on the response unless a response-side policy removes it.
+
 Step a request through it — click **Send a request**, then click any stage:
 
 ```widget
@@ -120,6 +123,9 @@ In `targets/default.xml` (the TargetEndpoint), Step ② is the **request** side,
   <HTTPTargetConnection><URL>https://mocktarget.apigee.net</URL></HTTPTargetConnection>
 </TargetEndpoint>
 ```
+
+!!! pitfall "Watch out"
+    The endpoint matters as much as the request/response side. `AM-Point2` belongs on the **TargetEndpoint** request — put it on the ProxyEndpoint request and the header still appears, but the *backend* sees it set a step too early and your "which message carried the change" reasoning silently breaks. A policy in the wrong file is the most common reason a header "is right there but the backend 401s."
 
 **3. Deploy a new revision and start a debug session:**
 

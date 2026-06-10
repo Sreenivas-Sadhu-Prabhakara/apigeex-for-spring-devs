@@ -34,6 +34,12 @@ Confirmation of Funds has exactly two resources, mirroring the consent-then-act 
 - **`POST /cbpii/v1/funds-confirmation-consents`** — the PSU grants a CBPII standing permission to check funds against one account. Like the account-access consent in 5.2, it's created, authorised, then enforced. The consent names the `DebtorAccount` and carries its own `ConsentId` and status (`AwaitingAuthorisation` → `Authorised`).
 - **`POST /cbpii/v1/funds-confirmations`** — the actual check. The body carries the `ConsentId`, an `InstructedAmount` (`Amount` + `Currency`), and a `Reference`. The response is a single fact: `Data.FundsAvailable` is `true` or `false`, with a `FundsAvailableDateTime`. No balance, ever.
 
+!!! pitfall "Watch out"
+    CoF answers **only** `FundsAvailable: true|false` — never echo the balance, and never echo the `InstructedAmount` back as a confirmed figure in a way that discloses available funds. A card-issuer TPP that gets the amount reflected (or any balance field) can binary-search `InstructedAmount` to reconstruct the real balance, defeating the privacy-by-design that is the entire point of CBPII.
+
+!!! pitfall "Watch out"
+    The CBPII `funds-confirmation-consent` is its **own** resource — an AIS account-access consent or a PIS payment consent does **not** authorise a funds check. Each role carries a separate `ConsentId` with its own lifecycle; reusing the AIS token's consent for `/funds-confirmations` is a consent-scope error, even though all three follow the identical consent-then-act shape.
+
 The end-to-end journey threads all five resources through one FAPI surface. Step through it — the same client app, the same `x-fapi-interaction-id` lineage, the token re-presented at every call:
 
 ```widget
@@ -122,6 +128,9 @@ apigeecli products create \
 apigeecli apis create bundle --name ob-cbpii --proxy-folder ./ob-cbpii/apiproxy --org "$ORG" --token "$TOKEN"
 apigeecli apis deploy --name ob-cbpii --org "$ORG" --env "$ENV" --ovr --wait --token "$TOKEN"
 ```
+
+!!! pitfall "Watch out"
+    The journey threads one token and a `ConsentId` *per resource* across separate stateless HTTP calls — there's no orchestrator holding the flow together. One stale or missing FAPI header, or a consent that expired or was revoked mid-journey, fails that step (and everything downstream that depends on it) even though earlier steps passed. Re-present the full FAPI envelope on **every** call; don't assume step 3 inherits step 1's headers.
 
 **5. Script the whole journey.** One file threads the FAPI headers and the token across every step. Save as `journey.sh`:
 

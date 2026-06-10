@@ -70,6 +70,9 @@ flowchart TB
 
 Read it top to bottom: a TPP arrives over mTLS, the **edge** (a stack of shared flows attached by FlowHooks) enforces FAPI, entitlement, faults and masking *before any OB resource runs*, and only then does the request reach the DCR/consent/AIS/PIS/CoF resource it asked for. CI/CD promotes the identical bundle through environments; analytics and products wrap the whole surface. The go-live review walks this picture and checks every box is actually ticked **in `prod`**, not just in `eval`.
 
+!!! pitfall "Watch out"
+    A green `golive.sh` proves your own assertions pass — it is **not** proof of FAPI conformance. Your smoke test only probes the cases you thought to write; the OBIE/FAPI conformance suite is an external, adversarial harness that probes the ones you didn't. Treat the smoke run as a fast pre-check and run the actual conformance suite before you claim the platform is a regulated participant.
+
 ## Hands-on lab
 
 <div class="lab" markdown="1">
@@ -159,6 +162,9 @@ apigeecli apis deploy --name ob-aisp --rev "$PREV" --env "$ENV" --org "$ORG" --o
 ./golive.sh && echo "rollback verified — platform healthy on rev $PREV"
 ```
 
+!!! pitfall "Watch out"
+    Rehearse this rollback *before* go-live — an untested rollback is not a rollback. If the first time anyone runs `apis deploy --rev "$PREV"` is during a real prod incident, you're improvising recovery under pressure on a regulated surface. Prove the one-command revert restores a healthy platform now, while it's a drill and not an outage.
+
 **4. Run it against prod** with a freshly minted, consent-bound token and the AIS-only token for the entitlement check:
 
 ```bash
@@ -175,6 +181,9 @@ export AIS_ONLY="<AIS-scope-only token>"
 Run `golive.sh` against **two** environments — your `test` and your `prod` env groups (6.1) — and confirm it passes in both with no bundle change between them. A check that's green in `test` but red in `prod` almost always means a seam: a FlowHook that was never attached in `prod`, a truststore that didn't rotate, or a product that doesn't include the `prod` environment (the entitlement-chain trap from 3.2). That divergence is the single most valuable thing the review surfaces.
 
 Then verify the review is **repeatable and observable**: a failing item should both fail the script *and* show up in your 6.3 analytics as a spike in the relevant FAPI fault, and trigger the alert you built. If a check can fail silently — green script, but the dashboard shows nothing — your observability has a gap, and go-live is not actually ready. Readiness means a regression announces itself.
+
+!!! pitfall "Watch out"
+    Two readiness items silently decay if you only check them once. Rotate certs and keys on a schedule **before** expiry — a cert that lapses takes the token endpoint down weeks after a clean launch, and rotating mid-outage is the worst time to discover the runbook is missing. And size rate limits to your *real* expected TPP traffic, not the eval defaults — a quota left at demo values trips `429` on legitimate go-live load.
 
 !!! failure "Common failure modes"
     - **Reviewing `eval`, shipping `prod`.** The platform is hardened in your eval org but the shared flows, keystores, or products were never fully promoted. *(Symptom: `golive.sh` is green in `eval`, red in `prod`, because a FlowHook or truststore didn't travel.)*

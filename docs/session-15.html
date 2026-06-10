@@ -131,6 +131,10 @@
 <li><strong><code>GenerateAccessToken</code></strong> lives on the <code>/oauth/token</code> flow. It reads <code>grant_type</code>, validates the Basic-auth client credentials, derives scopes from the App's API Product, and returns the standard token JSON. Token TTL is set with <code>&lt;ExpiresIn&gt;</code>.</li>
 <li><strong><code>VerifyAccessToken</code></strong> lives in the protected proxy's request PreFlow. It pulls the bearer token from the <code>Authorization</code> header, validates it, and on success populates <code>oauthv2accesstoken.*</code> flow variables (<code>client_id</code>, <code>scope</code>, <code>developer.email</code>, <code>api_product_list</code>) for downstream policies — quota, logging, routing.</li>
 </ul>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>The <code>/oauth/token</code> endpoint must stay <strong>unprotected</strong>: if <code>VerifyAccessToken</code> runs in front of it you need a token to get a token — a chicken-and-egg lockout where every <code>POST /oauth/token</code> returns <code>401</code>. Always exclude the token path from the verify step. And don't try to invent scopes in the token request — <code>GenerateAccessToken</code> derives them from the granted API Product and ignores what the client asks for.</p>
+</div>
 <h2 id="hands-on-lab">Hands-on lab</h2>
 <div class="lab">
 <h4 id="lab-issue-client-credentials-tokens-then-protect-accounts">Lab — issue client-credentials tokens, then protect /accounts</h4>
@@ -153,6 +157,10 @@
 </code></pre></div>
 
 <p>Apigee reads the <code>client_id</code>/<code>client_secret</code> from HTTP Basic by default; it validates them against the App and derives scopes from the granted <strong>API Product</strong> automatically.</p>
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>Resist the urge to echo the <code>consumerSecret</code> or the minted <code>access_token</code> into a <code>MessageLogging</code> policy or a <code>curl</code> you paste into a ticket — a logged secret is a leaked secret, and a logged bearer token is a live credential anyone reading the log can replay until it expires. If you must trace, log only the first few characters as in the <code>echo "token: ${ACCESS_TOKEN:0:12}..."</code> above.</p>
+</div>
 <p><strong>2. The verification policy</strong> — <code>VerifyAccessToken</code> for protected resources:</p>
 <div class="codehilite"><pre><span></span><code><span class="cm">&lt;!-- OA-Verify.xml --&gt;</span>
 <span class="nt">&lt;OAuthV2</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;OA-Verify&quot;</span><span class="nt">&gt;</span>
@@ -216,6 +224,10 @@ curl<span class="w"> </span>-s<span class="w"> </span>-o<span class="w"> </span>
 <span class="w">  </span><span class="s2">&quot;https://</span><span class="nv">$RUNTIME_HOST</span><span class="s2">/aisp-accounts/oauth/token&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;{token_type, expires_in, scope}&#39;</span>
 </code></pre></div>
 
+<div class="admonition pitfall">
+<p class="admonition-title">Watch out</p>
+<p>Revoking the App's grant on the product changes future authorization, but a token already minted keeps verifying until it <strong>expires</strong> or you explicitly revoke it — <code>VerifyAccessToken</code> re-resolves the entitlement, yet the token itself still exists in the store. If a plan change must take effect immediately, revoke the outstanding tokens too; don't assume the product edit alone closes the window.</p>
+</div>
 <p>You should see <code>token_type: "Bearer"</code>, <code>expires_in: 3600</code>, and <code>scope: "accounts"</code> — the scope is product-derived, so an App on a different product gets a different scope without any proxy change. Open a debug session and replay the protected call: the Trace should show <code>OA-Verify</code> populating <code>oauthv2accesstoken.client_id</code>, <code>oauthv2accesstoken.scope</code>, and <code>oauthv2accesstoken.api_product_list</code> — the same context <code>VerifyAPIKey</code> gave you in 3.2, now derived from the bearer token. Send a deliberately mangled token and confirm a clean <code>401</code> with <code>RouteRule</code> never selecting a target.</p>
 <div class="admonition failure">
 <p class="admonition-title">Common failure modes</p>
