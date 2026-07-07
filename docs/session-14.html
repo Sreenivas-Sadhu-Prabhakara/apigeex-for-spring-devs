@@ -14,6 +14,9 @@
   <meta name="author" content="Sreenivas Sadhu Prabhakara">
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 38 38'%3E%3Crect x='2' y='2' width='34' height='34' rx='5' fill='%230a0e12'/%3E%3Cpath d='M9 13.5h20M9 24.5h20' stroke='%232bf5c8' stroke-width='1.6' opacity='0.4'/%3E%3Cpath d='M19 6v26' stroke='%232bf5c8' stroke-width='2.4'/%3E%3Ccircle cx='19' cy='19' r='4' fill='%230a0e12' stroke='%232bf5c8' stroke-width='2.4'/%3E%3C/svg%3E">
+  <meta name="theme-color" content="#0a0e12">
+  <link rel="apple-touch-icon" href="https://sreenivas-sadhu-prabhakara.github.io/apigee-courses/assets/og/apple-touch-icon.png">
+  <link rel="manifest" href="https://sreenivas-sadhu-prabhakara.github.io/apigee-courses/site.webmanifest">
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="Apigee X Training Hub">
   <meta property="og:title" content="3.2 API Products, Apps, Developers & keys · Apigee X">
@@ -28,7 +31,7 @@
   <meta name="twitter:title" content="3.2 API Products, Apps, Developers & keys · Apigee X">
   <meta name="twitter:description" content="Model who may call your APIs with the Developer → App → API Product → key entitlement chain, and enforce it with VerifyAPIKey">
   <meta name="twitter:image" content="https://sreenivas-sadhu-prabhakara.github.io/apigee-courses/assets/og/og-spring.png">
-  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"LearningResource","@id":"https://sreenivas-sadhu-prabhakara.github.io/apigee-courses/spring-boot-devs/session-14.html#lesson","name":"3.2 API Products, Apps, Developers \u0026 keys · Apigee X","description":"Model who may call your APIs with the Developer → App → API Product → key entitlement chain, and enforce it with VerifyAPIKey","url":"https://sreenivas-sadhu-prabhakara.github.io/apigee-courses/spring-boot-devs/session-14.html","inLanguage":"en","isAccessibleForFree":true,"dateModified":"2026-07-07","learningResourceType":"lesson","teaches":["apigee x","spring boot","api gateway","java developers","fapi","open banking"],"author":{"@type":"Person","name":"Sreenivas Sadhu Prabhakara"},"provider":{"@type":"Organization","name":"Apigee X Training Hub","url":"https://sreenivas-sadhu-prabhakara.github.io/apigee-courses/","logo":{"@type":"ImageObject","url":"https://sreenivas-sadhu-prabhakara.github.io/apigee-courses/assets/og/logo.png","width":1200,"height":1200}},"isPartOf":{"@type":"Course","@id":"https://sreenivas-sadhu-prabhakara.github.io/apigee-courses/spring-boot-devs/#course","name":"Apigee X for Spring Boot Developers","url":"https://sreenivas-sadhu-prabhakara.github.io/apigee-courses/spring-boot-devs/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://sreenivas-sadhu-prabhakara.github.io/apigee-courses/"},{"@type":"ListItem","position":2,"name":"Apigee X for Spring Boot Developers","item":"https://sreenivas-sadhu-prabhakara.github.io/apigee-courses/spring-boot-devs/"},{"@type":"ListItem","position":3,"name":"3.2 API Products, Apps, Developers \u0026 keys","item":"https://sreenivas-sadhu-prabhakara.github.io/apigee-courses/spring-boot-devs/session-14.html"}]}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"LearningResource","@id":"https://sreenivas-sadhu-prabhakara.github.io/apigee-courses/spring-boot-devs/session-14.html#lesson","name":"3.2 API Products, Apps, Developers \u0026 keys · Apigee X","description":"Model who may call your APIs with the Developer → App → API Product → key entitlement chain, and enforce it with VerifyAPIKey","url":"https://sreenivas-sadhu-prabhakara.github.io/apigee-courses/spring-boot-devs/session-14.html","inLanguage":"en","isAccessibleForFree":true,"datePublished":"2026-06-29","dateModified":"2026-07-07","educationalLevel":["Intermediate"],"learningResourceType":"lesson","teaches":["apigee x","spring boot","api gateway","java developers","fapi","open banking"],"author":{"@type":"Person","name":"Sreenivas Sadhu Prabhakara"},"provider":{"@type":"Organization","name":"Apigee X Training Hub","url":"https://sreenivas-sadhu-prabhakara.github.io/apigee-courses/","logo":{"@type":"ImageObject","url":"https://sreenivas-sadhu-prabhakara.github.io/apigee-courses/assets/og/logo.png","width":1200,"height":1200}},"isPartOf":{"@type":"Course","@id":"https://sreenivas-sadhu-prabhakara.github.io/apigee-courses/spring-boot-devs/#course","name":"Apigee X for Spring Boot Developers","url":"https://sreenivas-sadhu-prabhakara.github.io/apigee-courses/spring-boot-devs/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://sreenivas-sadhu-prabhakara.github.io/apigee-courses/"},{"@type":"ListItem","position":2,"name":"Apigee X for Spring Boot Developers","item":"https://sreenivas-sadhu-prabhakara.github.io/apigee-courses/spring-boot-devs/"},{"@type":"ListItem","position":3,"name":"3.2 API Products, Apps, Developers \u0026 keys","item":"https://sreenivas-sadhu-prabhakara.github.io/apigee-courses/spring-boot-devs/session-14.html"}]}]}</script>
   <!-- SEO:END -->
 </head>
 <body>
@@ -271,7 +274,13 @@ curl<span class="w"> </span>-s<span class="w"> </span>-o<span class="w"> </span>
     window.__mermaidReady = true;
     }
   </script>
-  <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script>
+    if (document.querySelector('[data-widget="chart"]')) {
+      var _cjs = document.createElement("script");
+      _cjs.src = "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js";
+      _cjs.defer = true; document.head.appendChild(_cjs);
+    }
+  </script>
   <script defer src="assets/widgets.js"></script>
   <script defer src="assets/app.js"></script>
 

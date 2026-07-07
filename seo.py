@@ -1,10 +1,10 @@
 """Native SEO head-block generator, imported by build.py.
 
 Emits a managed <!-- SEO:START -->...<!-- SEO:END --> block: canonical, meta
-description, keywords, robots, author, favicon, Open Graph, Twitter card and
-JSON-LD (Course/LearningResource + BreadcrumbList). Canonical + og:url + og:image
+description, keywords, robots, author, favicon, PWA tags, Open Graph, Twitter card
+and JSON-LD (Course/LearningResource + BreadcrumbList). Canonical/og:url/og:image
 point at the aggregation hub so the two published copies consolidate to one URL.
-Also provides seo_title() to keep <title> length SEO-optimal. No external deps.
+seo_title() keeps <title> length SEO-optimal (with per-page overrides). No deps.
 """
 import html, json, datetime
 
@@ -17,9 +17,11 @@ WORKLOAD      = 'PT33H'
 INDEX_DESC    = 'Master Apigee X across 33 sessions that bridge every gateway concept to Spring Boot, taught through UK Open Banking and the FAPI security profile.'
 BASE_KEYWORDS = ['apigee x', 'spring boot', 'api gateway', 'java developers', 'fapi', 'open banking']
 LEVEL         = ['Intermediate']
-BRAND         = 'Apigee X'          # short keyword brand appended to titles when it fits <=60
+BRAND         = 'Apigee X'
+TITLE_OVERRIDES = {'session-33.html': '7.1 Capstone: production OB platform & go-live'}     # output filename -> hand-shortened <title>
 SITE          = "Apigee X Training Hub"
 AUTHOR        = "Sreenivas Sadhu Prabhakara"
+PUBDATE       = "2026-06-29"
 FAVICON       = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 38 38'%3E%3Crect x='2' y='2' width='34' height='34' rx='5' fill='%230a0e12'/%3E%3Cpath d='M9 13.5h20M9 24.5h20' stroke='%232bf5c8' stroke-width='1.6' opacity='0.4'/%3E%3Cpath d='M19 6v26' stroke='%232bf5c8' stroke-width='2.4'/%3E%3Ccircle cx='19' cy='19' r='4' fill='%230a0e12' stroke='%232bf5c8' stroke-width='2.4'/%3E%3C/svg%3E"
 # ==========================================================================
 
@@ -49,9 +51,11 @@ def _trim(text, n=155):
     return cut.rstrip(",;: ")
 
 
-def seo_title(raw, is_index=False):
-    """Length-optimised <title>: drop any long ' - Course' suffix, and for lessons
-    append a short keyword brand only when the result still fits ~60 chars."""
+def seo_title(raw, is_index=False, filename=None):
+    """Length-optimised <title>: honor per-page overrides; else drop the long
+    ' - Course' suffix and append a short keyword brand only when it fits <=60."""
+    if filename and filename in TITLE_OVERRIDES:
+        return TITLE_OVERRIDES[filename]
     raw = html.unescape(raw).split(" · ")[0].strip()
     if is_index:
         return COURSE_NAME
@@ -79,8 +83,9 @@ def head_block(filename, title, description=None):
         graph = [
             {"@type": "Course", "@id": course_url + "#course", "name": COURSE_NAME,
              "description": desc, "url": course_url, "provider": _ORG, "author": _PERSON,
-             "inLanguage": "en", "isAccessibleForFree": True, "dateModified": TODAY,
-             "educationLevel": LEVEL, "about": keywords,
+             "inLanguage": "en", "isAccessibleForFree": True,
+             "datePublished": PUBDATE, "dateModified": TODAY, "educationalLevel": LEVEL,
+             "about": keywords,
              "offers": {"@type": "Offer", "category": "Free", "price": "0",
                         "priceCurrency": "USD", "availability": "https://schema.org/InStock"},
              "hasCourseInstance": {"@type": "CourseInstance", "courseMode": "Online",
@@ -95,7 +100,8 @@ def head_block(filename, title, description=None):
         graph = [
             {"@type": "LearningResource", "@id": url + "#lesson", "name": text_title,
              "description": desc, "url": url, "inLanguage": "en", "isAccessibleForFree": True,
-             "dateModified": TODAY, "learningResourceType": "lesson", "teaches": keywords,
+             "datePublished": PUBDATE, "dateModified": TODAY, "educationalLevel": LEVEL,
+             "learningResourceType": "lesson", "teaches": keywords,
              "author": _PERSON, "provider": _ORG,
              "isPartOf": {"@type": "Course", "@id": course_url + "#course",
                           "name": COURSE_NAME, "url": course_url}},
@@ -111,6 +117,9 @@ def head_block(filename, title, description=None):
     L.append('  <meta name="author" content="%s">' % _attr(AUTHOR))
     L.append('  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">')
     L.append('  <link rel="icon" href="%s">' % FAVICON)
+    L.append('  <meta name="theme-color" content="#0a0e12">')
+    L.append('  <link rel="apple-touch-icon" href="%s/assets/og/apple-touch-icon.png">' % HUB_BASE)
+    L.append('  <link rel="manifest" href="%s/site.webmanifest">' % HUB_BASE)
     L.append('  <meta property="og:type" content="%s">' % og_type)
     L.append('  <meta property="og:site_name" content="%s">' % _attr(SITE))
     L.append('  <meta property="og:title" content="%s">' % title)
