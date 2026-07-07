@@ -33,6 +33,8 @@ import re
 import shutil
 from pathlib import Path
 
+import seo  # native SEO head-block generator (repo-root seo.py)
+
 import markdown
 from pygments.formatters import HtmlFormatter
 
@@ -204,7 +206,7 @@ def _scripts(total):
 """
 
 
-def page_shell(title, sidebar, body, *, total, toc_html="", session=None, is_index=False):
+def page_shell(title, sidebar, body, *, total, toc_html="", session=None, is_index=False, seo_head=""):
     main_attrs = f' data-session="{session}"' if session else ""
     main_cls = "content index" if is_index else "content"
     toc_rail = ""
@@ -223,6 +225,7 @@ def page_shell(title, sidebar, body, *, total, toc_html="", session=None, is_ind
   <link rel="stylesheet" href="assets/pygments.css">
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/widgets.css">
+{seo_head}
 </head>
 <body>
   <div id="readingBar"></div>
@@ -357,6 +360,7 @@ def build_session(curriculum, heroes, sid):
         + prev_next_html(curriculum, sid)
     )
     title = f"{meta['code']} {meta['title']} · Apigee X for Spring Boot Developers"
+    seo_head = seo.head_block(f"session-{sid:02d}.html", title, meta.get("objective", ""))
     html = page_shell(
         title,
         sidebar_html(curriculum, sid),
@@ -364,6 +368,7 @@ def build_session(curriculum, heroes, sid):
         total=len(sessions),
         toc_html=toc,
         session=sid,
+        seo_head=seo_head,
     )
     (DOCS / f"session-{sid:02d}.html").write_text(html, encoding="utf-8")
 
@@ -371,12 +376,14 @@ def build_session(curriculum, heroes, sid):
 def build_index(curriculum, heroes):
     rendered, _ = render_markdown((CONTENT / "index.md").read_text(encoding="utf-8"))
     body = hero_html(heroes.get("splash")) + rendered
+    title = f"{curriculum['title']} · {curriculum['subtitle']}"
     html = page_shell(
-        f"{curriculum['title']} · {curriculum['subtitle']}",
+        title,
         sidebar_html(curriculum, active_id=0),
         body,
         total=len(curriculum["sessions"]),
         is_index=True,
+        seo_head=seo.head_block("index.html", title),
     )
     (DOCS / "index.html").write_text(html, encoding="utf-8")
 
