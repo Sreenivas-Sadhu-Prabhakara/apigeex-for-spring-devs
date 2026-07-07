@@ -184,9 +184,10 @@ def _scripts(total):
     window.__COURSE__ = {{ total: {total}, key: "apigeex-spring.progress.v1" }};
   </script>
   <script type="module">
-    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    if (document.querySelector('.mermaid')) {{
+    const {{ default: mermaid }} = await import('https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs');
     mermaid.initialize({{
-      startOnLoad: true,
+      startOnLoad: false,
       securityLevel: 'loose',
       theme: 'base',
       themeVariables: {{
@@ -198,7 +199,9 @@ def _scripts(total):
         fontFamily: '-apple-system, Segoe UI, Roboto, sans-serif', fontSize: '14px'
       }}
     }});
+    await mermaid.run({{ querySelector: '.mermaid' }});
     window.__mermaidReady = true;
+    }}
   </script>
   <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script defer src="assets/widgets.js"></script>
