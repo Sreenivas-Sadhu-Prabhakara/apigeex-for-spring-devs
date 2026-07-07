@@ -1,14 +1,12 @@
 """Native SEO head-block generator, imported by build.py.
 
-Emits a managed <!-- SEO:START -->...<!-- SEO:END --> block containing canonical,
-meta description, keywords, robots, author, favicon, Open Graph, Twitter card and
-JSON-LD (Course/LearningResource + BreadcrumbList) for each generated page.
-
-Canonical + og:url + og:image point at the aggregation hub (apigee-courses) so the
-two published copies of this course consolidate to one canonical URL instead of
-competing as duplicate content. Nothing here needs external packages.
+Emits a managed <!-- SEO:START -->...<!-- SEO:END --> block: canonical, meta
+description, keywords, robots, author, favicon, Open Graph, Twitter card and
+JSON-LD (Course/LearningResource + BreadcrumbList). Canonical + og:url + og:image
+point at the aggregation hub so the two published copies consolidate to one URL.
+Also provides seo_title() to keep <title> length SEO-optimal. No external deps.
 """
-import html, json
+import html, json, datetime
 
 # ============================ per-course config ============================
 HUB_BASE      = "https://sreenivas-sadhu-prabhakara.github.io/apigee-courses"
@@ -18,13 +16,17 @@ OG_IMAGE      = 'og-spring.png'
 WORKLOAD      = 'PT33H'
 INDEX_DESC    = 'Master Apigee X across 33 sessions that bridge every gateway concept to Spring Boot, taught through UK Open Banking and the FAPI security profile.'
 BASE_KEYWORDS = ['apigee x', 'spring boot', 'api gateway', 'java developers', 'fapi', 'open banking']
+LEVEL         = ['Intermediate']
+BRAND         = 'Apigee X'          # short keyword brand appended to titles when it fits <=60
 SITE          = "Apigee X Training Hub"
 AUTHOR        = "Sreenivas Sadhu Prabhakara"
 FAVICON       = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 38 38'%3E%3Crect x='2' y='2' width='34' height='34' rx='5' fill='%230a0e12'/%3E%3Cpath d='M9 13.5h20M9 24.5h20' stroke='%232bf5c8' stroke-width='1.6' opacity='0.4'/%3E%3Cpath d='M19 6v26' stroke='%232bf5c8' stroke-width='2.4'/%3E%3Ccircle cx='19' cy='19' r='4' fill='%230a0e12' stroke='%232bf5c8' stroke-width='2.4'/%3E%3C/svg%3E"
 # ==========================================================================
 
+TODAY  = datetime.date.today().isoformat()
 _PERSON = {"@type": "Person", "name": AUTHOR}
-_ORG    = {"@type": "Organization", "name": SITE, "url": HUB_BASE + "/"}
+_ORG    = {"@type": "Organization", "name": SITE, "url": HUB_BASE + "/",
+           "logo": {"@type": "ImageObject", "url": HUB_BASE + "/assets/og/logo.png", "width": 1200, "height": 1200}}
 
 
 def _attr(s):
@@ -47,6 +49,16 @@ def _trim(text, n=155):
     return cut.rstrip(",;: ")
 
 
+def seo_title(raw, is_index=False):
+    """Length-optimised <title>: drop any long ' - Course' suffix, and for lessons
+    append a short keyword brand only when the result still fits ~60 chars."""
+    raw = html.unescape(raw).split(" · ")[0].strip()
+    if is_index:
+        return COURSE_NAME
+    tag = " · " + BRAND
+    return (raw + tag) if len(raw) + len(tag) <= 60 else raw
+
+
 def _crumb(items):
     return {"@type": "BreadcrumbList", "itemListElement": [
         {"@type": "ListItem", "position": i + 1, "name": n, "item": u}
@@ -54,12 +66,6 @@ def _crumb(items):
 
 
 def head_block(filename, title, description=None):
-    """Return the indented SEO <head> block for one generated page.
-
-    filename: output file name, e.g. "index.html", "day-01.html", "session-07.html"
-    title:    the page's <title> text (may contain HTML entities)
-    description: raw per-page description (e.g. curriculum objective); ignored for index
-    """
     course_url = HUB_BASE + "/" + COURSE_PATH + "/"
     is_index = (filename == "index.html")
     url = course_url if is_index else course_url + filename
@@ -73,7 +79,8 @@ def head_block(filename, title, description=None):
         graph = [
             {"@type": "Course", "@id": course_url + "#course", "name": COURSE_NAME,
              "description": desc, "url": course_url, "provider": _ORG, "author": _PERSON,
-             "inLanguage": "en", "isAccessibleForFree": True, "about": keywords,
+             "inLanguage": "en", "isAccessibleForFree": True, "dateModified": TODAY,
+             "educationLevel": LEVEL, "about": keywords,
              "offers": {"@type": "Offer", "category": "Free", "price": "0",
                         "priceCurrency": "USD", "availability": "https://schema.org/InStock"},
              "hasCourseInstance": {"@type": "CourseInstance", "courseMode": "Online",
@@ -88,7 +95,7 @@ def head_block(filename, title, description=None):
         graph = [
             {"@type": "LearningResource", "@id": url + "#lesson", "name": text_title,
              "description": desc, "url": url, "inLanguage": "en", "isAccessibleForFree": True,
-             "learningResourceType": "lesson", "teaches": keywords,
+             "dateModified": TODAY, "learningResourceType": "lesson", "teaches": keywords,
              "author": _PERSON, "provider": _ORG,
              "isPartOf": {"@type": "Course", "@id": course_url + "#course",
                           "name": COURSE_NAME, "url": course_url}},

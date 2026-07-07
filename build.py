@@ -359,7 +359,7 @@ def build_session(curriculum, heroes, sid):
         + complete_toggle(meta)
         + prev_next_html(curriculum, sid)
     )
-    title = f"{meta['code']} {meta['title']} · Apigee X for Spring Boot Developers"
+    title = seo.seo_title(f"{meta['code']} {meta['title']} · Apigee X for Spring Boot Developers")
     seo_head = seo.head_block(f"session-{sid:02d}.html", title, meta.get("objective", ""))
     html = page_shell(
         title,
@@ -376,7 +376,7 @@ def build_session(curriculum, heroes, sid):
 def build_index(curriculum, heroes):
     rendered, _ = render_markdown((CONTENT / "index.md").read_text(encoding="utf-8"))
     body = hero_html(heroes.get("splash")) + rendered
-    title = f"{curriculum['title']} · {curriculum['subtitle']}"
+    title = seo.seo_title(f"{curriculum['title']} · {curriculum['subtitle']}", is_index=True)
     html = page_shell(
         title,
         sidebar_html(curriculum, active_id=0),
